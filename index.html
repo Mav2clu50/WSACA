@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSACA Tools — Washington State Association of County Assessors</title>
+<meta name="description" content="Free, web-based tools developed by the Washington State Association of County Assessors. Open source. Built once, shared across all 39 counties.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Match the screening tool's palette so the visual language is consistent across the project */
+    --wsaca-green-deep: #2d5a3d;
+    --wsaca-green: #4a8059;
+    --wsaca-green-mid: #6b9b78;
+    --wsaca-green-soft: #e8f0e9;
+    --wsaca-cedar: #b87d4b;
+    --wsaca-cedar-deep: #8b5a32;
+    --wsaca-slate: #5b6e7d;
+    --paper: #fdfbf5;
+    --paper-warm: #f5f0e3;
+    --ink: #2a2a28;
+    --ink-soft: #555550;
+    --ink-mute: #888880;
+    --rule: #d8d2c2;
+    --rule-soft: #ebe6d8;
+    --shadow-panel: 0 1px 3px rgba(45, 90, 61, 0.06), 0 8px 24px -6px rgba(45, 90, 61, 0.1);
+    --shadow-card: 0 2px 8px rgba(45, 90, 61, 0.08), 0 12px 36px -10px rgba(45, 90, 61, 0.16);
+
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    font-size: 17px;
+    /* Subtle Pacific Northwest topographic texture using stacked thin horizontal rules at very low opacity */
+    background-image:
+      linear-gradient(180deg, transparent 0%, transparent 100%),
+      repeating-linear-gradient(0deg, transparent 0, transparent 79px, rgba(45, 90, 61, 0.025) 80px);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    background: var(--wsaca-green-deep);
+    color: white;
+    padding: 12px 0;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+  .topbar .wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+  }
+  .topbar-brand img {
+    height: 32px;
+    width: auto;
+    display: block;
+  }
+  .topbar-secondary {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13.5px;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 80px 0 48px;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--wsaca-cedar);
+    margin-bottom: 18px;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(38px, 5vw, 56px);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    color: var(--wsaca-green-deep);
+    margin-bottom: 24px;
+    max-width: 18ch;
+  }
+  .hero-lede {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(18px, 2.2vw, 22px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 56ch;
+  }
+  .hero-lede strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* The horizon line: a single hairline rule with the WSACA cedar accent dot — subtle PNW reference */
+  .horizon {
+    margin: 56px auto 0;
+    max-width: 980px;
+    padding: 0 28px;
+    position: relative;
+  }
+  .horizon::before {
+    content: "";
+    display: block;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--rule) 18%, var(--rule) 82%, transparent);
+  }
+  .horizon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--wsaca-cedar);
+    box-shadow: 0 0 0 3px var(--paper);
+  }
+
+  /* ===== INTRO PROSE ===== */
+  .intro {
+    padding: 64px 0 24px;
+  }
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .intro-label {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wsaca-cedar);
+    padding-top: 6px;
+  }
+  .intro-body p {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .intro-body p:last-child {
+    margin-bottom: 0;
+  }
+  .intro-body strong {
+    color: var(--wsaca-green-deep);
+    font-weight: 600;
+  }
+
+  @media (max-width: 700px) {
+    .intro-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .intro-body p {
+      font-size: 17.5px;
+    }
+  }
+
+  /* ===== VERSION CHOOSER ===== */
+  .versions {
+    padding: 56px 0 80px;
+  }
+  .versions-header {
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 56px;
+    align-items: end;
+  }
+  .versions-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--wsaca-green-deep);
+    line-height: 1.1;
+  }
+  .versions-sub {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  @media (max-width: 700px) {
+    .versions-header { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  /* The primary v2 card — substantial, document-like, visually dominant */
+  .v2-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-top: 6px solid var(--wsaca-green-deep);
+    border-radius: 4px;
+    padding: 40px 44px 36px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .v2-card::before {
+    /* Recommended ribbon — diagonal, top-right, cedar */
+    content: "Recommended";
+    position: absolute;
+    top: 18px;
+    right: -6px;
+    background: var(--wsaca-cedar);
+    color: white;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .v2-card::after {
+    /* Tiny triangular shadow under the ribbon for depth */
+    content: "";
+    position: absolute;
+    top: 30px;
+    right: -6px;
+    border-top: 6px solid var(--wsaca-cedar-deep);
+    border-right: 6px solid transparent;
+  }
+
+  .card-eyebrow {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wsaca-cedar);
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 1.15;
+    color: var(--wsaca-green-deep);
+    margin-bottom: 14px;
+    letter-spacing: -0.005em;
+  }
+  .card-summary {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-bottom: 20px;
+  }
+  .card-summary strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .card-features {
+    list-style: none;
+    margin: 16px 0 28px;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 28px;
+  }
+  .card-features li {
+    font-family: var(--sans);
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.45;
+  }
+  .card-features li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    background: var(--wsaca-cedar);
+    border-radius: 50%;
+  }
+  @media (max-width: 600px) {
+    .card-features { grid-template-columns: 1fr; }
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wsaca-green-deep);
+    color: white;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.01em;
+    padding: 14px 28px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(45, 90, 61, 0.2);
+  }
+  .card-cta:hover {
+    background: var(--wsaca-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.25);
+  }
+  .card-cta-arrow {
+    transition: transform 0.15s ease;
+  }
+  .card-cta:hover .card-cta-arrow {
+    transform: translateX(3px);
+  }
+
+  /* The v1 card — smaller, quieter, secondary */
+  .v1-card {
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    padding: 22px 28px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .v1-card .card-eyebrow {
+    margin-bottom: 6px;
+    color: var(--ink-mute);
+  }
+  .v1-card-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--wsaca-green-deep);
+    margin-bottom: 4px;
+  }
+  .v1-card-summary {
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .v1-card-cta {
+    text-align: right;
+  }
+  .v1-card-cta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--wsaca-green-deep);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14.5px;
+    text-decoration: none;
+    border-bottom: 1px solid var(--wsaca-green-mid);
+    padding-bottom: 2px;
+    transition: color 0.15s ease;
+  }
+  .v1-card-cta a:hover {
+    color: var(--wsaca-cedar);
+    border-bottom-color: var(--wsaca-cedar);
+  }
+  @media (max-width: 600px) {
+    .v1-card {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .v1-card-cta { text-align: left; }
+  }
+
+  /* ===== FOOTER ===== */
+  footer.page-foot {
+    background: var(--wsaca-green-deep);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 36px 0 32px;
+    font-size: 14px;
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .foot-grid .foot-right { text-align: right; }
+  .foot-grid a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-style: dotted;
+  }
+  .foot-grid a:hover { color: white; }
+  @media (max-width: 600px) {
+    .foot-grid { grid-template-columns: 1fr; }
+    .foot-grid .foot-right { text-align: left; }
+  }
+
+  /* ===== ENTRANCE ANIMATION ===== */
+  /* Subtle, staggered fade-up — this is the one moment of motion on the page */
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .hero-eyebrow,
+  .hero-title,
+  .hero-lede {
+    animation: fadeUp 0.8s ease-out backwards;
+  }
+  .hero-eyebrow { animation-delay: 0.05s; }
+  .hero-title { animation-delay: 0.15s; }
+  .hero-lede { animation-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow, .hero-title, .hero-lede {
+      animation: none;
+    }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-brand">
+      <img src="wsaca-logo.png" alt="WSACA logo" />
+      <span>Washington State Association of County Assessors</span>
+    </div>
+    <div class="topbar-secondary">Serving Washington's 39 counties</div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">WSACA Tools</div>
+    <h1 class="hero-title">Free tools, built once and shared across all 39 counties.</h1>
+    <p class="hero-lede">A growing collection of open-source tools developed by the Washington State Association of County Assessors. <strong>Modern infrastructure should be a shared resource</strong> — not something every county office has to build independently.</p>
+  </div>
+</header>
+
+<div class="horizon" aria-hidden="true"></div>
+
+<section class="intro">
+  <div class="wrap">
+    <div class="intro-grid">
+      <div class="intro-label">About</div>
+      <div class="intro-body">
+        <p>Washington's property tax exemption program for senior citizens and people with disabilities expanded substantially in tax year 2027 under <strong>Engrossed Substitute Senate Bill 6162</strong>. New thresholds. New deductions. A consolidated state school levy. Larger benefits at every qualification level.</p>
+        <p>WSACA built this screening tool so that any of Washington's 39 county assessor offices can hand a homeowner a clear, county-specific answer to the question: <em>do I qualify, and what would I save?</em> No login, no data collection, no installation. Just a tool that runs in any browser and points the applicant toward their local county assessor for the official determination.</p>
+        <p>The screening tool is the first WSACA tool — more will follow. Property tax appeal flowcharts. Deferral program estimators. Whatever the assessor community needs and decides to build together. All free, all open source, all here.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="versions" id="versions">
+  <div class="wrap">
+    <div class="versions-header">
+      <h2 class="versions-title">Property Tax Exemption Screening Tool</h2>
+      <p class="versions-sub">Two versions are available. The current version reflects feedback from member counties and the Department of Revenue. The original version is preserved for reference.</p>
+    </div>
+
+    <article class="v2-card">
+      <div class="card-eyebrow">Version 2 · Current</div>
+      <h3 class="card-title">The recommended version</h3>
+      <p class="card-summary">A guided screening tool that helps homeowners check whether they may qualify for the expanded 2027 property tax exemption program in their county. <strong>Walks the user from county selection through eligibility, household composition, and an income calculation</strong> — and returns a clear, county-specific result.</p>
+      <ul class="card-features">
+        <li>2026-vs-2027 threshold comparison panel</li>
+        <li>A/B/C level labels paired with DOR's Threshold 1/2/3 terminology</li>
+        <li>Income spectrum visualization showing where you land</li>
+        <li>5% buffer "you're close — please call" branch</li>
+        <li>Tailored "documents to bring" list based on your inputs</li>
+        <li>Click-to-reveal RCW citations throughout</li>
+        <li>Printable result document opens in a new tab</li>
+        <li>Direct link to your county assessor's website</li>
+      </ul>
+      <a href="v2/" class="card-cta">
+        Open the screening tool
+        <span class="card-cta-arrow" aria-hidden="true">→</span>
+      </a>
+    </article>
+
+    <article class="v1-card">
+      <div>
+        <div class="card-eyebrow">Version 1 · Original</div>
+        <div class="v1-card-title">The original release</div>
+        <p class="v1-card-summary">The first published version of the screening tool. Same eligibility logic and 2027 threshold data, with a simpler presentation and fewer guided features. Preserved here for reference and for member counties that initially integrated against it.</p>
+      </div>
+      <div class="v1-card-cta">
+        <a href="v1/">Open v1 →</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<footer class="page-foot">
+  <div class="wrap foot-grid">
+    <div>Maintained by the Washington State Association of County Assessors</div>
+    <div class="foot-right">
+      <a href="https://github.com/Mav2clu50/WSACA" target="_blank" rel="noopener">View source on GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
