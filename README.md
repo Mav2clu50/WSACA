@@ -14,9 +14,18 @@ A guided screening tool that helps Washington homeowners check whether they may 
 
 The tool walks users through eligibility requirements, calculates an estimated combined disposable income using an abbreviated version of DOR's Form 63 0036, and returns a screening result tailored to their county's income thresholds.
 
-**[→ Open the screening tool](exemption-screening-tool.html)**
+**[→ Open the latest version (v2)](./)**
 
-Built to reflect the program changes enacted by Engrossed Substitute Senate Bill 6162 (2026), including the new income thresholds for tax years 2027–2029, the standard deduction option, the consolidated State School Levy, the rental income deduction, and the updated benefit amounts at each level.
+#### Two versions available
+
+We maintain two versions of the screening tool so users and member counties can compare them and choose the one that best fits their needs.
+
+| Version | Description | Link |
+|---|---|---|
+| **v2** (current) | The actively-maintained version. Includes a 2026-vs-2027 threshold comparison panel, an income spectrum visualization, a 5% buffer "you're close — please call your assessor" branch, A/B/C level labels paired with DOR's Threshold 1/2/3 terminology, click-to-reveal RCW citations throughout, a tailored "documents to bring" list generated from the applicant's actual inputs, a printable result document that opens in a new browser tab, and a county website button that routes the user directly to their county assessor's office. | [Open v2](./) |
+| **v1** | The original release. A focused screening tool covering the same eligibility logic and 2027 thresholds, with quick and guided income calculation modes. Preserved here so member counties can reference the version that was first published, and so the iteration history of the project remains transparent. | [Open v1](./v1/) |
+
+Both versions reflect the program changes enacted by Engrossed Substitute Senate Bill 6162 (2026), including the new income thresholds for tax years 2027–2029, the standard deduction option, the consolidated State School Levy, the rental income deduction, and the updated benefit amounts at each level.
 
 This is a screening tool only — it does not make official determinations of eligibility. Final eligibility is always determined by the applicant's county assessor.
 
