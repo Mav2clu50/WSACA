@@ -1679,6 +1679,88 @@
     color: var(--alert-red);
   }
 
+  /* Split-mode toggle bar — separate land/improvement modifiers */
+  .split-toggle-bar {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .split-toggle-bar.active {
+    background: var(--wsaca-green-soft);
+    border-color: var(--wsaca-green-mid);
+  }
+  .split-toggle-bar.disabled {
+    opacity: 0.6;
+  }
+  .split-toggle-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .split-toggle-bar.disabled .split-toggle-label { cursor: not-allowed; }
+  .split-toggle-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: var(--wsaca-green-deep);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .split-toggle-label input[type="checkbox"]:disabled { cursor: not-allowed; }
+  .split-toggle-text {
+    display: block;
+    line-height: 1.5;
+  }
+  .split-toggle-text strong { display: block; color: var(--ink); font-size: 13.5px; }
+  .split-toggle-sub {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .split-toggle-sub em { font-style: italic; color: var(--ink-soft); }
+
+  /* Nested sub-toggle inside the split-toggle bar (appears when split is on) */
+  .split-sub-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule-soft);
+    cursor: pointer;
+    width: 100%;
+  }
+  .split-sub-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin-top: 3px;
+    margin-left: 22px;       /* visually nest under the parent checkbox */
+    accent-color: var(--wsaca-green-deep);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .split-sub-text {
+    display: block;
+    line-height: 1.5;
+  }
+  .split-sub-text strong { display: block; color: var(--ink); font-size: 12.5px; }
+  .split-sub-sub {
+    display: block;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+
   /* Sticky step navigation */
   .step-nav {
     position: fixed;
@@ -1889,6 +1971,8 @@
   .pct-positive { color: var(--success); font-weight: 600; }
   .pct-negative { color: var(--wsaca-cedar-deep); font-weight: 600; }
   .pct-zero { color: var(--ink-mute); }
+  /* Split-fallback cells get a subtle italic to signal the same value applies to both sides */
+  .mod-table td.split-fallback { font-style: italic; opacity: 0.78; }
 
   .decision-pill {
     display: inline-block;
@@ -2092,8 +2176,61 @@
     width: 16px;
     height: 16px;
   }
+
+  /* Vertical list of print sections — each row carries an optional
+     trailing controls cluster (sort / limit) that's right-aligned and
+     greys out when the section is unchecked. */
+  .print-sections-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .print-section-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 6px 0;
+  }
+  .print-section-controls {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    transition: opacity 0.15s;
+  }
+  .print-section-controls[data-disabled="true"] {
+    opacity: 0.42;
+    pointer-events: none;
+  }
+  .print-section-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .psc-label {
+    color: var(--ink-mute);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10.5px;
+  }
+  .print-section-control select {
+    font-size: 12.5px;
+    padding: 3px 8px;
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .print-section-control select:focus { outline: none; box-shadow: var(--focus-ring); }
   @media (max-width: 540px) {
     .print-sections-grid { grid-template-columns: 1fr; }
+    .print-section-item { flex-direction: column; align-items: flex-start; }
   }
 
   .export-actions {
@@ -2543,30 +2680,6 @@
       ],
     },
 
-    // Optional — modifier optimization (Phase 4)
-    {
-      key: 'land_mod', label: 'Current Land Modifier',
-      desc: 'Current land modifier % (enables modifier optimization)',
-      required: false, group: 'Optional — for modifier optimization (Phase 4)',
-      aliases: [
-        'land_mod', 'landmod', 'land_modifier',
-        'land_factor', 'land_adj', 'land_adjustment',
-        'land_pct', 'land_percent', 'landpct',
-        'land_index', 'land_mult',
-      ],
-    },
-    {
-      key: 'imps_mod', label: 'Current Imps Modifier',
-      desc: 'Current improvement modifier % (enables modifier optimization)',
-      required: false, group: 'Optional — for modifier optimization (Phase 4)',
-      aliases: [
-        'imps_mod', 'impsmod', 'imp_mod', 'improvement_modifier', 'imps_modifier',
-        'imp_factor', 'imp_adj', 'imp_adjustment',
-        'imp_pct', 'imp_percent', 'imppct',
-        'imps_index', 'imps_mult', 'bldg_mod',
-      ],
-    },
-
     // Optional — descriptive (future)
     {
       key: 'year_built', label: 'Year Built',
@@ -2606,7 +2719,7 @@
     },
   ];
 
-  const MULTI_PARCEL_COLUMNS = ['neighborhood', 'land_mod', 'imps_mod', 'dor_use'];
+  const MULTI_PARCEL_COLUMNS = ['neighborhood', 'dor_use'];
 
   // ============================================================
   // STATE
@@ -2646,6 +2759,8 @@
       stratification: true,
       modifier: true,
     },
+    printSortStrat:    'n',            // 'n' | 'neighborhood' | 'cod' | 'median-low'
+    printSortModifier: 'neighborhood', // 'neighborhood' | 'n' | 'move' | 'decision' | 'confidence' | 'median-low'
   };
 
   // Sample data embedded for the "Try with sample data" demo button.
@@ -2671,6 +2786,26 @@
     maxChangePct:      15,
     // Post-check
     overallMedianCeiling: 0.95,
+    // Land/improvement split (Phase 5)
+    // When ON and both land_av and imps_av are mapped, the tool solves for
+    // separate land and improvement modifiers via OLS regression. Falls back
+    // to the combined single-modifier output on neighborhoods where there's
+    // insufficient compositional variance to separate the two coefficients.
+    splitLandImps:        false,
+    maxLandChangePct:     15,
+    maxImpsChangePct:     15,
+    // Safety rails that prevent the regression from suggesting economically
+    // unreasonable splits. Real-world land and improvements usually move
+    // together; large opposing moves disproportionately hit vacant-land and
+    // imps-only parcels.
+    //   maxLandImpsSpreadPct — cap on the difference |m_L - m_I|. When the
+    //     regression spread exceeds this, redistribute symmetrically while
+    //     preserving the dollar-weighted combined effect on the neighborhood.
+    //   disallowOppositeSplits — when on, fall back to the combined modifier
+    //     entirely if the regression suggests opposite directions with both
+    //     magnitudes above a small noise threshold.
+    maxLandImpsSpreadPct: 10,
+    disallowOppositeSplits: false,
   };
 
   // IAAO 2025 §11.2.2 Table 7 — COD acceptable ranges by property class
@@ -3067,6 +3202,8 @@
     state.currentPreset = '__default__';
     state.histogramBinWidth = 0.10;
     state.printSections = { diagnostics: true, verticalEquity: true, stratification: true, modifier: true };
+    state.printSortStrat = 'n';
+    state.printSortModifier = 'neighborhood';
     state.reportTitle = '';
     state.datasetName = '';
     fileInput.value = '';
@@ -4872,6 +5009,94 @@
   // PHASE 4 — MODIFIER RECOMMENDATIONS
   // ============================================================
 
+  // Compute separate land and improvement modifier coefficients for a
+  // neighborhood, using OLS regression with no intercept:
+  //   target_AV_i = land_av_i × (1 + m_L) + imps_av_i × (1 + m_I)
+  // Solving for m_L and m_I jointly uses sales' composition variation
+  // (land-vs-improvement share) to assign adjustment to whichever side is
+  // off. Returns null when the sample lacks enough compositional variance
+  // to separate the two coefficients — the caller should fall back to a
+  // single combined modifier in that case.
+  function computeSplitModifiers(items, targetRatio) {
+    const n = items.length;
+    if (n < 10) {
+      return { mode: 'fallback', reason: `n=${n} too small for split regression` };
+    }
+    // Use sales with both land_av and imps_av > 0 ... and at least one of them >0
+    // (vacant land sales constrain land only; both-zero sales aren't usable).
+    const valid = items.filter(r =>
+      Number.isFinite(r.land_av) && Number.isFinite(r.imps_av) &&
+      (r.land_av > 0 || r.imps_av > 0) &&
+      r.effective_price > 0
+    );
+    if (valid.length < 10) {
+      return { mode: 'fallback', reason: 'insufficient valid land/imps data' };
+    }
+
+    // Composition variance: how spread is the improvement share across sales?
+    // If everyone has ~70% improvement, the regression can't tell which side
+    // is off. Heuristic: require at least 0.10 std-dev of imp share.
+    const impShares = valid.map(r => r.imps_av / (r.land_av + r.imps_av));
+    const meanShare = impShares.reduce((a, b) => a + b, 0) / impShares.length;
+    const varShare = impShares.reduce((a, s) => a + (s - meanShare) ** 2, 0) / impShares.length;
+    const stdShare = Math.sqrt(varShare);
+    if (stdShare < 0.10) {
+      return {
+        mode: 'fallback',
+        reason: `composition too uniform (imp share σ=${(stdShare * 100).toFixed(1)}%)`,
+      };
+    }
+
+    // OLS without intercept, 2 coefficients:
+    //   y_i = target_av_i - (land_av_i + imps_av_i) = m_L · land_av_i + m_I · imps_av_i
+    let SLL = 0, SII = 0, SLI = 0, SLy = 0, SIy = 0;
+    for (const r of valid) {
+      const L = r.land_av;
+      const I = r.imps_av;
+      const targetAV = r.effective_price * targetRatio;
+      const y = targetAV - (L + I);
+      SLL += L * L;
+      SII += I * I;
+      SLI += L * I;
+      SLy += L * y;
+      SIy += I * y;
+    }
+    const det = SLL * SII - SLI * SLI;
+
+    // Normalized stability: ratio of det to product of diagonals — if the two
+    // columns are nearly parallel this approaches zero (collinear).
+    const stability = det / (SLL * SII);
+    if (!isFinite(stability) || stability < 0.01) {
+      return { mode: 'fallback', reason: 'land and improvement columns nearly collinear' };
+    }
+
+    const m_L = (SII * SLy - SLI * SIy) / det;
+    const m_I = (SLL * SIy - SLI * SLy) / det;
+    if (!isFinite(m_L) || !isFinite(m_I)) {
+      return { mode: 'fallback', reason: 'regression returned non-finite coefficients' };
+    }
+
+    return {
+      mode: 'split',
+      landPct: m_L * 100,
+      impsPct: m_I * 100,
+      compositionVariance: stdShare,
+      stability,
+      nUsed: valid.length,
+    };
+  }
+
+  // Apply [land_pct, imps_pct] to each sale and return resulting ratios.
+  // Used to compute simulated median when split modifiers are active.
+  function applySplitMods(items, landPct, impsPct) {
+    const out = [];
+    for (const r of items) {
+      const newAV = r.land_av * (1 + landPct / 100) + r.imps_av * (1 + impsPct / 100);
+      out.push(newAV / r.effective_price);
+    }
+    return out;
+  }
+
   // Target ratio for a stratum given its COD, n, and the current rules.
   function targetRatioFor(stratum, rules) {
     if (stratum.n < rules.lowNThreshold) return rules.lowNTarget;
@@ -4993,21 +5218,23 @@
         }
       }
 
-      // Rule 3: Cap at ±max change
-      const cap = Math.abs(rules.maxChangePct);
-      if (suggestedPct > cap) {
-        suggestedPct = cap;
-        notes.push(`Capped at +${cap.toFixed(0)}%`);
-        if (decision !== 'Low-n conservative') {
-          decision = 'Capped';
-          decisionClass = 'capped';
-        }
-      } else if (suggestedPct < -cap) {
-        suggestedPct = -cap;
-        notes.push(`Capped at −${cap.toFixed(0)}%`);
-        if (decision !== 'Low-n conservative') {
-          decision = 'Capped';
-          decisionClass = 'capped';
+      // Rule 3: Cap at ±max change (null = no cap)
+      if (rules.maxChangePct != null) {
+        const cap = Math.abs(rules.maxChangePct);
+        if (suggestedPct > cap) {
+          suggestedPct = cap;
+          notes.push(`Capped at +${cap.toFixed(0)}%`);
+          if (decision !== 'Low-n conservative') {
+            decision = 'Capped';
+            decisionClass = 'capped';
+          }
+        } else if (suggestedPct < -cap) {
+          suggestedPct = -cap;
+          notes.push(`Capped at −${cap.toFixed(0)}%`);
+          if (decision !== 'Low-n conservative') {
+            decision = 'Capped';
+            decisionClass = 'capped';
+          }
         }
       }
     }
@@ -5053,12 +5280,164 @@
     const strata = [...groups.entries()].map(([k, items]) => stratRow(k, items)).filter(Boolean);
 
     const codRange = getCodRange();
-    const recs = strata.map(s => recommendFor(s, rules, codRange, state.modifierUserSkips[s.stratum]));
+    // Split mode requires both land_av and imps_av to be mapped. If the user
+    // enabled the toggle but the columns aren't there, silently use combined.
+    const splitActive = !!(rules.splitLandImps && mapping.land_av && mapping.imps_av);
+
+    const recs = strata.map(s => {
+      const items = groups.get(s.stratum);
+      const userOverride = state.modifierUserSkips[s.stratum];
+      const baseRec = recommendFor(s, rules, codRange, userOverride);
+
+      // No-change / skipped / low-n decisions are kept as-is — no need to
+      // split adjustments that are zero or under conservative low-n rules.
+      // Only attempt the split when a real adjustment is being recommended.
+      const isAdjusting = (baseRec.decision === 'Adjusted' || baseRec.decision === 'Capped' || baseRec.decision === 'Floored');
+      if (!splitActive || !isAdjusting) {
+        return baseRec;
+      }
+
+      const target = targetRatioFor(s, rules);
+      const split = computeSplitModifiers(items, target);
+      if (split.mode !== 'split') {
+        // Insufficient signal to separate — return combined recommendation
+        // unchanged. Note explains why; user sees the same value in any
+        // split-column rendering downstream.
+        baseRec.splitFallback = true;
+        baseRec.splitFallbackReason = split.reason;
+        return baseRec;
+      }
+
+      // Apply per-side caps independently. Caps reflect the user's "don't
+      // trust moves bigger than this" — capping one side means the resulting
+      // median may undershoot target, which is the intended behavior.
+      // Null = no cap (treat as Infinity).
+      const capL = rules.maxLandChangePct != null ? Math.abs(rules.maxLandChangePct) : Infinity;
+      const capI = rules.maxImpsChangePct != null ? Math.abs(rules.maxImpsChangePct) : Infinity;
+      let landPct = split.landPct;
+      let impsPct = split.impsPct;
+      const splitNotes = [];
+      if (landPct > capL)  { landPct = capL;  splitNotes.push(`Land capped at +${capL.toFixed(0)}%`); }
+      if (landPct < -capL) { landPct = -capL; splitNotes.push(`Land capped at −${capL.toFixed(0)}%`); }
+      if (impsPct > capI)  { impsPct = capI;  splitNotes.push(`Imps capped at +${capI.toFixed(0)}%`); }
+      if (impsPct < -capI) { impsPct = -capI; splitNotes.push(`Imps capped at −${capI.toFixed(0)}%`); }
+
+      // Safety rail 1: Disallow opposite-direction splits (optional).
+      // Real land and improvement values usually move in the same direction.
+      // When the regression suggests opposite signs with both magnitudes above
+      // a small noise threshold (2%), fall back to the combined modifier so
+      // vacant-land and imps-only parcels don't take an unjustified hit.
+      if (rules.disallowOppositeSplits) {
+        const opposite = (landPct > 0 && impsPct < 0) || (landPct < 0 && impsPct > 0);
+        const bothSignificant = Math.abs(landPct) > 2 && Math.abs(impsPct) > 2;
+        if (opposite && bothSignificant) {
+          baseRec.splitFallback = true;
+          baseRec.splitFallbackReason = `opposite-direction split disallowed (regression suggested L=${landPct >= 0 ? '+' : ''}${landPct.toFixed(2)}% / I=${impsPct >= 0 ? '+' : ''}${impsPct.toFixed(2)}%)`;
+          return baseRec;
+        }
+      }
+
+      // Safety rail 2: Cap the spread between land and imps modifiers.
+      // The spread cap is what prevents regression noise from producing
+      // economically implausible "land way up / imps way down" recommendations
+      // that would clobber land-only parcels. When the spread exceeds the cap,
+      // pull both modifiers symmetrically toward the dollar-weighted combined
+      // effect, preserving the aggregate change on the neighborhood. This
+      // keeps the bulk of parcels at roughly the same simulated ratio while
+      // sharply reducing the impact on edge-case (land-only / imps-only)
+      // parcels. Null = no cap (skip redistribution).
+      if (rules.maxLandImpsSpreadPct != null) {
+        const spread = landPct - impsPct;
+        const maxSpread = Math.abs(rules.maxLandImpsSpreadPct);
+        if (Math.abs(spread) > maxSpread) {
+          let totalLand = 0, totalImps = 0;
+          for (const it of items) {
+            if (Number.isFinite(it.land_av) && it.land_av > 0) totalLand += it.land_av;
+            if (Number.isFinite(it.imps_av) && it.imps_av > 0) totalImps += it.imps_av;
+          }
+          const totalAV = totalLand + totalImps;
+          const wL = totalAV > 0 ? totalLand / totalAV : 0.5;
+          const wI = 1 - wL;
+          const combined = wL * landPct + wI * impsPct;
+          const sgn = spread > 0 ? 1 : -1;
+          // Solve: (m_L' - m_I') = maxSpread × sgn AND wL × m_L' + wI × m_I' = combined
+          landPct = combined + wI * maxSpread * sgn;
+          impsPct = combined - wL * maxSpread * sgn;
+          splitNotes.push(`Spread capped at ${maxSpread.toFixed(0)}pp`);
+          if (baseRec.decision !== 'Floored' && baseRec.decision !== 'Low-n conservative') {
+            baseRec.decision = 'Capped';
+            baseRec.decisionClass = 'capped';
+          }
+        }
+      }
+
+      // Downward-floor protection. The floor only applies when we're pushing
+      // the neighborhood DOWN past it. If the regression's net effect is to
+      // move the median UP (even toward a target that happens to be below
+      // floor), the floor isn't crossed — don't fire. This mirrors the
+      // combined-mode rule which only enforces the floor on downward moves.
+      const cur = s.median;
+      const postRatios = applySplitMods(items, landPct, impsPct);
+      const simulatedMed = median(postRatios);
+      const movingDown = simulatedMed < cur;
+      if (simulatedMed < rules.downwardFloor && movingDown) {
+        if (cur >= rules.downwardFloor) {
+          // Current is above floor; bisect to find k that brings simulated
+          // exactly to the floor. Simulated median is monotonic in k when
+          // we're moving down (k=0 → simulated=current above floor;
+          // k=1 → simulated=current_simulated below floor).
+          let lo = 0, hi = 1;
+          for (let iter = 0; iter < 30; iter++) {
+            const k = (lo + hi) / 2;
+            const r = median(applySplitMods(items, landPct * k, impsPct * k));
+            if (r < rules.downwardFloor) hi = k; else lo = k;
+          }
+          const kFinal = (lo + hi) / 2;
+          landPct *= kFinal;
+          impsPct *= kFinal;
+        } else {
+          // Current is already below floor — match combined-mode behavior,
+          // which converts a downward move into an upward push toward the
+          // floor. Use minPctToFloor for both sides.
+          const minPctToFloor = (rules.downwardFloor / cur - 1) * 100;
+          landPct = minPctToFloor;
+          impsPct = minPctToFloor;
+        }
+        splitNotes.push(`Floored at ${(rules.downwardFloor * 100).toFixed(0)}%`);
+        baseRec.decision = 'Floored';
+        baseRec.decisionClass = 'floored';
+      }
+
+      // Recompute simulated median with final modifiers
+      const finalSimMed = median(applySplitMods(items, landPct, impsPct));
+
+      baseRec.landPct = landPct;
+      baseRec.impsPct = impsPct;
+      baseRec.simulated = finalSimMed;
+      baseRec.compositionVariance = split.compositionVariance;
+      if (splitNotes.length) {
+        baseRec.notes = baseRec.notes ? `${baseRec.notes} · ${splitNotes.join(' · ')}` : splitNotes.join(' · ');
+      }
+      // Update decision pill if caps fired
+      if (splitNotes.some(n => n.includes('capped')) && baseRec.decision !== 'Floored' && baseRec.decision !== 'Low-n conservative') {
+        baseRec.decision = 'Capped';
+        baseRec.decisionClass = 'capped';
+      }
+      return baseRec;
+    });
 
     // Overall pre/post: simulate the adjustment on each individual sale, then re-stat.
     // Skipped neighborhoods contribute 0% adjustment (their post = pre).
-    const adjPct = new Map();
-    for (const r of recs) adjPct.set(r.stratum, r.suggestedPct);
+    // For split-mode rows, apply land/imps mods to each parcel separately.
+    const adjMap = new Map();
+    for (const r of recs) {
+      adjMap.set(r.stratum, {
+        suggestedPct: r.suggestedPct,
+        landPct: r.landPct,
+        impsPct: r.impsPct,
+        usesSplit: (r.landPct != null && r.impsPct != null),
+      });
+    }
 
     const preRatios = [];
     const postRatios = [];
@@ -5066,8 +5445,14 @@
       const k = String(r.neighborhood ?? '').trim();
       if (!k) continue;
       preRatios.push(r.effective_ratio);
-      const pct = adjPct.get(k) ?? 0;
-      const adjAV = r.total_av * (1 + pct / 100);
+      const adj = adjMap.get(k);
+      let adjAV;
+      if (adj && adj.usesSplit) {
+        adjAV = r.land_av * (1 + adj.landPct / 100) + r.imps_av * (1 + adj.impsPct / 100);
+      } else {
+        const pct = adj ? adj.suggestedPct : 0;
+        adjAV = r.total_av * (1 + pct / 100);
+      }
       postRatios.push(adjAV / r.effective_price);
     }
 
@@ -5088,7 +5473,7 @@
       recs,
       pre, post,
       counts,
-      overallCeilingExceeded: (post.median != null && post.median > rules.overallMedianCeiling),
+      overallCeilingExceeded: (rules.overallMedianCeiling != null && post.median != null && post.median > rules.overallMedianCeiling),
     };
   }
 
@@ -5140,7 +5525,21 @@
     if (!wrap) return;
     const r = state.modifierRules;
 
-    const input = (key, step = 0.01) => `<input type="number" class="rule-input" data-rule="${key}" value="${r[key]}" step="${step}" />`;
+    // Rules that can be cleared (blank = "no cap" / "no limit"). Other rules
+    // require a value — typing then deleting the contents waits for valid input.
+    const NULLABLE_RULES = new Set([
+      'maxChangePct',
+      'maxLandChangePct',
+      'maxImpsChangePct',
+      'maxLandImpsSpreadPct',
+      'overallMedianCeiling',
+    ]);
+    const input = (key, step = 0.01) => {
+      const val = r[key];
+      const isBlank = val == null;
+      const placeholder = NULLABLE_RULES.has(key) ? ' placeholder="no cap"' : '';
+      return `<input type="number" class="rule-input" data-rule="${key}" value="${isBlank ? '' : val}" step="${step}"${placeholder} />`;
+    };
 
     // Build the preset dropdown — "Default" is always available; the rest come from localStorage
     const savedPresets = loadSavedPresets();
@@ -5148,6 +5547,57 @@
     const presetOptions = ['<option value="__default__">Default</option>']
       .concat(presetNames.map(n => `<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`))
       .join('');
+
+    // The split toggle is only available when both land_av and imps_av columns
+    // are mapped. Without them, the regression has nothing to work with.
+    const splitAvailable = !!(mapping.land_av && mapping.imps_av);
+    const splitOn = !!(splitAvailable && r.splitLandImps);
+
+    // When split is ON, show two per-side caps and a spread cap instead of
+    // the single combined cap.
+    const capRowsHtml = splitOn ? `
+            <div class="rule-row">
+              <label>Max land change ± %<span class="rule-sub">hard cap on land modifier</span></label>
+              ${input('maxLandChangePct', 0.5)}
+            </div>
+            <div class="rule-row">
+              <label>Max imps change ± %<span class="rule-sub">hard cap on improvement modifier</span></label>
+              ${input('maxImpsChangePct', 0.5)}
+            </div>
+            <div class="rule-row">
+              <label>Max land–imps spread (pp)<span class="rule-sub">cap on |land − imps| difference; redistribute symmetrically when exceeded</span></label>
+              ${input('maxLandImpsSpreadPct', 0.5)}
+            </div>` : `
+            <div class="rule-row">
+              <label>Max change ± %<span class="rule-sub">hard cap on suggested adjustment</span></label>
+              ${input('maxChangePct', 0.5)}
+            </div>`;
+
+    // Split-toggle bar: appears between preset bar and the main rules grid.
+    // When split is on, a nested "disallow opposite-direction" sub-toggle
+    // appears below the main toggle.
+    const oppositeSubToggle = splitOn ? `
+          <label class="split-sub-toggle">
+            <input type="checkbox" id="disallow-opposite-toggle" ${r.disallowOppositeSplits ? 'checked' : ''} />
+            <span class="split-sub-text">
+              <strong>Disallow opposite-direction splits</strong>
+              <span class="split-sub-sub">Fall back to a combined modifier when the regression suggests moving land and improvements in opposite directions with both magnitudes &gt; 2%. Prevents the regression from producing economically implausible "land up / imps down" recommendations on noisy samples.</span>
+            </span>
+          </label>` : '';
+
+    const splitToggleHtml = `
+        <div class="split-toggle-bar${splitOn ? ' active' : ''}${splitAvailable ? '' : ' disabled'}">
+          <label class="split-toggle-label">
+            <input type="checkbox" id="split-mode-toggle" ${splitOn ? 'checked' : ''} ${splitAvailable ? '' : 'disabled'} />
+            <span class="split-toggle-text">
+              <strong>Separate land &amp; improvement modifiers</strong>
+              <span class="split-toggle-sub">${splitAvailable
+                ? 'Solves a regression on each neighborhood to assign land vs. improvement adjustments independently. Falls back to a single combined modifier where the sample lacks compositional variance.'
+                : 'Requires both <em>Land AV</em> and <em>Improvement AV</em> columns to be mapped on Step 2.'}</span>
+            </span>
+          </label>
+          ${oppositeSubToggle}
+        </div>`;
 
     wrap.innerHTML = `
       <div class="rules-panel">
@@ -5162,6 +5612,7 @@
           <button type="button" class="btn-preset btn-preset-danger" id="btn-delete-preset" title="Delete the currently selected preset">Delete</button>
           <button type="button" class="btn-restore" id="btn-restore-defaults">Restore defaults</button>
         </div>
+        ${splitToggleHtml}
         <div class="rules-grid">
           <div class="rules-group">
             <div class="rules-group-title">Targets</div>
@@ -5192,10 +5643,7 @@
               <label>Downward floor<span class="rule-sub">never push a neighborhood below this</span></label>
               ${input('downwardFloor')}
             </div>
-            <div class="rule-row">
-              <label>Max change ± %<span class="rule-sub">hard cap on suggested adjustment</span></label>
-              ${input('maxChangePct', 0.5)}
-            </div>
+            ${capRowsHtml}
             <div class="rule-row">
               <label>Overall median ceiling<span class="rule-sub">warn if simulated overall exceeds this</span></label>
               ${input('overallMedianCeiling')}
@@ -5242,7 +5690,17 @@
     wrap.querySelectorAll('.rule-input').forEach(inp => {
       inp.addEventListener('input', e => {
         const key = e.target.dataset.rule;
-        const v = parseFloat(e.target.value);
+        const raw = e.target.value.trim();
+        if (raw === '') {
+          // Blank — only meaningful for nullable cap/limit fields. Other rules
+          // keep their previous value while the user types.
+          if (NULLABLE_RULES.has(key)) {
+            state.modifierRules[key] = null;
+            refreshModifierResults();
+          }
+          return;
+        }
+        const v = parseFloat(raw);
         if (isFinite(v)) {
           state.modifierRules[key] = v;
           refreshModifierResults();
@@ -5253,6 +5711,26 @@
     select.addEventListener('change', e => {
       loadPreset(e.target.value);
     });
+
+    // Split toggle: flipping it changes the visible cap rows, so we re-render
+    // the rules panel before recomputing the modifier table.
+    const splitToggle = document.getElementById('split-mode-toggle');
+    if (splitToggle && !splitToggle.disabled) {
+      splitToggle.addEventListener('change', e => {
+        state.modifierRules.splitLandImps = e.target.checked;
+        renderRulesPanel();
+        refreshModifierResults();
+      });
+    }
+
+    // Disallow-opposite sub-toggle (only present when split is on).
+    const oppositeToggle = document.getElementById('disallow-opposite-toggle');
+    if (oppositeToggle) {
+      oppositeToggle.addEventListener('change', e => {
+        state.modifierRules.disallowOppositeSplits = e.target.checked;
+        refreshModifierResults();
+      });
+    }
 
     document.getElementById('btn-save-preset').addEventListener('click', () => {
       const name = prompt('Name this preset (e.g., "Whatcom County 2026"):');
@@ -5421,6 +5899,31 @@
     const pctClass = (p) => p === 0 ? 'pct-zero' : p > 0 ? 'pct-positive' : 'pct-negative';
     const pctTxt = (p) => p === 0 ? '0.00%' : (p > 0 ? '+' : '') + p.toFixed(2) + '%';
 
+    // Split column visibility: only show separate Land %/Imps % columns when
+    // the user has split mode on AND we have the data to support it. The
+    // result object's recs will carry landPct/impsPct fields only on rows
+    // where the split was successfully computed.
+    const splitColumns = !!(state.modifierRules.splitLandImps && mapping.land_av && mapping.imps_av);
+
+    // Per-row adjustment cell: when split columns are shown, output two
+    // separate cells. For rows that fell back to combined (no landPct on the
+    // rec), show the combined value in both columns so it's clear the same
+    // adjustment applies to both sides.
+    const adjustmentCells = (r) => {
+      if (!splitColumns) {
+        return `<td class="num ${pctClass(r.suggestedPct)}">${pctTxt(r.suggestedPct)}</td>`;
+      }
+      if (r.landPct != null && r.impsPct != null) {
+        return `<td class="num ${pctClass(r.landPct)}">${pctTxt(r.landPct)}</td>
+                <td class="num ${pctClass(r.impsPct)}">${pctTxt(r.impsPct)}</td>`;
+      }
+      // Fallback: combined modifier — show same value in both
+      const cls = pctClass(r.suggestedPct);
+      const txt = pctTxt(r.suggestedPct);
+      return `<td class="num ${cls} split-fallback" title="Combined modifier (composition too uniform to split)">${txt}</td>
+              <td class="num ${cls} split-fallback" title="Combined modifier (composition too uniform to split)">${txt}</td>`;
+    };
+
     const body = rows.map(r => {
       const rowCls = r.decision === 'No change' || r.decision === 'Skipped' ? 'no-change'
                    : (r.decision === 'Capped' || r.decision === 'Floored') ? 'flagged-cap'
@@ -5428,6 +5931,13 @@
       const confTitle = r.conf.factors.map(f => `${f.key}: ${f.label}`).join('\n') + `\nDriver: ${r.conf.driver?.key} ${r.conf.driver?.label}`;
       // Checkbox is checked if user forced skip OR rule said no-change with no user override
       const checked = (r.userOverride === true) || (r.userOverride === undefined && r.skip);
+      // Add fallback annotation to notes inline if applicable (one-time, doesn't
+      // pollute r.notes since we keep that stored separately)
+      let displayNotes = r.notes;
+      if (splitColumns && r.splitFallback) {
+        const tag = `Split fallback — ${r.splitFallbackReason}`;
+        displayNotes = displayNotes ? `${tag} · ${displayNotes}` : tag;
+      }
       return `
         <tr class="${rowCls}">
           <td class="skip-checkbox-cell">
@@ -5439,15 +5949,19 @@
           <td class="num">${dec(r.cod, 2)}</td>
           <td class="num">${pct(r.target)}</td>
           <td><span class="decision-pill ${r.decisionClass}">${escapeHtml(r.decision)}</span></td>
-          <td class="num ${pctClass(r.suggestedPct)}">${pctTxt(r.suggestedPct)}</td>
+          ${adjustmentCells(r)}
           <td class="num">${pct(r.simulated)}</td>
           <td><span class="conf-badge ${r.conf.grade}" title="${escapeAttr(confTitle)}">${r.conf.grade}</span></td>
-          <td style="font-size: 11.5px; color: var(--ink-mute);">${escapeHtml(r.notes)}</td>
+          <td style="font-size: 11.5px; color: var(--ink-mute);">${escapeHtml(displayNotes)}</td>
         </tr>
       `;
     }).join('');
 
     const hasOverrides = Object.keys(state.modifierUserSkips).length > 0;
+
+    const adjHeaderCells = splitColumns
+      ? `${headerCell('landPct', 'Land %')}${headerCell('impsPct', 'Imps %')}`
+      : `${headerCell('suggestedPct', 'Suggested %')}`;
 
     tbl.innerHTML = `
       <thead>
@@ -5459,7 +5973,7 @@
           ${headerCell('cod', 'COD')}
           ${headerCell('target', 'Target')}
           ${headerCell('decision', 'Decision')}
-          ${headerCell('suggestedPct', 'Suggested %')}
+          ${adjHeaderCells}
           ${headerCell('simulated', 'Simulated Median')}
           ${headerCell('grade', 'Conf')}
           <th>Notes</th>
@@ -5519,14 +6033,31 @@
     const eff = effectiveRows();
     const result = computeModifierRecommendations(eff, state.modifierRules);
     if (!result) return;
-    const header = ['Neighborhood', 'n', 'Current Median', 'COD', 'Target Ratio', 'Decision', 'Suggested %', 'Simulated Median', 'Confidence', 'Notes'];
+    const splitColumns = !!(state.modifierRules.splitLandImps && mapping.land_av && mapping.imps_av);
+    const header = splitColumns
+      ? ['Neighborhood', 'n', 'Current Median', 'COD', 'Target Ratio', 'Decision', 'Land %', 'Imps %', 'Simulated Median', 'Confidence', 'Notes']
+      : ['Neighborhood', 'n', 'Current Median', 'COD', 'Target Ratio', 'Decision', 'Suggested %', 'Simulated Median', 'Confidence', 'Notes'];
     const fmt = (v, d = 4) => v == null ? '' : v.toFixed(d);
+    const pctOut = (v) => v == null ? '' : v.toFixed(2) + '%';
     const lines = [header.join(',')];
     const rows = result.recs.slice().sort((a, b) => a.stratum.localeCompare(b.stratum));
     for (const r of rows) {
       const stratum = (r.stratum.includes(',') || r.stratum.includes('"')) ? `"${r.stratum.replace(/"/g, '""')}"` : r.stratum;
-      const notes = r.notes && (r.notes.includes(',') || r.notes.includes('"')) ? `"${r.notes.replace(/"/g, '""')}"` : r.notes;
-      lines.push([stratum, r.n, fmt(r.median), fmt(r.cod, 2), fmt(r.target), r.decision, r.suggestedPct.toFixed(2) + '%', fmt(r.simulated), r.conf.grade, notes].join(','));
+      let notes = r.notes;
+      if (splitColumns && r.splitFallback) {
+        notes = `Split fallback — ${r.splitFallbackReason}${notes ? ' · ' + notes : ''}`;
+      }
+      notes = notes && (notes.includes(',') || notes.includes('"')) ? `"${notes.replace(/"/g, '""')}"` : (notes || '');
+      // For split-fallback rows, populate both Land % and Imps % with the
+      // combined value so the CAMA-side user can apply the same delta to both.
+      const landTxt = splitColumns
+        ? (r.landPct != null ? pctOut(r.landPct) : pctOut(r.suggestedPct))
+        : null;
+      const impsTxt = splitColumns
+        ? (r.impsPct != null ? pctOut(r.impsPct) : pctOut(r.suggestedPct))
+        : null;
+      const adjCells = splitColumns ? [landTxt, impsTxt] : [pctOut(r.suggestedPct)];
+      lines.push([stratum, r.n, fmt(r.median), fmt(r.cod, 2), fmt(r.target), r.decision, ...adjCells, fmt(r.simulated), r.conf.grade, notes].join(','));
     }
     lines.push('');
     lines.push(['Overall (pre)', '', fmt(result.pre.median), fmt(result.pre.cod, 2)].join(','));
@@ -5580,37 +6111,66 @@
 
         <div class="print-sections-row">
           <div class="print-sections-label">Sections to include in the printable report
-            <span class="rule-sub">Cover and footer are always included. Excel always contains everything.</span>
+            <span class="rule-sub">Cover and footer are always included. Sort and limit choices apply to both the printable report and the Excel workbook.</span>
           </div>
-          <div class="print-sections-grid">
-            <label class="print-section-toggle">
-              <input type="checkbox" id="print-include-diagnostics" ${state.printSections.diagnostics ? 'checked' : ''} />
-              <span>Overall diagnostics</span>
-            </label>
-            <label class="print-section-toggle">
-              <input type="checkbox" id="print-include-vequity" ${state.printSections.verticalEquity ? 'checked' : ''} />
-              <span>Vertical equity analysis</span>
-            </label>
-            <label class="print-section-toggle">
-              <input type="checkbox" id="print-include-strat" ${state.printSections.stratification ? 'checked' : ''} />
-              <span>Stratified analysis</span>
-            </label>
-            <label class="print-section-toggle">
-              <input type="checkbox" id="print-include-modifier" ${state.printSections.modifier ? 'checked' : ''} />
-              <span>Modifier recommendations</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="export-title-row" id="strat-limit-row" style="${state.printSections.stratification ? '' : 'opacity: 0.5;'}">
-          <label class="export-title-label" for="strat-limit">Stratification rows in printable report
-            <span class="rule-sub">Only applies if stratified analysis is included above.</span>
-          </label>
-          <select class="export-title-input" id="strat-limit" ${state.printSections.stratification ? '' : 'disabled'}>
-            <option value="0"${(state.stratLimit || 0) === 0 ? ' selected' : ''}>All neighborhoods</option>
-            <option value="10"${state.stratLimit === 10 ? ' selected' : ''}>Top 10 by count</option>
-            <option value="20"${state.stratLimit === 20 ? ' selected' : ''}>Top 20 by count</option>
-          </select>
+          <ul class="print-sections-list">
+            <li class="print-section-item">
+              <label class="print-section-toggle">
+                <input type="checkbox" id="print-include-diagnostics" ${state.printSections.diagnostics ? 'checked' : ''} />
+                <span>Overall diagnostics</span>
+              </label>
+            </li>
+            <li class="print-section-item">
+              <label class="print-section-toggle">
+                <input type="checkbox" id="print-include-vequity" ${state.printSections.verticalEquity ? 'checked' : ''} />
+                <span>Vertical equity analysis</span>
+              </label>
+            </li>
+            <li class="print-section-item">
+              <label class="print-section-toggle">
+                <input type="checkbox" id="print-include-strat" ${state.printSections.stratification ? 'checked' : ''} />
+                <span>Stratified analysis</span>
+              </label>
+              <div class="print-section-controls" id="strat-controls" ${state.printSections.stratification ? '' : 'data-disabled="true"'}>
+                <label class="print-section-control">
+                  <span class="psc-label">Sort:</span>
+                  <select id="strat-sort" ${state.printSections.stratification ? '' : 'disabled'}>
+                    <option value="n"            ${state.printSortStrat === 'n'            ? 'selected' : ''}>Sample size (largest first)</option>
+                    <option value="neighborhood" ${state.printSortStrat === 'neighborhood' ? 'selected' : ''}>Neighborhood (A → Z)</option>
+                    <option value="cod"          ${state.printSortStrat === 'cod'          ? 'selected' : ''}>COD (highest first)</option>
+                    <option value="median-low"   ${state.printSortStrat === 'median-low'   ? 'selected' : ''}>Median ratio (lowest first)</option>
+                  </select>
+                </label>
+                <label class="print-section-control">
+                  <span class="psc-label">Limit:</span>
+                  <select id="strat-limit" ${state.printSections.stratification ? '' : 'disabled'}>
+                    <option value="0"${(state.stratLimit || 0) === 0 ? ' selected' : ''}>All</option>
+                    <option value="10"${state.stratLimit === 10 ? ' selected' : ''}>Top 10</option>
+                    <option value="20"${state.stratLimit === 20 ? ' selected' : ''}>Top 20</option>
+                  </select>
+                </label>
+              </div>
+            </li>
+            <li class="print-section-item">
+              <label class="print-section-toggle">
+                <input type="checkbox" id="print-include-modifier" ${state.printSections.modifier ? 'checked' : ''} />
+                <span>Modifier recommendations</span>
+              </label>
+              <div class="print-section-controls" id="modifier-controls" ${state.printSections.modifier ? '' : 'data-disabled="true"'}>
+                <label class="print-section-control">
+                  <span class="psc-label">Sort:</span>
+                  <select id="modifier-sort" ${state.printSections.modifier ? '' : 'disabled'}>
+                    <option value="neighborhood" ${state.printSortModifier === 'neighborhood' ? 'selected' : ''}>Neighborhood (A → Z)</option>
+                    <option value="n"            ${state.printSortModifier === 'n'            ? 'selected' : ''}>Sample size (largest first)</option>
+                    <option value="move"         ${state.printSortModifier === 'move'         ? 'selected' : ''}>Adjustment magnitude (largest first)</option>
+                    <option value="decision"     ${state.printSortModifier === 'decision'     ? 'selected' : ''}>Decision (grouped)</option>
+                    <option value="confidence"   ${state.printSortModifier === 'confidence'   ? 'selected' : ''}>Confidence (highest first)</option>
+                    <option value="median-low"   ${state.printSortModifier === 'median-low'   ? 'selected' : ''}>Current median (lowest first)</option>
+                  </select>
+                </label>
+              </div>
+            </li>
+          </ul>
         </div>
 
         <div class="export-summary">
@@ -5635,14 +6195,21 @@
     document.getElementById('strat-limit').addEventListener('change', e => {
       state.stratLimit = parseInt(e.target.value, 10) || 0;
     });
+    document.getElementById('strat-sort').addEventListener('change', e => {
+      state.printSortStrat = e.target.value;
+    });
+    document.getElementById('modifier-sort').addEventListener('change', e => {
+      state.printSortModifier = e.target.value;
+    });
 
-    // Wire up section-toggle checkboxes
+    // Wire up section-toggle checkboxes. Toggling a section that has inline
+    // controls (sort/limit) re-renders the panel so those controls grey out
+    // when the section is unchecked.
     const wireSection = (id, key) => {
       const cb = document.getElementById(id);
       if (cb) cb.addEventListener('change', e => {
         state.printSections[key] = e.target.checked;
-        // Re-render to update the disabled state of the strat-limit dropdown
-        if (key === 'stratification') renderExportStep();
+        if (key === 'stratification' || key === 'modifier') renderExportStep();
       });
     };
     wireSection('print-include-diagnostics', 'diagnostics');
@@ -5705,6 +6272,8 @@
       vei, prb, spearman, modifier, stratResults,
       rules: state.modifierRules || DEFAULT_MODIFIER_RULES,
       stratLimit: state.stratLimit || 0,
+      sortStrat: state.printSortStrat || 'n',
+      sortModifier: state.printSortModifier || 'neighborhood',
     };
   }
 
@@ -5723,6 +6292,61 @@
     win.document.open();
     win.document.write(html);
     win.document.close();
+  }
+
+  // Sort helpers shared between print and Excel exports.
+  // Both stratification and modifier rows can be sorted by several keys;
+  // alphabetical ties broken by neighborhood name where applicable.
+  function sortStrataForExport(strata, sortKey) {
+    const sorted = strata.slice();
+    const byName = (a, b) => String(a.stratum ?? '').localeCompare(String(b.stratum ?? ''));
+    switch (sortKey) {
+      case 'neighborhood': sorted.sort(byName); break;
+      case 'cod':          sorted.sort((a, b) => (b.cod ?? 0) - (a.cod ?? 0)); break;
+      case 'median-low':   sorted.sort((a, b) => (a.median ?? 1) - (b.median ?? 1)); break;
+      case 'n':
+      default:             sorted.sort((a, b) => b.n - a.n); break;
+    }
+    return sorted;
+  }
+
+  function sortRecsForExport(recs, sortKey, splitColumns) {
+    const sorted = recs.slice();
+    const byName = (a, b) => String(a.stratum ?? '').localeCompare(String(b.stratum ?? ''));
+    const moveOf = (r) => {
+      if (splitColumns && r.landPct != null && r.impsPct != null) {
+        return Math.max(Math.abs(r.landPct), Math.abs(r.impsPct));
+      }
+      return Math.abs(r.suggestedPct ?? 0);
+    };
+    // Decision sort groups by action type, with most-impactful (Capped, Floored)
+    // grouped after Adjusted so analysts see normal recommendations first, then
+    // the rows that hit constraints.
+    const decisionOrder = {
+      'Adjusted': 0,
+      'Capped': 1,
+      'Floored': 2,
+      'Low-n conservative': 3,
+      'No change': 4,
+      'Skipped': 5,
+    };
+    const confOrder = { 'H': 0, 'M': 1, 'L': 2, 'X': 3 };
+    switch (sortKey) {
+      case 'n':            sorted.sort((a, b) => b.n - a.n); break;
+      case 'move':         sorted.sort((a, b) => moveOf(b) - moveOf(a)); break;
+      case 'decision':     sorted.sort((a, b) => {
+                              const cmp = (decisionOrder[a.decision] ?? 99) - (decisionOrder[b.decision] ?? 99);
+                              return cmp !== 0 ? cmp : byName(a, b);
+                           }); break;
+      case 'confidence':   sorted.sort((a, b) => {
+                              const cmp = (confOrder[a.conf?.grade] ?? 99) - (confOrder[b.conf?.grade] ?? 99);
+                              return cmp !== 0 ? cmp : byName(a, b);
+                           }); break;
+      case 'median-low':   sorted.sort((a, b) => (a.median ?? 1) - (b.median ?? 1)); break;
+      case 'neighborhood':
+      default:             sorted.sort(byName); break;
+    }
+    return sorted;
   }
 
   function buildPrintHtml(d) {
@@ -6042,16 +6666,24 @@
   function printStratification(d) {
     if (!d.stratResults.length) return '';
     const limit = d.stratLimit || 0;
+    const sortKey = d.sortStrat || 'n';
+    // Row-limit text only makes sense for n-based sort; when the user picks a
+    // different sort, "Top 20 by count" is misleading — clarify accordingly.
     return d.stratResults.map(strat => {
-      // Sort by count desc (matches on-screen default) and optionally limit
-      const sortedRows = strat.rows.slice().sort((a, b) => (b.n || 0) - (a.n || 0));
+      const sortedRows = sortStrataForExport(strat.rows, sortKey);
       const displayedRows = limit > 0 ? sortedRows.slice(0, limit) : sortedRows;
       const totalCount = strat.rows.length;
       const lowN = displayedRows.filter(r => r.n < 10).length;
       const codRange = d.codRange;
       const limitNote = limit > 0 && totalCount > limit
-        ? ` Showing top ${displayedRows.length} of ${totalCount} by sales count.`
+        ? ` Showing top ${displayedRows.length} of ${totalCount}.`
         : '';
+      const sortLabel = {
+        'n':            'Sorted by sample size (largest first)',
+        'neighborhood': 'Sorted alphabetically',
+        'cod':          'Sorted by COD (highest dispersion first)',
+        'median-low':   'Sorted by median ratio (lowest first)',
+      }[sortKey] || 'Sorted by sample size (largest first)';
       const tableRows = displayedRows.map(r => {
         const medFail = r.median != null && (r.median < 0.90 || r.median > 1.10);
         const codFail = r.cod != null && (r.cod < codRange.min || r.cod > codRange.max);
@@ -6067,7 +6699,7 @@
       return `
         <div class="page-break"></div>
         <h2>Stratified Analysis — By ${escapeHtml(strat.label)}</h2>
-        <p style="font-size: 10pt; color: var(--ink-mute);">${totalCount} strata${lowN ? ` · ${lowN} flagged low-n (n &lt; 10)` : ''}.${limitNote} Italicized rows have fewer than 10 sales; treat with caution per IAAO guidance. Rows shaded red fail one or more IAAO ranges (median, COD, or PRD).</p>
+        <p style="font-size: 10pt; color: var(--ink-mute);">${totalCount} strata${lowN ? ` · ${lowN} flagged low-n (n &lt; 10)` : ''}.${limitNote} ${sortLabel}. Italicized rows have fewer than 10 sales; treat with caution per IAAO guidance. Rows shaded red fail one or more IAAO ranges (median, COD, or PRD).</p>
         <table>
           <thead><tr><th>${escapeHtml(strat.label)}</th><th>n</th><th>Median</th><th>COD</th><th>PRD</th><th>Mean</th><th>Wtd Mean</th><th>90% CI Low</th><th>90% CI High</th></tr></thead>
           <tbody>${tableRows}</tbody>
@@ -6083,7 +6715,18 @@
     const pctClass = (p) => p === 0 ? 'pct-zero' : p > 0 ? 'pct-positive' : 'pct-negative';
     const pctTxt = (p) => p === 0 ? '0.00%' : (p > 0 ? '+' : '') + p.toFixed(2) + '%';
 
-    const tableRows = m.recs.slice().sort((a, b) => a.stratum.localeCompare(b.stratum)).map(rec => `
+    const splitColumns = !!(state.modifierRules.splitLandImps && mapping.land_av && mapping.imps_av);
+    const sortKey = d.sortModifier || 'neighborhood';
+
+    const tableRows = sortRecsForExport(m.recs, sortKey, splitColumns).map(rec => {
+      const adjCellsHtml = splitColumns
+        ? (rec.landPct != null && rec.impsPct != null
+            ? `<td class="num ${pctClass(rec.landPct)}">${pctTxt(rec.landPct)}</td>
+               <td class="num ${pctClass(rec.impsPct)}">${pctTxt(rec.impsPct)}</td>`
+            : `<td class="num ${pctClass(rec.suggestedPct)}" style="font-style: italic; opacity: 0.78;">${pctTxt(rec.suggestedPct)}</td>
+               <td class="num ${pctClass(rec.suggestedPct)}" style="font-style: italic; opacity: 0.78;">${pctTxt(rec.suggestedPct)}</td>`)
+        : `<td class="num ${pctClass(rec.suggestedPct)}">${pctTxt(rec.suggestedPct)}</td>`;
+      return `
       <tr>
         <td>${escapeHtml(rec.stratum)}</td>
         <td class="num">${rec.n}</td>
@@ -6091,27 +6734,44 @@
         <td class="num">${dec(rec.cod, 2)}</td>
         <td class="num">${pct(rec.target)}</td>
         <td><span class="decision-pill ${rec.decisionClass}">${escapeHtml(rec.decision)}</span></td>
-        <td class="num ${pctClass(rec.suggestedPct)}">${pctTxt(rec.suggestedPct)}</td>
+        ${adjCellsHtml}
         <td class="num">${pct(rec.simulated)}</td>
         <td><span class="conf-badge ${rec.conf.grade}">${rec.conf.grade}</span></td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
 
     const medDelta = m.post.median - m.pre.median;
     const codDelta = m.post.cod - m.pre.cod;
     const medDeltaTxt = (medDelta >= 0 ? '+' : '') + (medDelta * 100).toFixed(2) + '%';
     const codDeltaTxt = (codDelta >= 0 ? '+' : '') + codDelta.toFixed(2);
 
+    // Rules summary — show split caps and safety rails when in split mode.
+    // Null cap values render as "no cap" so reviewers see what was applied.
+    const fmtCap = (v, suffix = '%') => v == null ? 'no cap' : `±${v.toFixed(0)}${suffix}`;
+    const capRow = splitColumns
+      ? `<tr><td>Downward floor</td><td class="num">${pct(r.downwardFloor)}</td><td>Max land / imps change</td><td class="num">${fmtCap(r.maxLandChangePct)} / ${fmtCap(r.maxImpsChangePct)}</td></tr>
+         <tr><td>Max land–imps spread</td><td class="num">${fmtCap(r.maxLandImpsSpreadPct, 'pp')}</td><td>Opposite-direction guard</td><td class="num">${r.disallowOppositeSplits ? 'On' : 'Off'}</td></tr>`
+      : `<tr><td>Downward floor</td><td class="num">${pct(r.downwardFloor)}</td><td>Max adjustment</td><td class="num">${fmtCap(r.maxChangePct)}</td></tr>`;
+    const splitNote = splitColumns
+      ? `<p style="font-size: 10pt; color: var(--ink-mute); margin: 0 0 8px;"><strong>Split mode active:</strong> separate land and improvement modifiers per neighborhood via OLS regression. Neighborhoods where land/improvement composition was too uniform to separate fall back to a single combined modifier (shown italicized in both columns).</p>`
+      : '';
+
+    const adjHeaderCells = splitColumns
+      ? '<th>Land %</th><th>Imps %</th>'
+      : '<th>Suggested %</th>';
+
     return `
       <div class="page-break"></div>
       <h2>Modifier Recommendations</h2>
+      ${splitNote}
       <h4>Decision Rules</h4>
       <table>
         <tbody>
           <tr><td>Target ratio at low COD (≤ ${r.lowCodThreshold})</td><td class="num">${pct(r.lowCodTarget)}</td><td>Target at high COD (≥ ${r.highCodThreshold})</td><td class="num">${pct(r.highCodTarget)}</td></tr>
           <tr><td>Low-n target (n &lt; ${r.lowNThreshold})</td><td class="num">${pct(r.lowNTarget)}</td><td>No-change zone</td><td class="num">${pct(r.noChangeMin)} – ${pct(r.noChangeMax)} (COD ≤ ${r.noChangeMaxCod})</td></tr>
-          <tr><td>Downward floor</td><td class="num">${pct(r.downwardFloor)}</td><td>Max adjustment</td><td class="num">±${r.maxChangePct.toFixed(0)}%</td></tr>
-          <tr><td>Overall median ceiling</td><td class="num">${pct(r.overallMedianCeiling)}</td><td></td><td></td></tr>
+          ${capRow}
+          <tr><td>Overall median ceiling</td><td class="num">${r.overallMedianCeiling == null ? 'no ceiling' : pct(r.overallMedianCeiling)}</td><td></td><td></td></tr>
         </tbody>
       </table>
       <h4>Pre vs Simulated Overall</h4>
@@ -6123,7 +6783,7 @@
       </div>
       <h4>Per-Neighborhood Recommendations</h4>
       <table>
-        <thead><tr><th>Neighborhood</th><th>n</th><th>Current Median</th><th>COD</th><th>Target</th><th>Decision</th><th>Suggested %</th><th>Simulated</th><th>Conf</th></tr></thead>
+        <thead><tr><th>Neighborhood</th><th>n</th><th>Current Median</th><th>COD</th><th>Target</th><th>Decision</th>${adjHeaderCells}<th>Simulated</th><th>Conf</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
     `;
@@ -6319,8 +6979,17 @@
       mod.push([lbl('No-change zone max'),        pctC(r.noChangeMax)]);
       mod.push([lbl('No-change max COD'),         num(r.noChangeMaxCod, 1)]);
       mod.push([lbl('Downward floor'),            pctC(r.downwardFloor)]);
-      mod.push([lbl('Max change ± %'),            pctC(r.maxChangePct / 100)]);
-      mod.push([lbl('Overall median ceiling'),    pctC(r.overallMedianCeiling)]);
+      const splitActiveForExcel = !!(state.modifierRules.splitLandImps && mapping.land_av && mapping.imps_av);
+      const capCell = (v) => v == null ? txt('no cap') : pctC(v / 100);
+      if (splitActiveForExcel) {
+        mod.push([lbl('Max land change ± %'),     capCell(r.maxLandChangePct)]);
+        mod.push([lbl('Max imps change ± %'),     capCell(r.maxImpsChangePct)]);
+        mod.push([lbl('Max land–imps spread'),    capCell(r.maxLandImpsSpreadPct)]);
+        mod.push([lbl('Opposite-direction guard'), txt(r.disallowOppositeSplits ? 'On' : 'Off')]);
+      } else {
+        mod.push([lbl('Max change ± %'),          capCell(r.maxChangePct)]);
+      }
+      mod.push([lbl('Overall median ceiling'),    r.overallMedianCeiling == null ? txt('no ceiling') : pctC(r.overallMedianCeiling)]);
       mod.push([]);
       mod.push([sect('OVERALL — PRE vs SIMULATED')]);
       mod.push([hdr(''), hdr('Pre', true), hdr('Simulated', true), hdr('Delta', true)]);
@@ -6328,10 +6997,24 @@
       mod.push([lbl('Overall COD'),    decC(m.pre.cod, 2), decC(m.post.cod, 2), decC(m.post.cod - m.pre.cod, 2)]);
       mod.push([]);
       mod.push([sect('PER-NEIGHBORHOOD RECOMMENDATIONS')]);
-      const headerRow = [hdr('Neighborhood'), hdr('n', true), hdr('Current Median', true), hdr('COD', true), hdr('Target', true), hdr('Decision'), hdr('Suggested %', true), hdr('Simulated Median', true), hdr('Confidence'), hdr('Notes')];
+      const splitColumns = !!(state.modifierRules.splitLandImps && mapping.land_av && mapping.imps_av);
+      const headerRow = splitColumns
+        ? [hdr('Neighborhood'), hdr('n', true), hdr('Current Median', true), hdr('COD', true), hdr('Target', true), hdr('Decision'), hdr('Land %', true), hdr('Imps %', true), hdr('Simulated Median', true), hdr('Confidence'), hdr('Notes')]
+        : [hdr('Neighborhood'), hdr('n', true), hdr('Current Median', true), hdr('COD', true), hdr('Target', true), hdr('Decision'), hdr('Suggested %', true), hdr('Simulated Median', true), hdr('Confidence'), hdr('Notes')];
       mod.push(headerRow);
       const headerRowIdx = mod.length - 1;  // 0-indexed row of header (for freeze pane)
-      m.recs.slice().sort((a, b) => a.stratum.localeCompare(b.stratum)).forEach(rec => {
+      sortRecsForExport(m.recs, state.printSortModifier || 'neighborhood', splitColumns).forEach(rec => {
+        let notes = rec.notes;
+        if (splitColumns && rec.splitFallback) {
+          notes = `Split fallback — ${rec.splitFallbackReason}${notes ? ' · ' + notes : ''}`;
+        }
+        // For split mode: land/imps separately. For fallback rows, use the
+        // combined value in both columns so a CAMA user reading the sheet
+        // can apply identical adjustments to both sides.
+        const adjCells = splitColumns
+          ? [pctC((rec.landPct != null ? rec.landPct : rec.suggestedPct) / 100),
+             pctC((rec.impsPct != null ? rec.impsPct : rec.suggestedPct) / 100)]
+          : [pctC(rec.suggestedPct / 100)];
         mod.push([
           lbl(rec.stratum),
           num(rec.n),
@@ -6339,16 +7022,18 @@
           decPF(rec.cod, d.codRange.min, d.codRange.max, 2),
           pctC(rec.target),
           txt(rec.decision),
-          pctC(rec.suggestedPct / 100),
+          ...adjCells,
           pctC(rec.simulated),
           txt(rec.conf.grade),
-          txt(rec.notes),
+          txt(notes),
         ]);
       });
       const ws2 = XLSX.utils.aoa_to_sheet(mod);
-      ws2['!cols'] = [{ wch: 20 }, { wch: 6 }, { wch: 16 }, { wch: 9 }, { wch: 10 }, { wch: 20 }, { wch: 13 }, { wch: 16 }, { wch: 11 }, { wch: 34 }];
+      ws2['!cols'] = splitColumns
+        ? [{ wch: 20 }, { wch: 6 }, { wch: 16 }, { wch: 9 }, { wch: 10 }, { wch: 20 }, { wch: 11 }, { wch: 11 }, { wch: 16 }, { wch: 11 }, { wch: 38 }]
+        : [{ wch: 20 }, { wch: 6 }, { wch: 16 }, { wch: 9 }, { wch: 10 }, { wch: 20 }, { wch: 13 }, { wch: 16 }, { wch: 11 }, { wch: 34 }];
       ws2['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },  // Title spans all cols
+        { s: { r: 0, c: 0 }, e: { r: 0, c: splitColumns ? 10 : 9 } },  // Title spans all cols
       ];
       // Freeze the per-neighborhood header row so analysts can scroll through recs
       ws2['!views'] = [{ state: 'frozen', xSplit: 1, ySplit: headerRowIdx + 1 }];
@@ -6415,8 +7100,7 @@
       aoa.push([]);
       aoa.push([hdr(strat.label), hdr('n', true), hdr('Median Ratio', true), hdr('COD', true), hdr('PRD', true), hdr('Mean Ratio', true), hdr('Weighted Mean', true), hdr('90% CI Low', true), hdr('90% CI High', true)]);
       const headerRowIdx = aoa.length - 1;
-      // Sort by count desc to match on-screen default
-      const sortedRows = strat.rows.slice().sort((a, b) => (b.n || 0) - (a.n || 0));
+      const sortedRows = sortStrataForExport(strat.rows, state.printSortStrat || 'n');
       sortedRows.forEach(r => {
         aoa.push([
           lbl(r.stratum),
