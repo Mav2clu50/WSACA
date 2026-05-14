@@ -180,6 +180,68 @@
   }
 
   /* ===== UPLOAD ZONE ===== */
+
+  /* Data requirements panel — shown above the upload zone so users
+     know what columns they need before picking a file. */
+  .upload-data-requirements {
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-soft);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .udr-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .udr-intro {
+    margin: 0 0 14px;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    line-height: 1.5;
+  }
+  .udr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 32px;
+  }
+  .udr-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .udr-required { color: var(--wsaca-green-deep); }
+  .udr-optional { color: var(--ink-soft); }
+  .udr-group-sub {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-mute);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+  .udr-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+  .udr-list li { color: var(--ink-soft); }
+  .udr-list strong { color: var(--ink); font-weight: 600; }
+  .udr-effect { color: var(--ink-mute); }
+  @media (max-width: 720px) {
+    .udr-grid { grid-template-columns: 1fr; gap: 14px; }
+  }
+
   .upload-zone {
     display: block;
     border: 2px dashed var(--rule);
@@ -2321,6 +2383,32 @@
       <p class="step-intro">
         CSV or Excel (.xlsx) file containing your validated sales. Sales should already be screened for arms-length transactions before upload — this tool does not perform sales validation. Multi-parcel sales (rows with slash-separated values) will be excluded automatically.
       </p>
+
+      <div class="upload-data-requirements">
+        <h3 class="udr-title">What data this tool expects</h3>
+        <p class="udr-intro">Column headers can use any common naming — auto-detection handles most variations across CAMA systems. You'll confirm the mapping on the next step.</p>
+        <div class="udr-grid">
+          <div class="udr-group">
+            <div class="udr-group-label udr-required">Required <span class="udr-group-sub">all four needed</span></div>
+            <ul class="udr-list">
+              <li><strong>Parcel ID</strong><span class="udr-effect"> — unique parcel identifier</span></li>
+              <li><strong>Sale Price</strong><span class="udr-effect"> — validated arms-length sale price</span></li>
+              <li><strong>Sale Date</strong><span class="udr-effect"> — any common date format or Excel serial</span></li>
+              <li><strong>Total Assessed Value</strong><span class="udr-effect"> — current total AV</span></li>
+            </ul>
+          </div>
+          <div class="udr-group">
+            <div class="udr-group-label udr-optional">Optional <span class="udr-group-sub">each unlocks more analysis</span></div>
+            <ul class="udr-list">
+              <li><strong>Neighborhood</strong><span class="udr-effect"> — stratification &amp; per-neighborhood modifier recommendations</span></li>
+              <li><strong>Land AV + Improvement AV</strong><span class="udr-effect"> — split land/improvement modifier mode</span></li>
+              <li><strong>DOR Primary Use</strong><span class="udr-effect"> — stratification by use code</span></li>
+              <li><strong>Land Table</strong><span class="udr-effect"> — stratification by land table</span></li>
+              <li><strong>Year Built · GLA · Acreage</strong><span class="udr-effect"> — descriptive columns (future analyses)</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
       <label class="upload-zone" id="upload-zone">
         <div class="upload-icon">⤴</div>
