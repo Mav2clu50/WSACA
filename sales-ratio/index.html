@@ -1069,6 +1069,49 @@
     .trend-summary { grid-template-columns: 1fr; }
   }
 
+  /* Per-segment breakdown table for piecewise time-trend methods */
+  .trend-segments-wrap {
+    margin-bottom: 18px;
+  }
+  .trend-segments-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .trend-segments-sub {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin: 0 0 10px;
+    line-height: 1.45;
+  }
+  .trend-segments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .trend-segments-table thead th {
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-mute);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .trend-segments-table tbody td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .trend-segments-table th.num, .trend-segments-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .trend-segments-table tbody tr:last-child td { border-bottom: none; }
+
   .trend-chart-wrap {
     border: 1px solid var(--rule);
     border-radius: 3px;
@@ -1335,6 +1378,12 @@
     fill: var(--wsaca-green-soft);
     opacity: 0.45;
   }
+  .ve-trend-line {
+    stroke: var(--wsaca-cedar-deep);
+    stroke-width: 2.5;
+    fill: none;
+    opacity: 0.9;
+  }
   .ve-grid-line { stroke: var(--rule-soft); stroke-width: 1; }
   .ve-axis-line { stroke: var(--rule); stroke-width: 1; }
   .ve-axis-text {
@@ -1370,6 +1419,10 @@
     background: var(--wsaca-cedar);
     height: 0;
     border-top: 2px dashed var(--wsaca-cedar);
+  }
+  .ve-legend-swatch.trend {
+    background: var(--wsaca-cedar-deep);
+    height: 2.5px;
   }
   .ve-legend-swatch.band {
     background: var(--wsaca-green-soft);
@@ -1450,6 +1503,35 @@
     background: white;
     color: var(--ink);
     cursor: pointer;
+  }
+  /* Sub-control inside a stratifier slot — currently only used for the GLA bin
+     choice. Shown inline below the main stratifier dropdown when GLA is selected. */
+  .strat-sub-control {
+    display: block;
+    margin-top: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .strat-sub-label {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    margin-bottom: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .strat-picker-slot .strat-sub-control select {
+    font-size: 12.5px;
+    padding: 5px 8px;
+  }
+  /* Small italic description suffix next to "By <field>" titles — describes the
+     binning method when applicable (e.g. "decade bins", "quartile bins"). */
+  .strat-bin-desc {
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink-mute);
+    font-size: 13px;
   }
   @media (max-width: 720px) {
     .strat-picker-row { grid-template-columns: 1fr; }
@@ -1558,6 +1640,24 @@
     margin-top: 6px;
     line-height: 1.5;
   }
+  .strat-trend-wrap {
+    margin-top: 14px;
+    padding: 12px 14px 10px;
+    background: var(--paper-tint);
+    border: 1px solid var(--rule-soft);
+    border-radius: 4px;
+  }
+  .strat-trend-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .strat-trend-legend {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
 
   /* ===== MODIFIER RECOMMENDATIONS (PHASE 4) ===== */
   .rules-panel {
@@ -1566,6 +1666,99 @@
     border-radius: 4px;
     padding: 18px 22px 20px;
     margin-bottom: 22px;
+  }
+  /* Target-final-ratio mode: lives at the top of the rules panel so users
+     who just want one knob can ignore everything below. The auto-populate
+     button derives all rule values from a single target. */
+  .target-mode-bar {
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-soft);
+    border-radius: 4px;
+    padding: 14px 16px 12px;
+    margin-bottom: 16px;
+  }
+  .target-mode-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .target-mode-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .target-mode-input {
+    font-family: var(--mono);
+    font-size: 14px;
+    width: 90px;
+    padding: 6px 8px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper);
+  }
+  .btn-target-mode {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    background: var(--wsaca-green-deep);
+    color: var(--paper);
+    border: 1px solid var(--wsaca-green-deep);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .btn-target-mode:hover {
+    background: var(--wsaca-green-mid);
+    border-color: var(--wsaca-green-mid);
+  }
+  .target-mode-help {
+    font-size: 12px;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+    line-height: 1.5;
+  }
+  .target-mode-msg {
+    font-size: 12.5px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    line-height: 1.5;
+  }
+  .target-mode-msg.ok {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success);
+  }
+  .target-mode-msg.warn {
+    background: var(--alert-amber-bg);
+    color: var(--ink);
+    border: 1px solid var(--alert-amber-border);
+  }
+  /* Active-caps strip at top of modifier recommendations summary. Reads off
+     current rules so it always reflects what's actually being applied. */
+  .active-caps-line {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    font-size: 12.5px;
+  }
+  .active-caps-label {
+    font-weight: 700;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+  }
+  .active-caps-chips {
+    color: var(--ink-soft);
+    font-family: var(--mono);
   }
   .rules-header {
     display: flex;
@@ -2402,9 +2595,9 @@
             <ul class="udr-list">
               <li><strong>Neighborhood</strong><span class="udr-effect"> — stratification &amp; per-neighborhood modifier recommendations</span></li>
               <li><strong>Land AV + Improvement AV</strong><span class="udr-effect"> — split land/improvement modifier mode</span></li>
-              <li><strong>DOR Primary Use</strong><span class="udr-effect"> — stratification by use code</span></li>
-              <li><strong>Land Table</strong><span class="udr-effect"> — stratification by land table</span></li>
-              <li><strong>Year Built · GLA · Acreage</strong><span class="udr-effect"> — descriptive columns (future analyses)</span></li>
+              <li><strong>DOR Primary Use, Land Table</strong><span class="udr-effect"> — additional stratification dimensions</span></li>
+              <li><strong>Year Built, GLA, Acreage</strong><span class="udr-effect"> — stratification by decade, size bins, or acreage bands</span></li>
+              <li><strong>Quality, Condition, Effective Age</strong><span class="udr-effect"> — stratification by construction grade, CDU rating, or age bands</span></li>
             </ul>
           </div>
         </div>
@@ -2544,7 +2737,7 @@
       <div class="step-number">Step 7</div>
       <h2 class="step-title" id="step-strat-heading">Stratified analysis</h2>
       <p class="step-intro">
-        Same IAAO diagnostics run separately for each level of up to three stratifying variables. Pick which columns to break out — neighborhood, DOR primary use code, land table. Each picker produces its own breakdown table; strata with fewer than 10 sales are flagged as low-n and treated with caution per IAAO guidance.
+        Same IAAO diagnostics run separately for each level of up to three stratifying variables. Available stratifiers depend on which optional columns you mapped — neighborhood, DOR primary use, land table, year built (decade bins), gross living area (data-driven quartile/decile or fixed 400-sq-ft bins), acreage (fixed bands), quality, and condition. Stratification surfaces uniformity problems that the overall diagnostics smooth over — for example, drift across quality grades or condition codes often indicates a cost-table miscalibration. Strata with fewer than 10 sales are flagged as low-n and treated with caution per IAAO guidance.
       </p>
 
       <div class="strat-picker-row" id="strat-picker-row"></div>
@@ -2771,25 +2964,26 @@
     // Optional — descriptive (future)
     {
       key: 'year_built', label: 'Year Built',
-      desc: 'Effective or actual year built',
+      desc: 'Effective or actual year built (enables decade-based stratification)',
       required: false, group: 'Optional — descriptive',
       aliases: [
         'year_built', 'yearbuilt', 'yr_built', 'yrbuilt', 'yr_blt',
         'built', 'build_yr', 'build_year', 'buildyear',
         'construction_year', 'constr_year', 'year_constructed',
-        'actual_year_built', 'ayb',
-        'effective_year_built', 'eyb',
+        'actual_year_built', 'actual_yr_blt', 'actual_yr_built', 'ayb',
+        'effective_year_built', 'effective_yr_blt', 'effective_yr_built', 'eff_yr_blt', 'eyb',
       ],
     },
     {
       key: 'gla', label: 'Gross Living Area',
-      desc: 'Above-grade square footage',
+      desc: 'Above-grade square footage (enables size-bin stratification)',
       required: false, group: 'Optional — descriptive',
       aliases: [
         'gla', 'sqft', 'square_feet', 'squarefeet',
         'square_footage', 'squarefootage', 'sq_ft', 'sqfoot',
         'finished_sqft', 'fin_sqft', 'finished_area', 'finished_sf',
         'living_area', 'total_living_area', 'tla',
+        'total_living_sf', 'living_sf', 'tot_living_sf', 'liv_sf', 'living_sqft',
         'heated_area', 'heated_sf', 'heated_sqft',
         'above_grade_sf', 'ag_sf', 'abovegradesf',
         'building_sf', 'bldg_sf', 'bldg_sqft',
@@ -2797,12 +2991,50 @@
     },
     {
       key: 'acreage', label: 'Acreage',
-      desc: 'Land area in acres',
+      desc: 'Land area in acres (enables acreage-band stratification)',
       required: false, group: 'Optional — descriptive',
       aliases: [
         'acreage', 'acres', 'acre',
         'land_acres', 'lot_acres', 'parcel_acres',
         'land_size', 'land_area',
+      ],
+    },
+    {
+      key: 'quality', label: 'Quality',
+      desc: 'Construction quality grade or class (any coding scheme — codes treated opaquely)',
+      required: false, group: 'Optional — descriptive',
+      aliases: [
+        'quality', 'qual', 'qual_grade', 'quality_grade',
+        'qual_class', 'quality_class', 'quality_code', 'quality_cd',
+        'qual_code', 'qual_cd', 'q_cd', 'q_code',
+        'q_grade', 'qgrade',
+        'construction_class', 'construction_grade', 'construction_quality',
+        'building_quality', 'bldg_qual', 'bldg_quality', 'bldg_qual_cd',
+        'marshall_quality', 'ms_quality', 'mq',
+        'cdu_quality',
+      ],
+    },
+    {
+      key: 'condition', label: 'Condition',
+      desc: 'Building condition or CDU rating (any coding scheme — codes treated opaquely)',
+      required: false, group: 'Optional — descriptive',
+      aliases: [
+        'condition', 'cond', 'cond_code', 'cond_cd', 'condition_code', 'condition_cd',
+        'condition_grade', 'cond_grade', 'cond_class', 'c_cd', 'c_code',
+        'cdu', 'c_d_u', 'cdurating', 'cdu_rating', 'cdu_cd', 'cdu_code',
+        'effective_condition', 'eff_cond', 'eff_cond_cd',
+        'building_cond', 'bldg_cond', 'bldg_cond_cd',
+        'physical_condition', 'phys_cond',
+      ],
+    },
+    {
+      key: 'effective_age', label: 'Effective Age',
+      desc: 'Effective age in years (enables age-band stratification)',
+      required: false, group: 'Optional — descriptive',
+      aliases: [
+        'effective_age', 'eff_age', 'effage',
+        'age', 'building_age', 'bldg_age',
+        'apparent_age',
       ],
     },
   ];
@@ -2849,6 +3081,7 @@
     },
     printSortStrat:    'n',            // 'n' | 'neighborhood' | 'cod' | 'median-low'
     printSortModifier: 'neighborhood', // 'neighborhood' | 'n' | 'move' | 'decision' | 'confidence' | 'median-low'
+    glaBinChoice: 'quartile',          // 'quartile' (default) | 'decile' | 'fixed400' — binning for GLA stratifier
   };
 
   // Sample data embedded for the "Try with sample data" demo button.
@@ -2894,6 +3127,24 @@
     //     magnitudes above a small noise threshold.
     maxLandImpsSpreadPct: 10,
     disallowOppositeSplits: false,
+    // Time trend method — saved with presets so each county can persist its choice.
+    //   'linear'           — single OLS slope across the whole window (default).
+    //                        Continuous: every sale gets a different adjustment based on
+    //                        its month. Defensible when seasonality is absent.
+    //   'piecewise-6mo'    — STEPWISE: each 6-month segment gets one multiplier sized
+    //                        to shift its median ratio to the target. Sales within a
+    //                        segment all get the same multiplier.
+    //   'piecewise-12mo'   — same stepwise math with 12-month segments
+    // Anchoring controls where segment boundaries fall:
+    //   'calendar' — segments aligned to Jan/Jul (6-month) or Jan (12-month)
+    //   'backward' — segments walked back 6 or 12 months from the reference date
+    // Target controls which ratio every segment's median is shifted to:
+    //   'reference' — median of the segment containing the reference date
+    //                 (that segment's multiplier becomes 1.0)
+    //   'overall'   — overall study-period median across all sales
+    trendMethod:    'linear',
+    trendAnchoring: 'calendar',
+    trendTarget:    'reference',
   };
 
   // IAAO 2025 §11.2.2 Table 7 — COD acceptable ranges by property class
@@ -3355,6 +3606,12 @@
       row.year_built = parseNumber(row.year_built);
       row.gla = parseNumber(row.gla);
       row.acreage = parseNumber(row.acreage);
+      row.effective_age = parseNumber(row.effective_age);
+      // Quality and condition: keep as opaque trimmed strings. Codes vary
+      // wildly across CAMA systems (1-7, A-E, "Average"/"Good") and the tool
+      // doesn't interpret the ordering — each distinct code is its own stratum.
+      row.quality   = row.quality   != null && row.quality   !== '' ? String(row.quality).trim()   : null;
+      row.condition = row.condition != null && row.condition !== '' ? String(row.condition).trim() : null;
       row.ratio = av / sp;
 
       cleanRows.push(row);
@@ -3482,6 +3739,50 @@
     const intercept = yBar - slope * tBar;
     return { slope, intercept };
   }
+
+  // Multi-variable weighted least squares. Solves (X^T W X) b = X^T W y via
+  // Gauss-Jordan elimination on the augmented normal-equations matrix.
+  // X: n×p array of arrays. Returns { coeffs: p-array } or null on singular system.
+  // Used for joint continuous piecewise time-trend fitting where p = K+1 (intercept + K slopes).
+  function wlsMultiRegression(X, y, w) {
+    const n = X.length;
+    if (n === 0) return null;
+    const p = X[0].length;
+    // Build A^T W A (p × p) and A^T W y (p)
+    const ATWA = Array.from({ length: p }, () => new Array(p).fill(0));
+    const ATWy = new Array(p).fill(0);
+    for (let m = 0; m < n; m++) {
+      for (let i = 0; i < p; i++) {
+        ATWy[i] += w[m] * X[m][i] * y[m];
+        for (let j = 0; j < p; j++) {
+          ATWA[i][j] += w[m] * X[m][i] * X[m][j];
+        }
+      }
+    }
+    // Augment with ATWy
+    const M = ATWA.map((row, i) => [...row, ATWy[i]]);
+    // Gauss-Jordan with partial pivoting
+    for (let i = 0; i < p; i++) {
+      let maxRow = i;
+      for (let k = i + 1; k < p; k++) {
+        if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) maxRow = k;
+      }
+      if (Math.abs(M[maxRow][i]) < 1e-12) return null;  // singular
+      [M[i], M[maxRow]] = [M[maxRow], M[i]];
+      // Eliminate
+      for (let k = 0; k < p; k++) {
+        if (k === i) continue;
+        const factor = M[k][i] / M[i][i];
+        for (let j = i; j <= p; j++) M[k][j] -= factor * M[i][j];
+      }
+    }
+    const coeffs = M.map((row, i) => row[p] / row[i][i] !== undefined ? row[p] / row[i] : 0);
+    // Simpler: after Gauss-Jordan, each row's M[i][p] is the answer divided by M[i][i]
+    // Reconstruct cleanly:
+    const out = new Array(p);
+    for (let i = 0; i < p; i++) out[i] = M[i][p] / M[i][i];
+    return { coeffs: out };
+  }
   // Returns { months: [...], data: [{ym, n, median, t}], slope (per month), monthlyRate, annualRate, firstMonthDate }
   // Time trend per IAAO standard methodology: fit weighted log-regression on monthly
   // median RATIOS, not median sale prices. Median sale prices drift for many reasons
@@ -3489,45 +3790,383 @@
   // sale activity shifts). Median ratios isolate market movement because the AV is
   // fixed as of the assessment date, so any drift in median ratio reflects how prices
   // have moved relative to those frozen assessments.
-  function computeTimeTrend(rows) {
-    const groups = new Map();
-    for (const r of rows) {
-      const k = ymKey(r.sale_date);
-      if (!groups.has(k)) groups.set(k, []);
-      groups.get(k).push(r);
+  // Build segment boundaries based on the user's method + anchoring choices.
+  // Returns an array of { start, end } Date pairs covering at minimum the
+  // data span and the reference date (so per-sale adjustment never falls
+  // outside any segment).
+  function buildSegmentBoundaries(rows, method, anchoring, referenceDate) {
+    const times = rows.map(r => r.sale_date.getTime()).sort((a, b) => a - b);
+    const dataMin = times[0];
+    const dataMax = times[times.length - 1];
+    if (method === 'linear') {
+      // Single segment spanning data + reference date (the reference may sit
+      // outside data range, e.g., Jan 1 of next year). +1 day on the upper
+      // edge so the last sale's date itself is included by the [start, end)
+      // membership test downstream.
+      const refMs = referenceDate ? referenceDate.getTime() : dataMax;
+      return [{
+        start: new Date(Math.min(dataMin, refMs)),
+        end:   new Date(Math.max(dataMax, refMs) + 24 * 3600 * 1000),
+      }];
     }
-    const months = [...groups.keys()].sort();
-    if (months.length < 3) return null;
+    const segMonths = method === 'piecewise-6mo' ? 6 : 12;
+    const refMs = referenceDate ? referenceDate.getTime() : dataMax;
+    const spanStart = Math.min(dataMin, refMs);
+    const spanEnd   = Math.max(dataMax, refMs);
+    const bounds = [];
 
-    const data = months.map((m, idx) => {
-      const ratios = groups.get(m).map(r => r.ratio).sort((a, b) => a - b);
-      const n = ratios.length;
-      const med = n % 2 ? ratios[(n - 1) / 2] : (ratios[n / 2 - 1] + ratios[n / 2]) / 2;
-      return { ym: m, n, median: med, t: idx };
+    if (anchoring === 'calendar' || anchoring === 'dor') {
+      // Snap the first boundary to a fixed anchor at or before spanStart.
+      //   calendar: 12-month anchors to Jan; 6-month to Jan or Jul
+      //   dor:      12-month anchors to May (DOR sales year May 1–Apr 30);
+      //             6-month splits May–Oct and Nov–Apr
+      const startDt = new Date(spanStart);
+      let yr = startDt.getUTCFullYear();
+      let mo;
+      if (anchoring === 'calendar') {
+        if (segMonths === 12) {
+          mo = 0;  // January
+        } else {
+          mo = startDt.getUTCMonth() < 6 ? 0 : 6;  // Jan or Jul
+        }
+      } else {
+        // DOR fiscal year — anchors at May (month 4) or November (month 10)
+        const m = startDt.getUTCMonth();
+        if (segMonths === 12) {
+          // 12-month: anchor at May. If we're before May this year, the prior
+          // sales-year began last May, so back up one year.
+          mo = 4;
+          if (m < 4) yr -= 1;
+        } else {
+          // 6-month: anchor at May or November
+          if (m >= 4 && m < 10) mo = 4;        // May-Oct half
+          else if (m >= 10) mo = 10;            // Nov-Apr half (starts Nov)
+          else { mo = 10; yr -= 1; }            // Jan-Apr → back to prior Nov
+        }
+      }
+      let cur = Date.UTC(yr, mo, 1);
+      while (cur <= spanEnd) {
+        const curDt = new Date(cur);
+        let nextYr = curDt.getUTCFullYear();
+        let nextMo = curDt.getUTCMonth() + segMonths;
+        const next = Date.UTC(nextYr, nextMo, 1);
+        bounds.push({ start: new Date(cur), end: new Date(next) });
+        cur = next;
+      }
+    } else {
+      // Backward from reference: walk back 6 or 12 months from refDate.
+      const addMonthsUTC = (d, n) => {
+        const newYr = d.getUTCFullYear();
+        const newMo = d.getUTCMonth() + n;
+        return new Date(Date.UTC(newYr, newMo, d.getUTCDate()));
+      };
+      let endDt = new Date(refMs);
+      // Walk backward emitting segments until we cover spanStart, then reverse
+      while (endDt.getTime() > spanStart) {
+        const startDt = addMonthsUTC(endDt, -segMonths);
+        bounds.push({ start: startDt, end: endDt });
+        endDt = startDt;
+      }
+      bounds.reverse();
+      // Extend forward if reference date is in the past relative to dataMax
+      while (bounds.length && bounds[bounds.length - 1].end.getTime() <= dataMax) {
+        const lastEnd = bounds[bounds.length - 1].end;
+        const newEnd = addMonthsUTC(lastEnd, segMonths);
+        bounds.push({ start: lastEnd, end: newEnd });
+      }
+    }
+    return bounds;
+  }
+
+  // Format a segment's label for display. Calendar-anchored shows years and
+  // half-year markers; backward-anchored shows date ranges since boundaries
+  // aren't calendar-aligned.
+  function formatSegmentLabel(seg, method, anchoring) {
+    if (method === 'linear') return 'Linear (single rate)';
+    const s = seg.start, e = seg.end;
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if (anchoring === 'calendar') {
+      if (method === 'piecewise-12mo') {
+        return String(s.getUTCFullYear());
+      }
+      // 6-month calendar: "H1 2023" or "H2 2023"
+      const half = s.getUTCMonth() < 6 ? 'H1' : 'H2';
+      return `${half} ${s.getUTCFullYear()}`;
+    }
+    if (anchoring === 'dor') {
+      // DOR fiscal-year anchoring (May–Apr). Label every segment by its actual
+      // start–end range so there's no ambiguity about which sales window we're
+      // talking about. Last month is end.getUTCMonth()-1 since end is exclusive.
+      const lastMo = (e.getUTCMonth() + 11) % 12;  // month before end
+      const lastYr = lastMo === 11 && e.getUTCMonth() === 0 ? e.getUTCFullYear() - 1 : (lastMo > e.getUTCMonth() ? e.getUTCFullYear() - 1 : e.getUTCFullYear());
+      return `${monthNames[s.getUTCMonth()]} ${s.getUTCFullYear()}–${monthNames[lastMo]} ${lastYr}`;
+    }
+    // Backward-anchored: "Mar 2023 – Sep 2023"
+    return `${monthNames[s.getUTCMonth()]} ${s.getUTCFullYear()} – ${monthNames[e.getUTCMonth()]} ${e.getUTCFullYear()}`;
+  }
+
+  // Fit a single segment: WLS regression on log(monthly median ratio) vs
+  // absolute calendar-month index. Returns null if the segment has no data,
+  // or a partially-populated object (with fitOk:false) if it's too thin.
+  // Uses absolute month index (year*12+month) so the slope is "log-ratio
+  // change per calendar month" — needed so different segments compose
+  // correctly when applying piecewise adjustment.
+  function fitSegmentTrend(rows, segBounds) {
+    const inSeg = rows.filter(r => {
+      const t = r.sale_date.getTime();
+      return t >= segBounds.start.getTime() && t < segBounds.end.getTime();
     });
+    if (inSeg.length === 0) return { ...segBounds, n: 0, months: 0, fitOk: false };
+
+    const monthGroups = new Map();
+    for (const r of inSeg) {
+      const k = ymKey(r.sale_date);
+      if (!monthGroups.has(k)) monthGroups.set(k, []);
+      monthGroups.get(k).push(r.ratio);
+    }
+    const months = [...monthGroups.keys()].sort();
+    const data = months.map(m => {
+      const arr = monthGroups.get(m).slice().sort((a, b) => a - b);
+      const n = arr.length;
+      const med = n % 2 ? arr[(n - 1) / 2] : (arr[n / 2 - 1] + arr[n / 2]) / 2;
+      const [yr, mo] = m.split('-').map(Number);
+      // Absolute month index — slope is then per calendar month.
+      return { ym: m, n, median: med, t: yr * 12 + (mo - 1) };
+    });
+
+    if (data.length < 3) {
+      return { ...segBounds, n: inSeg.length, months: data.length, monthlyData: data, fitOk: false };
+    }
     const t = data.map(d => d.t);
     const y = data.map(d => Math.log(d.median));
     const w = data.map(d => d.n);
     const { slope, intercept } = wlsRegression(t, y, w);
-
-    // Slope here is the per-month log-change in RATIO. A rising market means
-    // ratios fall over time (AV fixed, SP rises), so slope is typically negative.
-    // The market rate is the negative of the ratio slope.
     const marketSlope = -slope;
+    return {
+      ...segBounds,
+      n: inSeg.length,
+      months: data.length,
+      monthlyData: data,
+      slope, intercept, marketSlope,
+      monthlyRate: Math.exp(marketSlope) - 1,
+      annualRate:  Math.exp(marketSlope * 12) - 1,
+      fitOk: true,
+    };
+  }
 
-    // Anchor: first month's first day (UTC)
-    const [yr0, mo0] = months[0].split('-').map(Number);
+  function computeTimeTrend(rows) {
+    if (rows.length === 0) return null;
+    if (!state.modifierRules) state.modifierRules = { ...DEFAULT_MODIFIER_RULES };
+    const rules = state.modifierRules;
+    const method    = rules.trendMethod    || 'linear';
+    const anchoring = rules.trendAnchoring || 'calendar';
+    const target    = rules.trendTarget    || 'reference';
+    const refDate   = state.referenceDate;
+
+    // Always fit a linear trend as the fallback and the headline annual rate
+    // for reporting (so the cover/summary always has a single number to cite).
+    const linearBounds = buildSegmentBoundaries(rows, 'linear', 'calendar', refDate)[0];
+    const linearFit = fitSegmentTrend(rows, linearBounds);
+    if (!linearFit || !linearFit.fitOk) return null;
+    linearFit.label = 'Linear (single rate)';
+
+    // Aggregate monthly data across ALL rows for the chart background scatter
+    // — used regardless of method so the chart always shows the same dots.
+    const allGroups = new Map();
+    for (const r of rows) {
+      const k = ymKey(r.sale_date);
+      if (!allGroups.has(k)) allGroups.set(k, []);
+      allGroups.get(k).push(r.ratio);
+    }
+    const monthsAll = [...allGroups.keys()].sort();
+    const dataAll = monthsAll.map(m => {
+      const arr = allGroups.get(m).slice().sort((a, b) => a - b);
+      const n = arr.length;
+      const med = n % 2 ? arr[(n - 1) / 2] : (arr[n / 2 - 1] + arr[n / 2]) / 2;
+      const [yr, mo] = m.split('-').map(Number);
+      return { ym: m, n, median: med, t: yr * 12 + (mo - 1) };
+    });
+    const [yr0, mo0] = monthsAll[0].split('-').map(Number);
     const firstMonthDate = new Date(Date.UTC(yr0, mo0 - 1, 1));
 
+    // For 'linear' method, just return the linear fit dressed up as a result.
+    if (method === 'linear') {
+      return {
+        method: 'linear',
+        anchoring,
+        target,
+        segments: [linearFit],
+        months: monthsAll,
+        data: dataAll,
+        // Top-level summary fields for compatibility with existing readers
+        slope: linearFit.marketSlope,
+        ratioSlope: linearFit.slope,
+        intercept: linearFit.intercept,
+        monthlyRate: linearFit.monthlyRate,
+        annualRate: linearFit.annualRate,
+        firstMonthDate,
+        fallbackToLinear: false,
+        fallbackReason: null,
+      };
+    }
+
+    // Piecewise STEPWISE: compute each segment's median ratio, then assign each
+    // segment a single multiplier sized to shift its median onto the target. The
+    // target is either the median of the segment containing the reference date
+    // (default) or the overall study-period median. Within a segment, every sale
+    // gets the same multiplier — so seasonal wiggle inside a segment is preserved
+    // but cross-segment level differences are removed. This is the IAAO-standard
+    // stepwise / indexed approach.
+    const bounds = buildSegmentBoundaries(rows, method, anchoring, refDate);
+
+    // Per-segment data: row count, distinct months, and median RATIO (the value
+    // we shift). Median picked over mean per the IAAO standard.
+    const segInfo = bounds.map(b => {
+      const inSeg = rows.filter(r => {
+        const t = r.sale_date.getTime();
+        return t >= b.start.getTime() && t < b.end.getTime();
+      });
+      const monthSet = new Set(inSeg.map(r => ymKey(r.sale_date)));
+      const ratios = inSeg.map(r => r.ratio).sort((a, b) => a - b);
+      const n = ratios.length;
+      const median = n === 0 ? NaN
+        : n % 2 ? ratios[(n - 1) / 2]
+        : (ratios[n / 2 - 1] + ratios[n / 2]) / 2;
+      return {
+        start: b.start,
+        end: b.end,
+        n,
+        months: monthSet.size,
+        median,
+        startMonthIdx: b.start.getUTCFullYear() * 12 + b.start.getUTCMonth(),
+        endMonthIdx:   b.end.getUTCFullYear()   * 12 + b.end.getUTCMonth(),
+      };
+    });
+    // Fallback rule constants. Tighter for stepwise than for continuous-slope
+    // because each segment's median is a direct input — a thin segment makes
+    // a noisy target.
+    const MIN_SALES_PER_SEGMENT = 15;
+    const MIN_MONTHS_PER_SEGMENT = 3;
+
+    // Drop leading/trailing segments that are entirely empty OR too thin to
+    // sustain a reliable median. This commonly happens with DOR fiscal-year
+    // anchoring when the data window doesn't align to May 1 / Apr 30 — the
+    // first or last DOR year has only a partial-month tail. Sales in dropped
+    // edge segments fall back to the nearest segment's multiplier in
+    // effectiveRows (which already handles "outside coverage" sales).
+    // Interior thin segments still trigger the linear fallback below — those
+    // mean a real data gap, not a clean boundary mismatch.
+    while (segInfo.length && (segInfo[0].n === 0 || segInfo[0].n < MIN_SALES_PER_SEGMENT || segInfo[0].months < MIN_MONTHS_PER_SEGMENT)) segInfo.shift();
+    while (segInfo.length && (segInfo[segInfo.length - 1].n === 0 || segInfo[segInfo.length - 1].n < MIN_SALES_PER_SEGMENT || segInfo[segInfo.length - 1].months < MIN_MONTHS_PER_SEGMENT)) segInfo.pop();
+
+    let fallbackReason = null;
+    for (const s of segInfo) {
+      const label = formatSegmentLabel(s, method, anchoring);
+      if (s.n < MIN_SALES_PER_SEGMENT) {
+        fallbackReason = `Interior segment ${label} has only ${s.n} sales (minimum ${MIN_SALES_PER_SEGMENT}); falling back to linear.`;
+        break;
+      }
+      if (s.months < MIN_MONTHS_PER_SEGMENT) {
+        fallbackReason = `Interior segment ${label} spans only ${s.months} month${s.months === 1 ? '' : 's'} (minimum ${MIN_MONTHS_PER_SEGMENT}); falling back to linear.`;
+        break;
+      }
+    }
+    if (fallbackReason) {
+      return {
+        method: 'linear',
+        anchoring,
+        target,
+        segments: [linearFit],
+        months: monthsAll,
+        data: dataAll,
+        slope: linearFit.marketSlope,
+        ratioSlope: linearFit.slope,
+        intercept: linearFit.intercept,
+        monthlyRate: linearFit.monthlyRate,
+        annualRate: linearFit.annualRate,
+        firstMonthDate,
+        fallbackToLinear: true,
+        fallbackReason,
+      };
+    }
+
+    // Determine the target ratio. 'reference' uses the median of the segment
+    // containing the reference date (so that segment's multiplier is exactly 1.0
+    // — sales near the ref date are untouched). 'overall' uses the overall
+    // study-period median across all sales.
+    let targetRatio;
+    let refSegIdx = -1;
+    if (target === 'reference') {
+      // Find segment containing reference date. If ref sits outside all segments,
+      // pick the nearest segment (by midpoint distance).
+      const refMsT = refDate.getTime();
+      refSegIdx = segInfo.findIndex(s =>
+        refMsT >= s.start.getTime() && refMsT < s.end.getTime());
+      if (refSegIdx < 0) {
+        let bestDist = Infinity;
+        segInfo.forEach((s, i) => {
+          const mid = (s.start.getTime() + s.end.getTime()) / 2;
+          const d = Math.abs(mid - refMsT);
+          if (d < bestDist) { bestDist = d; refSegIdx = i; }
+        });
+      }
+      targetRatio = segInfo[refSegIdx].median;
+    } else {
+      // 'overall' — overall study-period median across all sales
+      const allRatios = rows.map(r => r.ratio).sort((a, b) => a - b);
+      const m = allRatios.length;
+      targetRatio = m % 2 ? allRatios[(m - 1) / 2]
+                          : (allRatios[m / 2 - 1] + allRatios[m / 2]) / 2;
+    }
+
+    // Build segment objects with per-segment SP multiplier = median / target.
+    //   ratio_adjusted = AV / (SP × k)
+    //   we want ratio_adjusted = target
+    //   so target = (AV / SP) / k = ratio / k → k = ratio / target
+    // A high-ratio segment (median > target) gets k > 1 → SP shifted UP →
+    // adjusted ratio drops to target. Low-ratio segments get k < 1.
+    const segs = segInfo.map((sb, i) => {
+      const multiplier = sb.median / targetRatio;
+      const shiftPct = (multiplier - 1) * 100;  // SP percent change
+      const monthlyDataInSeg = dataAll.filter(d => d.t >= sb.startMonthIdx && d.t < sb.endMonthIdx);
+      const seg = {
+        start: sb.start,
+        end: sb.end,
+        n: sb.n,
+        months: sb.months,
+        median: sb.median,
+        multiplier,
+        shiftPct,
+        isReference: i === refSegIdx,
+        monthlyData: monthlyDataInSeg,
+        // legacy fields kept for compatibility with any consumer that still
+        // looks at slope/rate — set to 0 because stepwise has no slope concept
+        slope: 0, intercept: Math.log(sb.median), marketSlope: 0,
+        monthlyRate: 0, annualRate: 0,
+        fitOk: true,
+      };
+      seg.label = formatSegmentLabel(seg, method, anchoring);
+      return seg;
+    });
+
     return {
-      months,
-      data,
-      slope: marketSlope,                    // market rate per month (log scale)
-      ratioSlope: slope,                     // raw ratio slope (negative if market rising)
-      intercept,                             // intercept of the ratio regression
-      monthlyRate: Math.exp(marketSlope) - 1,
-      annualRate: Math.exp(marketSlope * 12) - 1,
+      method,
+      anchoring,
+      target,
+      targetRatio,
+      segments: segs,
+      months: monthsAll,
+      data: dataAll,
+      // Keep linear fallback numbers available so any consumer that asks for an
+      // annualized rate (print summary, vertical equity note) still has one.
+      slope: linearFit.marketSlope,
+      ratioSlope: linearFit.slope,
+      intercept: linearFit.intercept,
+      monthlyRate: linearFit.monthlyRate,
+      annualRate: linearFit.annualRate,
       firstMonthDate,
+      fallbackToLinear: false,
+      fallbackReason: null,
     };
   }
   // Returns each row with .effective_price and .effective_ratio, applied or not based on state.
@@ -3535,13 +4174,52 @@
     if (!state.applyTimeAdjustment || !state.timeTrend) {
       return cleanRows.map(r => ({ ...r, effective_price: r.sale_price, effective_ratio: r.ratio }));
     }
-    // beta = market rate per month (log). Adjusting a sale forward in time means
-    // scaling its price UP by exp(beta * months_to_ref).
-    const beta = state.timeTrend.slope;
+    const trend = state.timeTrend;
+    const segments = trend.segments || [];
+    const refDate = state.referenceDate;
+    const isPiecewiseStepwise = trend.method !== 'linear';
+
+    if (isPiecewiseStepwise) {
+      // STEPWISE PIECEWISE: each sale gets its segment's single multiplier.
+      // Sales outside any segment use the nearest segment's multiplier (rare —
+      // segment bounds are built to cover the data span).
+      function findMultiplier(sale_date) {
+        const t = sale_date.getTime();
+        for (const seg of segments) {
+          if (t >= seg.start.getTime() && t < seg.end.getTime()) return seg.multiplier;
+        }
+        // Outside coverage — use nearest segment. Picks first/last by direction.
+        if (!segments.length) return 1.0;
+        if (t < segments[0].start.getTime()) return segments[0].multiplier;
+        return segments[segments.length - 1].multiplier;
+      }
+      return cleanRows.map(r => {
+        const k = findMultiplier(r.sale_date);
+        const adjPrice = r.sale_price * k;
+        return {
+          ...r,
+          effective_price: adjPrice,
+          effective_ratio: r.total_av / adjPrice,
+        };
+      });
+    }
+
+    // LINEAR: continuous slope across the whole span. Adjust by integrating the
+    // (single) market slope across months from sale_date to refDate. This is the
+    // textbook continuous time-trend approach and is right when seasonality is
+    // absent or has been averaged over multiple full cycles.
+    const MS_PER_MONTH = 30.4375 * 24 * 3600 * 1000;
+    function logAdjustment(sale_date) {
+      const sMs = sale_date.getTime();
+      const rMs = refDate.getTime();
+      if (sMs === rMs) return 0;
+      const months = (rMs - sMs) / MS_PER_MONTH;
+      const seg = segments[0];
+      return seg ? seg.marketSlope * months : 0;
+    }
     return cleanRows.map(r => {
-      const monthsToRef = monthsBetween(r.sale_date, state.referenceDate);
-      const scale = Math.exp(beta * monthsToRef);
-      const adjPrice = r.sale_price * scale;
+      const logScale = logAdjustment(r.sale_date);
+      const adjPrice = r.sale_price * Math.exp(logScale);
       return {
         ...r,
         effective_price: adjPrice,
@@ -4049,8 +4727,19 @@
     // Applied banner
     const bannerEl = document.getElementById('applied-banner-overall');
     if (state.applyTimeAdjustment && state.timeTrend) {
-      const rateTxt = (state.timeTrend.annualRate * 100).toFixed(2) + '% annualized';
-      bannerEl.innerHTML = `<div class="applied-banner"><strong>Time adjustment applied.</strong> Sale prices adjusted to ${formatDate(state.referenceDate)} using a trend of ${rateTxt}.</div>`;
+      const trend = state.timeTrend;
+      const isPiecewise = trend.method && trend.method !== 'linear' && trend.segments && trend.segments.length > 1;
+      let msg;
+      if (isPiecewise) {
+        const methodTxt = trend.method === 'piecewise-6mo' ? '6-month stepwise piecewise' : '12-month stepwise piecewise';
+        const tgtPct = (trend.targetRatio * 100).toFixed(2);
+        const targetSrc = trend.target === 'reference' ? 'reference-date segment' : 'overall study-period median';
+        msg = `<strong>Time adjustment applied (${methodTxt}).</strong> Each segment shifted to a target ratio of ${tgtPct}% (from ${targetSrc}).`;
+      } else {
+        const rateTxt = (trend.annualRate * 100).toFixed(2) + '% annualized';
+        msg = `<strong>Time adjustment applied.</strong> Sale prices adjusted to ${formatDate(state.referenceDate)} using a trend of ${rateTxt}.`;
+      }
+      bannerEl.innerHTML = `<div class="applied-banner">${msg}</div>`;
     } else {
       bannerEl.innerHTML = '';
     }
@@ -4565,10 +5254,11 @@
       chartHtml = `
         <div class="ve-chart-wrap">
           <h3 class="ve-chart-title">Median ratio by ${groupLabel.toLowerCase()} group, with 90% confidence intervals</h3>
-          <p class="ve-chart-intro">Sales sorted by the IAAO market value proxy (0.5·SP + 0.5·AV/median) and split into ${vei.k} equal groups. Each dot is the median ratio for that group; vertical bars are 90% confidence intervals on the median (IAAO §7.5.3 rank method). The dashed line marks the overall sample median; the shaded band marks the IAAO acceptable level range of 90% to 110%.</p>
+          <p class="ve-chart-intro">Sales sorted by the IAAO market value proxy (0.5·SP + 0.5·AV/median) and split into ${vei.k} equal groups. Each dot is the median ratio for that group; vertical bars are 90% confidence intervals on the median (IAAO §7.5.3 rank method). The dashed line marks the overall sample median; the shaded band marks the IAAO acceptable level range of 90% to 110%. The orange line is a weighted least-squares trend through the group medians — flat means no vertical-equity drift, a downward slope means high-value parcels are under-assessed (regressive), upward means over-assessed (progressive).</p>
           <svg class="ve-chart" id="ve-group-chart" preserveAspectRatio="xMidYMid meet"></svg>
           <div class="ve-legend">
             <span><span class="ve-legend-swatch dot"></span>Group median</span>
+            <span><span class="ve-legend-swatch trend"></span>WLS trend through medians</span>
             <span><span class="ve-legend-swatch sample"></span>Sample median (${pct(vei.sampleMedian)})</span>
             <span><span class="ve-legend-swatch band"></span>IAAO level range 90%–110%</span>
           </div>
@@ -4687,9 +5377,67 @@
       html += `<text class="ve-axis-text" x="${cx}" y="${pad.top + plotH + 16}" text-anchor="middle">${groupLabel}${i + 1}</text>`;
     }
 
+    // Weighted-least-squares trend line through the group medians (all groups
+    // have ~equal n, so the weights are effectively uniform). Reads as: "what's
+    // the systematic drift in ratio as you move from low-value to high-value
+    // groups". Flat = no vertical-equity issue; downward slope = regressive
+    // (high-value parcels under-assessed); upward slope = progressive.
+    if (k >= 3) {
+      const xsR = medians.map((_, i) => i);
+      const logYs = medians.map(m => Math.log(m));
+      const meanX = xsR.reduce((a, b) => a + b, 0) / k;
+      const meanY = logYs.reduce((a, b) => a + b, 0) / k;
+      let num = 0, den = 0;
+      for (let i = 0; i < k; i++) {
+        num += (xsR[i] - meanX) * (logYs[i] - meanY);
+        den += (xsR[i] - meanX) ** 2;
+      }
+      const slope = den > 0 ? num / den : 0;
+      const intercept = meanY - slope * meanX;
+      const firstFit = Math.exp(intercept + slope * 0);
+      const lastFit  = Math.exp(intercept + slope * (k - 1));
+      const totalDeltaPp = (lastFit - firstFit) * 100;
+      // Draw the trend line
+      const tx0 = xOf(0), tx1 = xOf(k - 1);
+      const ty0 = yOf(firstFit), ty1 = yOf(lastFit);
+      html += `<line class="ve-trend-line" x1="${tx0}" y1="${ty0}" x2="${tx1}" y2="${ty1}" />`;
+      // Δ annotation in top-right with paint-order halo so it stays readable
+      const deltaTxt = `${totalDeltaPp >= 0 ? '+' : ''}${totalDeltaPp.toFixed(2)}pp`;
+      const deltaColor = Math.abs(totalDeltaPp) < 0.5 ? 'var(--ink-mute)'
+        : totalDeltaPp >= 0 ? 'var(--wsaca-green-deep)' : 'var(--alert-red)';
+      html += `<text x="${pad.left + plotW - 4}" y="${pad.top + 12}" text-anchor="end" style="font-size: 11px; font-weight: 700; fill: ${deltaColor}; paint-order: stroke; stroke: var(--paper); stroke-width: 3.5px; stroke-linejoin: round;">Trend Δ ${deltaTxt} across groups</text>`;
+    }
+
     svg.innerHTML = html;
   }
 
+
+  // Months of data covered, used for the auto-recommendation logic
+  function dataSpanMonths(trend) {
+    if (!trend || !trend.months || !trend.months.length) return 0;
+    const first = trend.months[0];
+    const last = trend.months[trend.months.length - 1];
+    const [y1, m1] = first.split('-').map(Number);
+    const [y2, m2] = last.split('-').map(Number);
+    return (y2 - y1) * 12 + (m2 - m1) + 1;  // inclusive
+  }
+
+  // Which methods are eligible given the data span. < 12 months only allows
+  // linear (piecewise needs at least one full segment plus enough sales).
+  // 12-23 months unlocks 6-month. 24+ months unlocks 12-month too.
+  function eligibleTrendMethods(spanMonths) {
+    if (spanMonths >= 24) return ['linear', 'piecewise-6mo', 'piecewise-12mo'];
+    if (spanMonths >= 12) return ['linear', 'piecewise-6mo'];
+    return ['linear'];
+  }
+
+  // Recommend a method based on data span. Returns the key that should be
+  // marked "recommended" in the dropdown.
+  function recommendedTrendMethod(spanMonths) {
+    if (spanMonths >= 24) return 'piecewise-12mo';
+    if (spanMonths >= 12) return 'piecewise-6mo';
+    return 'linear';
+  }
 
   function renderTimeAdjustment() {
     const container = document.getElementById('time-content');
@@ -4700,13 +5448,118 @@
       return;
     }
 
+    if (!state.modifierRules) state.modifierRules = { ...DEFAULT_MODIFIER_RULES };
+    const rules = state.modifierRules;
+
+    const span = dataSpanMonths(trend);
+    const eligible = eligibleTrendMethods(span);
+    const recommended = recommendedTrendMethod(span);
+    // If user's saved method isn't eligible for this dataset, silently fall
+    // back to linear (or what's eligible). Don't overwrite the saved preference.
+    const effectiveMethod = eligible.includes(rules.trendMethod) ? rules.trendMethod : 'linear';
+    const isPiecewise = trend.method !== 'linear';
+
+    // Method options with auto-recommend tag and disabled state for ineligible
+    const methodOptions = [
+      { key: 'linear',           label: 'Linear (continuous slope)' },
+      { key: 'piecewise-6mo',    label: '6-month piecewise (stepwise)' },
+      { key: 'piecewise-12mo',   label: '12-month piecewise (stepwise)' },
+    ].map(opt => {
+      const disabled = !eligible.includes(opt.key);
+      const isRec = opt.key === recommended;
+      const selected = opt.key === effectiveMethod;
+      return `<option value="${opt.key}" ${selected ? 'selected' : ''} ${disabled ? 'disabled' : ''}>${opt.label}${isRec ? ' (recommended)' : ''}${disabled ? ' — needs more data' : ''}</option>`;
+    }).join('');
+
+    const anchoringRow = isPiecewise ? `
+        <div class="control-group">
+          <span class="control-label">Anchoring:</span>
+          <select id="trend-anchoring" class="control-input">
+            <option value="calendar" ${rules.trendAnchoring === 'calendar' ? 'selected' : ''}>Calendar (Jan/Jul)</option>
+            <option value="dor"      ${rules.trendAnchoring === 'dor'      ? 'selected' : ''}>DOR sales year (May–Apr)</option>
+            <option value="backward" ${rules.trendAnchoring === 'backward' ? 'selected' : ''}>Backward from reference date</option>
+          </select>
+          <span class="control-sub">where segment boundaries fall</span>
+        </div>` : '';
+
+    const targetRow = isPiecewise ? `
+        <div class="control-group">
+          <span class="control-label">Target:</span>
+          <select id="trend-target" class="control-input">
+            <option value="reference" ${rules.trendTarget === 'reference' ? 'selected' : ''}>Reference-date segment</option>
+            <option value="overall"   ${rules.trendTarget === 'overall'   ? 'selected' : ''}>Overall study-period median</option>
+          </select>
+          <span class="control-sub">ratio every segment is shifted to</span>
+        </div>` : '';
+
+    const fallbackBanner = trend.fallbackToLinear ? `
+      <div class="summary-warning" style="margin-bottom: 14px;">
+        <strong>Fell back to linear.</strong> ${escapeHtml(trend.fallbackReason)}
+        Adjust your method choice or extend the sales window if you want piecewise to apply.
+      </div>` : '';
+
+    // Per-segment breakdown table — stepwise piecewise shows median, multiplier,
+    // and SP shift per segment. Linear has no segments to show.
+    const segmentTable = isPiecewise && trend.segments.length > 1 ? `
+      <div class="trend-segments-wrap">
+        <h4 class="trend-segments-title">Segment breakdown</h4>
+        <p class="trend-segments-sub">Every segment's median ratio is shifted to the target by multiplying sale prices by the listed factor. The reference segment (★) has multiplier 1.0 — those sales aren't touched.</p>
+        <table class="trend-segments-table">
+          <thead>
+            <tr><th>Segment</th><th class="num">Sales</th><th class="num">Months</th><th class="num">Pre-adj median</th><th class="num">SP multiplier</th><th class="num">SP shift</th></tr>
+          </thead>
+          <tbody>
+            ${trend.segments.map(seg => {
+              const star = seg.isReference ? ' ★' : '';
+              const med = (seg.median * 100).toFixed(2);
+              const mult = seg.multiplier.toFixed(4);
+              const shift = seg.shiftPct.toFixed(2);
+              const shiftStyle = Math.abs(seg.shiftPct) < 0.005 ? ' style="opacity: 0.6;"' : (seg.shiftPct < 0 ? ' style="color: var(--alert-red);"' : '');
+              return `<tr>
+                <td>${escapeHtml(seg.label)}${star}</td>
+                <td class="num">${seg.n}</td>
+                <td class="num">${seg.months}</td>
+                <td class="num">${med}%</td>
+                <td class="num">${mult}</td>
+                <td class="num"${shiftStyle}>${seg.shiftPct >= 0 ? '+' : ''}${shift}%</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>` : '';
+
+    // Headline tiles. Linear shows annualized rate + monthly rate. Stepwise
+    // piecewise shows target ratio + segment count + range of shifts.
     const annualPct = (trend.annualRate * 100).toFixed(2);
     const monthlyPct = (trend.monthlyRate * 100).toFixed(3);
     const direction = trend.annualRate >= 0 ? 'appreciation' : 'depreciation';
     const negClass = trend.annualRate < 0 ? ' negative' : '';
-
-    container.innerHTML = `
-      <div class="trend-summary">
+    let summaryTiles;
+    if (isPiecewise) {
+      const tgtPct = (trend.targetRatio * 100).toFixed(2);
+      const shifts = trend.segments.map(s => s.shiftPct);
+      const maxShift = Math.max(...shifts.map(Math.abs));
+      const targetSubText = trend.target === 'reference'
+        ? 'median of segment containing reference date'
+        : 'median of all sales across study period';
+      summaryTiles = `
+        <div class="trend-stat">
+          <div class="trend-stat-label">Target Ratio</div>
+          <div class="trend-stat-value">${tgtPct}%</div>
+          <div class="trend-stat-sub">${targetSubText}</div>
+        </div>
+        <div class="trend-stat">
+          <div class="trend-stat-label">Segments</div>
+          <div class="trend-stat-value">${trend.segments.length}</div>
+          <div class="trend-stat-sub">${trend.method === 'piecewise-6mo' ? '6-month' : '12-month'} · ${trend.anchoring === 'calendar' ? 'calendar' : trend.anchoring === 'dor' ? 'DOR sales year' : 'backward'}</div>
+        </div>
+        <div class="trend-stat">
+          <div class="trend-stat-label">Largest Shift</div>
+          <div class="trend-stat-value">±${maxShift.toFixed(2)}%</div>
+          <div class="trend-stat-sub">max sale-price adjustment applied</div>
+        </div>`;
+    } else {
+      summaryTiles = `
         <div class="trend-stat">
           <div class="trend-stat-label">Annualized Market Rate</div>
           <div class="trend-stat-value${negClass}">${annualPct >= 0 ? '+' : ''}${annualPct}%</div>
@@ -4721,14 +5574,29 @@
           <div class="trend-stat-label">Months in Study</div>
           <div class="trend-stat-value">${trend.months.length}</div>
           <div class="trend-stat-sub">${trend.months[0]} to ${trend.months[trend.months.length - 1]}</div>
-        </div>
-      </div>
+        </div>`;
+    }
+
+    container.innerHTML = `
+      ${fallbackBanner}
+      <div class="trend-summary">${summaryTiles}</div>
 
       <div class="trend-chart-wrap">
         <svg class="trend-chart" id="trend-chart" preserveAspectRatio="xMidYMid meet"></svg>
         <p class="trend-legend" id="trend-legend"></p>
       </div>
 
+      ${segmentTable}
+
+      <div class="controls-bar">
+        <div class="control-group">
+          <span class="control-label">Method:</span>
+          <select id="trend-method" class="control-input">${methodOptions}</select>
+          <span class="control-sub">${span}-month data span</span>
+        </div>
+        ${anchoringRow}
+        ${targetRow}
+      </div>
       <div class="controls-bar">
         <div class="control-group">
           <label class="toggle-switch">
@@ -4740,13 +5608,52 @@
         <div class="control-group">
           <span class="control-label">Reference date:</span>
           <input type="date" id="ref-date" class="control-input" value="${formatDate(state.referenceDate)}" />
-          <span class="control-sub">all sales adjusted to this date when toggle is on</span>
+          <span class="control-sub">${isPiecewise ? 'determines target segment when target = reference' : 'all sales adjusted to this date when toggle is on'}</span>
         </div>
       </div>
     `;
 
     drawTrendChart();
     updateTrendLegend();
+
+    // Wire method/anchoring/target changes — all trigger a full recompute since
+    // the segment structure or multipliers change.
+    document.getElementById('trend-method').addEventListener('change', e => {
+      state.modifierRules.trendMethod = e.target.value;
+      state.timeTrend = computeTimeTrend(cleanRows);
+      renderTimeAdjustment();
+      renderDiagnostics();
+      renderVerticalEquity();
+      renderStratificationTables();
+      refreshModifierResults();
+      renderExportStep();
+    });
+    const anchoringEl = document.getElementById('trend-anchoring');
+    if (anchoringEl) {
+      anchoringEl.addEventListener('change', e => {
+        state.modifierRules.trendAnchoring = e.target.value;
+        state.timeTrend = computeTimeTrend(cleanRows);
+        renderTimeAdjustment();
+        renderDiagnostics();
+        renderVerticalEquity();
+        renderStratificationTables();
+        refreshModifierResults();
+        renderExportStep();
+      });
+    }
+    const targetEl = document.getElementById('trend-target');
+    if (targetEl) {
+      targetEl.addEventListener('change', e => {
+        state.modifierRules.trendTarget = e.target.value;
+        state.timeTrend = computeTimeTrend(cleanRows);
+        renderTimeAdjustment();
+        renderDiagnostics();
+        renderVerticalEquity();
+        renderStratificationTables();
+        refreshModifierResults();
+        renderExportStep();
+      });
+    }
 
     document.getElementById('apply-toggle').addEventListener('change', e => {
       state.applyTimeAdjustment = e.target.checked;
@@ -4763,8 +5670,10 @@
       if (v) {
         const [y, m, d] = v.split('-').map(Number);
         state.referenceDate = new Date(Date.UTC(y, m - 1, d));
-        drawTrendChart();
-        updateTrendLegend();
+        // Reference-date change can shift segment boundaries (backward
+        // anchoring) or change the reference target segment, so recompute.
+        state.timeTrend = computeTimeTrend(cleanRows);
+        renderTimeAdjustment();
         renderDiagnostics();
         renderVerticalEquity();
         renderStratificationTables();
@@ -4778,27 +5687,29 @@
     const legend = document.getElementById('trend-legend');
     if (!legend) return;
     const applied = state.applyTimeAdjustment;
-    legend.innerHTML = applied
-      ? `<strong>Time adjustment applied.</strong> Chart now shows monthly median ratios after each sale was time-adjusted to the reference date. If the adjustment was effective the ratios should sit roughly flat across months — the residual slope visible here is what remains after correction.`
-      : `Monthly median <strong>assessment ratios</strong> (AV ÷ SP) with dot size proportional to sales count. <strong>Trend line</strong> is weighted least squares on log(monthly median ratio). Per IAAO methodology, the trend is fit on ratios rather than median sale prices because median prices drift with sales-mix changes (more big-house months, new construction entering the sample) that aren't true market movement. With ratios, the AV side is fixed as of the assessment date, so drift in median ratio is a direct measure of how prices moved.`;
+    const trend = state.timeTrend;
+    const isStepwise = trend && trend.method !== 'linear' && trend.segments && trend.segments.length > 1;
+    if (applied && isStepwise) {
+      legend.innerHTML = `<strong>Time adjustment applied (stepwise).</strong> Every sale was multiplied by its segment's factor so each segment's median ratio matches the target. Within-segment seasonal wiggle is preserved — sales in the same segment all received the same multiplier — but cross-segment level differences are now gone.`;
+    } else if (applied) {
+      legend.innerHTML = `<strong>Time adjustment applied (linear).</strong> Chart now shows monthly median ratios after each sale was time-adjusted to the reference date. If the adjustment was effective the ratios should sit roughly flat across months — the residual slope visible here is what remains after correction.`;
+    } else if (isStepwise) {
+      legend.innerHTML = `Monthly median <strong>assessment ratios</strong> (AV ÷ SP) with dot size proportional to sales count. Horizontal <strong>segment lines</strong> sit at each segment's median ratio; the dashed <strong>target line</strong> shows the ratio every segment is shifted to. The reference segment (★) is the anchor — its sales aren't touched.`;
+    } else {
+      legend.innerHTML = `Monthly median <strong>assessment ratios</strong> (AV ÷ SP) with dot size proportional to sales count. <strong>Trend line</strong> is weighted least squares on log(monthly median ratio). Per IAAO methodology, the trend is fit on ratios rather than median sale prices because median prices drift with sales-mix changes (more big-house months, new construction entering the sample) that aren't true market movement.`;
+    }
   }
 
   function drawTrendChart() {
     const svg = document.getElementById('trend-chart');
     if (!svg || !state.timeTrend) return;
     const applied = state.applyTimeAdjustment;
+    const trend = state.timeTrend;
+    const isPiecewise = trend.method !== 'linear' && trend.segments && trend.segments.length > 1;
 
     // Compute current monthly median ratios — pre-adjustment, or post-adjustment if applied.
     const data = computeMonthlyMedianRatios(applied);
     if (data.length === 0) return;
-
-    // Refit a weighted regression to the data currently being displayed.
-    // Pre-adjustment: the fit captures the market trend.
-    // Post-adjustment: the fit should be near-flat, visually confirming that the trend was removed.
-    const tArr = data.map(d => d.t);
-    const yLog = data.map(d => Math.log(d.median));
-    const w = data.map(d => d.n);
-    const { slope: fitSlope, intercept: fitIntercept } = wlsRegression(tArr, yLog, w);
 
     const W = 920, H = 260;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -4814,6 +5725,17 @@
 
     const xOf = (t) => pad.left + (plotW * (t - xMin) / Math.max(1, xMax - xMin));
     const yOf = (v) => pad.top + plotH - (plotH * (v - yLo) / (yHi - yLo));
+
+    // Map a calendar-month index (year*12 + month-1) to the chart's display
+    // index. Segment fits use absolute calendar months for slope/intercept, so
+    // we need this map to position segment lines in the display's idx-based
+    // coordinate space.
+    const calIdxToDispIdx = new Map();
+    data.forEach((d, i) => {
+      const [yr, mo] = d.ym.split('-').map(Number);
+      const calIdx = yr * 12 + (mo - 1);
+      calIdxToDispIdx.set(calIdx, i);
+    });
 
     let html = '';
 
@@ -4837,13 +5759,82 @@
       }
     });
 
-    // Trend line — fit to the currently-displayed data
-    const trendY = (t) => Math.exp(fitIntercept + fitSlope * t);
-    const x0 = xOf(xMin), x1 = xOf(xMax);
-    const ty0 = yOf(trendY(xMin)), ty1 = yOf(trendY(xMax));
-    html += `<line class="trend-line" x1="${x0}" y1="${ty0}" x2="${x1}" y2="${ty1}" />`;
+    // Trend line — piecewise gets one segment per fit; linear gets a single line
+    // refit on the currently-displayed (possibly post-adjustment) data, so the
+    // "trend should be flat after adjustment" intuition still holds.
+    if (applied || !isPiecewise) {
+      // Single-line fit on displayed data (linear OR post-adjustment view)
+      const tArr = data.map(d => d.t);
+      const yLog = data.map(d => Math.log(d.median));
+      const w = data.map(d => d.n);
+      const { slope: fitSlope, intercept: fitIntercept } = wlsRegression(tArr, yLog, w);
+      const trendY = (t) => Math.exp(fitIntercept + fitSlope * t);
+      const t0 = data[0].t, t1 = data[data.length - 1].t;
+      const x0 = xOf(t0), x1 = xOf(t1);
+      const ty0 = yOf(trendY(t0)), ty1 = yOf(trendY(t1));
+      html += `<line class="trend-line" x1="${x0}" y1="${ty0}" x2="${x1}" y2="${ty1}" />`;
+    } else {
+      // Piecewise pre-adjustment: draw each segment's fit line, then vertical
+      // dividers at boundaries, plus rate labels per segment.
+      // Compute the calendar-idx range that the chart displays so we can clip
+      // segment lines without sliding into display-idx vs calendar-idx confusion.
+      const firstYm = data[0].ym.split('-').map(Number);
+      const lastYm  = data[data.length - 1].ym.split('-').map(Number);
+      const dataCalStart = firstYm[0] * 12 + (firstYm[1] - 1);
+      const dataCalEnd   = lastYm[0]  * 12 + (lastYm[1]  - 1);
 
-    // Dots (sized by n)
+      // Collect segment-median labels in a separate buffer so they can be
+      // appended AFTER the dots are drawn. Otherwise an opaque dot sitting on
+      // top of a segment line covers up the label.
+      let segLabelsHtml = '';
+      trend.segments.forEach((seg, si) => {
+        if (!seg.fitOk || !seg.monthlyData || seg.monthlyData.length < 1) return;
+        const segCalFirst = seg.monthlyData[0].t;
+        const segCalLast  = seg.monthlyData[seg.monthlyData.length - 1].t;
+        const tStart = Math.max(segCalFirst, dataCalStart);
+        const tEnd   = Math.min(segCalLast,  dataCalEnd);
+        if (tEnd < tStart) return;
+        const dispStart = calIdxToDispIdx.get(tStart);
+        const dispEnd   = calIdxToDispIdx.get(tEnd);
+        if (dispStart == null || dispEnd == null) return;
+        // Horizontal line at the segment's median ratio — this is what stepwise
+        // adjustment shifts to the target.
+        const yLine = yOf(seg.median);
+        const x0 = xOf(dispStart), x1 = xOf(dispEnd);
+        // Reference segment gets a thicker line to visually call out the anchor.
+        const strokeWidth = seg.isReference ? 3 : 2;
+        html += `<line class="trend-line" x1="${x0}" y1="${yLine}" x2="${x1}" y2="${yLine}" stroke-width="${strokeWidth}" />`;
+        // Median annotation above the segment line. We drop the segment NAME
+        // here since the same label appears on the x-axis (e.g., "2023-01");
+        // showing it twice and having labels of adjacent segments collide when
+        // their Y values are similar isn't worth the visual cost. The
+        // paint-order trick draws a white stroke around the text first, so the
+        // label stays readable when a dot happens to sit right on top of it.
+        const midX = (x0 + x1) / 2;
+        const medianPct = (seg.median * 100).toFixed(1);
+        const labelText = seg.isReference ? `${medianPct}% ★` : `${medianPct}%`;
+        segLabelsHtml += `<text class="trend-axis-text" x="${midX}" y="${yLine - 6}" text-anchor="middle" style="font-weight: 700; fill: var(--wsaca-green-deep); font-size: 11px; paint-order: stroke; stroke: var(--paper); stroke-width: 3.5px; stroke-linejoin: round;">${labelText}</text>`;
+        // Vertical divider at the segment's start (skip the very first one)
+        if (si > 0) {
+          const dividerX = xOf(dispStart - 0.5);
+          html += `<line x1="${dividerX}" x2="${dividerX}" y1="${pad.top}" y2="${pad.top + plotH}" stroke="var(--rule-soft)" stroke-dasharray="3 4" stroke-width="1" />`;
+        }
+      });
+      // Horizontal target-ratio line, but only when the target ISN'T just one of
+      // the segment medians (target='overall'). When target='reference', the
+      // dashed line would lie exactly on top of the reference segment's line and
+      // just clutter the chart.
+      if (trend.target === 'overall' && trend.targetRatio != null && isFinite(trend.targetRatio)) {
+        const yTgt = yOf(trend.targetRatio);
+        html += `<line x1="${pad.left}" x2="${pad.left + plotW}" y1="${yTgt}" y2="${yTgt}" stroke="var(--wsaca-cedar-deep)" stroke-dasharray="5 4" stroke-width="1.5" opacity="0.85" />`;
+        segLabelsHtml += `<text x="${pad.left + plotW - 4}" y="${yTgt - 5}" text-anchor="end" style="font-size: 10px; font-weight: 700; fill: var(--wsaca-cedar-deep); paint-order: stroke; stroke: var(--paper); stroke-width: 3.5px; stroke-linejoin: round;">target ${(trend.targetRatio * 100).toFixed(1)}%</text>`;
+      }
+      // Stash for appending after the dot pass below
+      var deferredStepwiseLabels = segLabelsHtml;
+    }
+
+    // Dots (sized by n) — always rendered after segment lines so they sit on
+    // top of segments.
     const maxN = Math.max(...data.map(d => d.n));
     data.forEach(d => {
       const cx = xOf(d.t), cy = yOf(d.median);
@@ -4851,7 +5842,162 @@
       html += `<circle class="trend-dot" cx="${cx}" cy="${cy}" r="${r}"><title>${d.ym}: median ratio ${(d.median * 100).toFixed(2)}%, n=${d.n}</title></circle>`;
     });
 
+    // For stepwise piecewise, draw segment-median labels LAST so they sit on
+    // top of any dots that happen to land at the same height.
+    if (typeof deferredStepwiseLabels !== 'undefined') html += deferredStepwiseLabels;
+
     svg.innerHTML = html;
+  }
+
+  // ============================================================
+  // STRATIFICATION
+  // ============================================================
+
+  // Display label for any stratifier — used in table titles, export headers, etc.
+  const STRATIFIER_LABELS = {
+    neighborhood: 'Neighborhood',
+    dor_use:      'DOR Primary Use',
+    land_table:   'Land Table',
+    year_built:   'Year Built',
+    gla:          'Gross Living Area',
+    acreage:      'Acreage',
+    quality:      'Quality',
+    condition:    'Condition',
+    effective_age: 'Effective Age',
+  };
+
+  // Build a binning function for a given stratifier key. Returns
+  //   { binOf(row) -> { label, sortIdx } | null, description: 'short text for UI' }
+  //
+  // Continuous fields (year_built, gla, acreage) carry a numeric sortIdx so
+  // bins display in natural order (decades chronological, sq-ft ascending) rather
+  // than alphabetically. Categorical fields return sortIdx:null and fall back to
+  // alphabetical sort on the label.
+  //
+  // GLA is special: the user picks between quartile (default), decile, or
+  // fixed 400-sq-ft bins via state.glaBinChoice. Quartile/decile compute
+  // boundaries from the actual data so bins adapt to the local market;
+  // fixed 400-sq-ft bins are consistent across datasets (useful for cost-table
+  // comparison work).
+  function buildStratBinner(sKey, rows, options) {
+    options = options || {};
+    if (sKey === 'year_built') {
+      return {
+        description: 'decade bins',
+        binOf: (r) => {
+          const yr = r.year_built;
+          if (yr == null || !isFinite(yr) || yr < 1700 || yr > 2100) return null;
+          if (yr < 1950) return { label: 'Pre-1950', sortIdx: 0 };
+          const decade = Math.floor(yr / 10) * 10;
+          return { label: `${decade}s`, sortIdx: decade };
+        },
+      };
+    }
+    if (sKey === 'gla') {
+      const choice = options.glaBin || 'quartile';
+      if (choice === 'fixed400') {
+        return {
+          description: '400 sq ft bins',
+          binOf: (r) => {
+            const v = r.gla;
+            if (v == null || !isFinite(v) || v < 0) return null;
+            const lo = Math.floor(v / 400) * 400;
+            const hi = lo + 400;
+            return {
+              label: `${lo.toLocaleString()}–${hi.toLocaleString()} sq ft`,
+              sortIdx: lo,
+            };
+          },
+        };
+      }
+      // Quantile bins — compute boundaries from data
+      const values = rows.map(r => r.gla).filter(v => v != null && isFinite(v) && v >= 0);
+      if (values.length === 0) return null;
+      values.sort((a, b) => a - b);
+      const nBins = choice === 'decile' ? 10 : 4;
+      const boundaries = [];
+      for (let i = 1; i < nBins; i++) {
+        const pos = (i / nBins) * (values.length - 1);
+        const lo = Math.floor(pos), hi = Math.ceil(pos);
+        const frac = pos - lo;
+        boundaries.push(values[lo] + frac * (values[hi] - values[lo]));
+      }
+      const min = values[0], max = values[values.length - 1];
+      const labels = [];
+      for (let i = 0; i < nBins; i++) {
+        const lo = i === 0 ? min : Math.round(boundaries[i - 1]);
+        const hi = i === nBins - 1 ? max : Math.round(boundaries[i]);
+        labels.push(`${lo.toLocaleString()}–${hi.toLocaleString()} sq ft`);
+      }
+      return {
+        description: choice === 'decile' ? 'decile bins (data-driven)' : 'quartile bins (data-driven)',
+        binOf: (r) => {
+          const v = r.gla;
+          if (v == null || !isFinite(v) || v < 0) return null;
+          let idx = nBins - 1;
+          for (let i = 0; i < boundaries.length; i++) {
+            if (v <= boundaries[i]) { idx = i; break; }
+          }
+          return { label: labels[idx], sortIdx: idx };
+        },
+      };
+    }
+    if (sKey === 'acreage') {
+      const bands = [
+        { lo: -Infinity, hi: 0.25,    label: '< 0.25 acres',   sortIdx: 0 },
+        { lo: 0.25,      hi: 0.5,     label: '0.25–0.5 acres', sortIdx: 1 },
+        { lo: 0.5,       hi: 1,       label: '0.5–1 acres',    sortIdx: 2 },
+        { lo: 1,         hi: 5,       label: '1–5 acres',      sortIdx: 3 },
+        { lo: 5,         hi: 10,      label: '5–10 acres',     sortIdx: 4 },
+        { lo: 10,        hi: Infinity, label: '10+ acres',     sortIdx: 5 },
+      ];
+      return {
+        description: 'fixed bands',
+        binOf: (r) => {
+          const v = r.acreage;
+          if (v == null || !isFinite(v) || v < 0) return null;
+          const band = bands.find(b => v >= b.lo && v < b.hi);
+          return band ? { label: band.label, sortIdx: band.sortIdx } : null;
+        },
+      };
+    }
+    if (sKey === 'effective_age') {
+      // Fixed age bands keyed to construction/CAMA conventions. Lower-bound
+      // inclusive, upper-bound exclusive; the final band catches everything 75+.
+      const bands = [
+        { lo: 0,   hi: 10,       label: '0–10 years',   sortIdx: 0 },
+        { lo: 10,  hi: 25,       label: '10–25 years',  sortIdx: 1 },
+        { lo: 25,  hi: 50,       label: '25–50 years',  sortIdx: 2 },
+        { lo: 50,  hi: 75,       label: '50–75 years',  sortIdx: 3 },
+        { lo: 75,  hi: Infinity, label: '75+ years',    sortIdx: 4 },
+      ];
+      return {
+        description: 'age bands',
+        binOf: (r) => {
+          const v = r.effective_age;
+          if (v == null || !isFinite(v) || v < 0) return null;
+          const band = bands.find(b => v >= b.lo && v < b.hi);
+          return band ? { label: band.label, sortIdx: band.sortIdx } : null;
+        },
+      };
+    }
+    // Categorical (neighborhood, dor_use, land_table, quality, condition)
+    return {
+      description: null,
+      binOf: (r) => {
+        const v = r[sKey];
+        if (v == null) return null;
+        const s = String(v).trim();
+        if (!s) return null;
+        return { label: s, sortIdx: null };
+      },
+    };
+  }
+
+  // Returns true if a stratifier is continuous (binned). Used for sort
+  // override (alphabetic vs natural numeric order).
+  function isContinuousStratifier(sKey) {
+    return sKey === 'year_built' || sKey === 'gla' || sKey === 'acreage' || sKey === 'effective_age';
   }
 
   function renderIaaoReference() {
@@ -4866,16 +6012,18 @@
     }).join('');
   }
 
-  // ============================================================
-  // STRATIFICATION
-  // ============================================================
-
   function availableStratifiers() {
     // Only stratifiers whose underlying column was actually mapped
     const opts = [
       { key: 'neighborhood', label: 'Neighborhood' },
       { key: 'dor_use',      label: 'DOR Primary Use' },
       { key: 'land_table',   label: 'Land Table' },
+      { key: 'year_built',   label: 'Year Built (decade bins)' },
+      { key: 'gla',          label: 'Gross Living Area (size bins)' },
+      { key: 'acreage',      label: 'Acreage (bands)' },
+      { key: 'effective_age', label: 'Effective Age (bands)' },
+      { key: 'quality',      label: 'Quality' },
+      { key: 'condition',    label: 'Condition' },
     ];
     return opts.filter(o => mapping[o.key]);
   }
@@ -4897,15 +6045,27 @@
       const available = opts.filter(o => !usedElsewhere.includes(o.key));
       const optionsHtml = `<option value="">— none —</option>` +
         available.map(o => `<option value="${o.key}" ${current === o.key ? 'selected' : ''}>${escapeHtml(o.label)}</option>`).join('');
+      // GLA gets a "Bin by:" sub-control with three options. Useful for cost-
+      // table work where 400 sq ft fixed bins are more meaningful than quartiles.
+      const glaSubControl = current === 'gla' ? `
+        <label class="strat-sub-control">
+          <span class="strat-sub-label">Bin by:</span>
+          <select data-gla-bin="${idx}">
+            <option value="quartile" ${state.glaBinChoice === 'quartile' ? 'selected' : ''}>Quartile (data-driven)</option>
+            <option value="decile"   ${state.glaBinChoice === 'decile'   ? 'selected' : ''}>Decile (data-driven)</option>
+            <option value="fixed400" ${state.glaBinChoice === 'fixed400' ? 'selected' : ''}>Every 400 sq ft</option>
+          </select>
+        </label>` : '';
       return `
         <div class="strat-picker-slot">
           <label>Stratifier ${idx + 1}</label>
           <select data-slot="${idx}">${optionsHtml}</select>
+          ${glaSubControl}
         </div>
       `;
     }).join('');
 
-    row.querySelectorAll('select').forEach(sel => {
+    row.querySelectorAll('select[data-slot]').forEach(sel => {
       sel.addEventListener('change', e => {
         const idx = parseInt(e.target.dataset.slot, 10);
         state.stratifiers[idx] = e.target.value || null;
@@ -4913,31 +6073,181 @@
         renderStratificationTables();
       });
     });
+    row.querySelectorAll('select[data-gla-bin]').forEach(sel => {
+      sel.addEventListener('change', e => {
+        state.glaBinChoice = e.target.value;
+        renderStratificationTables();
+      });
+    });
 
     if (!opts.length) {
-      row.innerHTML = `<div class="summary-warning" style="grid-column: 1/-1;"><strong>No stratifier columns available.</strong> Map one or more of Neighborhood, DOR Primary Use, or Land Table on Step 2 to enable stratified analysis.</div>`;
+      row.innerHTML = `<div class="summary-warning" style="grid-column: 1/-1;"><strong>No stratifier columns available.</strong> Map at least one stratification column on Step 2 — any of Neighborhood, DOR Primary Use, Land Table, Year Built, GLA, Acreage, Quality, Condition, or Effective Age.</div>`;
     }
+  }
+
+  // Render a small chart of median ratio across strata for continuous-field
+  // stratifiers. The X axis is ordered by sortIdx (bin position), Y axis is
+  // median ratio. Points sized by sales count; weighted least-squares line
+  // through the medians shows the overall direction. A non-zero slope here is
+  // a vertical-equity signal along that structural dimension.
+  function drawStratTrendChart(strataRows, sortIdxMap, sKey) {
+    const points = strataRows
+      .map(r => ({ sortIdx: sortIdxMap.get(r.stratum), median: r.median, n: r.n, stratum: r.stratum }))
+      .filter(p => p.sortIdx != null && isFinite(p.sortIdx) && isFinite(p.median) && p.median > 0)
+      .sort((a, b) => a.sortIdx - b.sortIdx);
+    if (points.length < 2) return '';
+
+    // Assign each point a rank (0..N-1) for evenly-spaced x positions. Using
+    // raw sortIdx values would distort the chart whenever sortIdx represents an
+    // absolute scale (e.g., year_built uses 1950/1960/.../2020 with Pre-1950 at
+    // 0, which would crowd most decades on the right). Rank ensures every bin
+    // sits at an equal horizontal step.
+    points.forEach((p, i) => { p.rank = i; });
+
+    const W = 920, H = 200;
+    const pad = { top: 26, right: 28, bottom: 54, left: 70 };
+    const plotW = W - pad.left - pad.right;
+    const plotH = H - pad.top - pad.bottom;
+
+    const ys = points.map(p => p.median);
+    const yMin = Math.min(...ys), yMax = Math.max(...ys);
+    const yRange = Math.max(yMax - yMin, 0.005);
+    const yLo = yMin - yRange * 0.25, yHi = yMax + yRange * 0.25;
+    const xMin = 0, xMax = points.length - 1;
+    const xRange = Math.max(xMax - xMin, 1);
+
+    const xOf = (v) => pad.left + plotW * (v - xMin) / xRange;
+    const yOf = (v) => pad.top + plotH - plotH * (v - yLo) / (yHi - yLo);
+
+    // Weighted least squares on (rank, log(median)) — weight by sales count.
+    // Using rank keeps the slope a clean "per-stratum" change regardless of
+    // whether sortIdx values are evenly spaced.
+    const xs = points.map(p => p.rank);
+    const logYs = points.map(p => Math.log(p.median));
+    const ws = points.map(p => p.n);
+    const sw = ws.reduce((a, b) => a + b, 0);
+    const mx = xs.reduce((a, x, i) => a + x * ws[i], 0) / sw;
+    const my = logYs.reduce((a, y, i) => a + y * ws[i], 0) / sw;
+    let num = 0, den = 0;
+    for (let i = 0; i < xs.length; i++) {
+      num += ws[i] * (xs[i] - mx) * (logYs[i] - my);
+      den += ws[i] * (xs[i] - mx) ** 2;
+    }
+    const slope = den > 0 ? num / den : 0;
+    const intercept = my - slope * mx;
+    // Total drop/rise across the observed range, in percentage points of ratio.
+    // Read as: "median ratio drops/rises by X pp moving from the smallest
+    // stratum to the largest."
+    const firstFit = Math.exp(intercept + slope * xMin);
+    const lastFit = Math.exp(intercept + slope * xMax);
+    const totalDeltaPp = (lastFit - firstFit) * 100;
+
+    let html = '';
+    // Y gridlines
+    for (let i = 0; i <= 4; i++) {
+      const v = yLo + (yHi - yLo) * i / 4;
+      const y = yOf(v);
+      html += `<line class="trend-grid-line" x1="${pad.left}" x2="${pad.left + plotW}" y1="${y}" y2="${y}" />`;
+      html += `<text class="trend-axis-text" x="${pad.left - 8}" y="${y + 3}" text-anchor="end">${(v * 100).toFixed(1)}%</text>`;
+    }
+    // X axis line
+    html += `<line class="trend-axis-line" x1="${pad.left}" x2="${pad.left + plotW}" y1="${pad.top + plotH}" y2="${pad.top + plotH}" />`;
+    // X axis labels (one per point, rotated if many or wide). For long range
+    // labels like "440–1,064 sq ft", strip the unit suffix to save space; the
+    // table directly above the chart has the full label so context isn't lost.
+    const shortLabel = (s) => String(s).replace(/\s*sq\s*ft\b/gi, '').replace(/\s*years?\b/gi, ' yrs').replace(/,/g, '');
+    const labelRotate = points.length > 6 || points.some(p => shortLabel(p.stratum).length > 7);
+    points.forEach(p => {
+      const x = xOf(p.rank);
+      const label = escapeHtml(shortLabel(p.stratum));
+      if (labelRotate) {
+        html += `<text class="trend-axis-text" x="${x}" y="${pad.top + plotH + 12}" text-anchor="end" transform="rotate(-40 ${x} ${pad.top + plotH + 12})" style="font-size: 10px;">${label}</text>`;
+      } else {
+        html += `<text class="trend-axis-text" x="${x}" y="${pad.top + plotH + 14}" text-anchor="middle" style="font-size: 11px;">${label}</text>`;
+      }
+    });
+
+    // Trend line across the observed range
+    const tx0 = xOf(xMin), tx1 = xOf(xMax);
+    const ty0 = yOf(firstFit), ty1 = yOf(lastFit);
+    html += `<line class="trend-line" x1="${tx0}" y1="${ty0}" x2="${tx1}" y2="${ty1}" stroke-width="2" />`;
+
+    // Median dots sized by n
+    const maxN = Math.max(...points.map(p => p.n));
+    points.forEach(p => {
+      const cx = xOf(p.rank), cy = yOf(p.median);
+      const r = 4 + 7 * (p.n / maxN);
+      html += `<circle class="trend-dot" cx="${cx}" cy="${cy}" r="${r}"><title>${escapeHtml(p.stratum)}: median ${(p.median * 100).toFixed(2)}%, n=${p.n}</title></circle>`;
+    });
+
+    // Headline annotation in top-right showing total ratio change across the
+    // dimension. Sign indicates direction; explanatory text in the legend
+    // ties it back to vertical-equity interpretation.
+    const deltaTxt = `${totalDeltaPp >= 0 ? '+' : ''}${totalDeltaPp.toFixed(2)}pp`;
+    const deltaColor = Math.abs(totalDeltaPp) < 0.5 ? 'var(--ink-mute)'
+      : totalDeltaPp >= 0 ? 'var(--wsaca-green-deep)' : 'var(--alert-red)';
+    html += `<text x="${pad.left + plotW}" y="${pad.top - 8}" text-anchor="end" style="font-size: 11px; font-weight: 700; fill: ${deltaColor};">Δ ${deltaTxt} across range</text>`;
+
+    // Direction interpretation line. Phrased to call out vertical-equity
+    // implications: "ratios fall" along a structural dimension means parcels
+    // at the high end of that dimension are systematically under-assessed
+    // relative to the rest.
+    const dimNames = {
+      gla:           { lo: 'smaller homes', hi: 'larger homes' },
+      year_built:    { lo: 'older homes',   hi: 'newer homes' },
+      effective_age: { lo: 'low-age homes (renovated or new)', hi: 'high-age homes' },
+      acreage:       { lo: 'smaller parcels', hi: 'larger parcels' },
+    };
+    const dn = dimNames[sKey] || { lo: 'low end of range', hi: 'high end of range' };
+    let direction;
+    if (Math.abs(totalDeltaPp) < 0.5) {
+      direction = `essentially flat — no systematic ratio drift between ${dn.lo} and ${dn.hi}`;
+    } else if (totalDeltaPp < 0) {
+      direction = `ratios fall from ${dn.lo} to ${dn.hi} — ${dn.hi} are under-assessed relative to ${dn.lo}`;
+    } else {
+      direction = `ratios rise from ${dn.lo} to ${dn.hi} — ${dn.hi} are over-assessed relative to ${dn.lo}`;
+    }
+
+    return `
+      <div class="strat-trend-wrap">
+        <svg class="strat-trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${html}</svg>
+        <p class="strat-trend-legend"><strong>Trend across strata.</strong> ${direction}.</p>
+      </div>
+    `;
   }
 
   function renderStratificationTables() {
     const wrap = document.getElementById('strat-tables');
     if (!wrap) return;
     const eff = effectiveRows();
-    const labels = { neighborhood: 'Neighborhood', dor_use: 'DOR Primary Use', land_table: 'Land Table' };
 
     const blocks = state.stratifiers.filter(Boolean).map((sKey, slotIdx) => {
+      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+      if (!binner) return '';
       const groups = new Map();
+      const sortIdxMap = new Map();  // bin label -> sortIdx for natural order on continuous fields
       for (const r of eff) {
-        const k = String(r[sKey] ?? '').trim();
-        if (!k) continue;
-        if (!groups.has(k)) groups.set(k, []);
-        groups.get(k).push(r);
+        const bin = binner.binOf(r);
+        if (!bin) continue;
+        if (!groups.has(bin.label)) {
+          groups.set(bin.label, []);
+          sortIdxMap.set(bin.label, bin.sortIdx);
+        }
+        groups.get(bin.label).push(r);
       }
       const rows = [...groups.entries()].map(([key, items]) => stratRow(key, items)).filter(Boolean);
 
-      // Sorting — default to highest count first so the most reliable strata appear at the top
+      // For continuous-field stratifiers, the natural "alphabetical" sort is
+      // numeric by bin boundary. Default sort is still by n desc; the override
+      // only kicks in if the user picks the stratum column to sort by.
       const sortKey = state.sortConfig[sKey] || { col: 'n', dir: 'desc' };
       rows.sort((a, b) => {
+        if (sortKey.col === 'stratum' && isContinuousStratifier(sKey)) {
+          const sa = sortIdxMap.get(a.stratum) ?? Infinity;
+          const sb = sortIdxMap.get(b.stratum) ?? Infinity;
+          const cmp = sa - sb;
+          return sortKey.dir === 'asc' ? cmp : -cmp;
+        }
         const va = a[sortKey.col], vb = b[sortKey.col];
         if (va == null && vb == null) return 0;
         if (va == null) return 1;
@@ -4959,7 +6269,7 @@
         <table class="strat-table">
           <thead>
             <tr>
-              ${headerCell('stratum', labels[sKey] || sKey)}
+              ${headerCell('stratum', STRATIFIER_LABELS[sKey] || sKey)}
               ${headerCell('n', 'n')}
               ${headerCell('median', 'Median Ratio')}
               ${headerCell('cod', 'COD')}
@@ -4976,16 +6286,31 @@
         </table>
       `;
 
+      // Description suffix: "decade bins" / "quartile bins" etc. — only for
+      // continuous fields where the binning method is meaningful.
+      const binDesc = binner.description ? ` <span class="strat-bin-desc">— ${escapeHtml(binner.description)}</span>` : '';
+
+      // For continuous stratifiers (year_built decade, gla bins, acreage bands,
+      // effective_age bands), render a small chart of median ratio across
+      // strata with a weighted LS trend line. A clear slope indicates
+      // vertical equity issues along that structural dimension — e.g., ratios
+      // dropping as GLA rises means larger homes are systematically
+      // under-assessed relative to smaller ones.
+      const trendChart = isContinuousStratifier(sKey)
+        ? drawStratTrendChart(rows, sortIdxMap, sKey)
+        : '';
+
       return `
         <div class="strat-block">
           <div class="strat-block-header">
-            <h3 class="strat-block-title">By ${escapeHtml(labels[sKey] || sKey)}</h3>
+            <h3 class="strat-block-title">By ${escapeHtml(STRATIFIER_LABELS[sKey] || sKey)}${binDesc}</h3>
             <div class="strat-block-actions">
               <span>${totalRows} strata${lowN ? ` · ${lowN} flagged low-n` : ''}</span>
               <button class="btn-csv" data-export="${sKey}">Download CSV</button>
             </div>
           </div>
           <div class="strat-table-wrap">${tableHtml}</div>
+          ${trendChart}
           ${lowN ? `<p class="strat-footnote">Italicized rows have fewer than 10 sales — per IAAO guidance, treat these statistics with caution. They are included for visibility but the small samples make their point estimates unreliable.</p>` : ''}
         </div>
       `;
@@ -5064,18 +6389,27 @@
 
   function exportStratCSV(sKey) {
     const eff = effectiveRows();
-    const labels = { neighborhood: 'Neighborhood', dor_use: 'DOR Primary Use', land_table: 'Land Table' };
+    const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+    if (!binner) return;
     const groups = new Map();
+    const sortIdxMap = new Map();
     for (const r of eff) {
-      const k = String(r[sKey] ?? '').trim();
-      if (!k) continue;
-      if (!groups.has(k)) groups.set(k, []);
-      groups.get(k).push(r);
+      const bin = binner.binOf(r);
+      if (!bin) continue;
+      if (!groups.has(bin.label)) {
+        groups.set(bin.label, []);
+        sortIdxMap.set(bin.label, bin.sortIdx);
+      }
+      groups.get(bin.label).push(r);
     }
     const rows = [...groups.entries()].map(([key, items]) => stratRow(key, items)).filter(Boolean);
-    rows.sort((a, b) => a.stratum.localeCompare(b.stratum));
+    if (isContinuousStratifier(sKey)) {
+      rows.sort((a, b) => (sortIdxMap.get(a.stratum) ?? Infinity) - (sortIdxMap.get(b.stratum) ?? Infinity));
+    } else {
+      rows.sort((a, b) => a.stratum.localeCompare(b.stratum));
+    }
 
-    const header = [labels[sKey] || sKey, 'n', 'Median Ratio', 'COD', 'PRD', 'Mean Ratio', 'Weighted Mean', '90% CI Low', '90% CI High'];
+    const header = [STRATIFIER_LABELS[sKey] || sKey, 'n', 'Median Ratio', 'COD', 'PRD', 'Mean Ratio', 'Weighted Mean', '90% CI Low', '90% CI High'];
     const fmt = (v, d = 4) => v == null ? '' : v.toFixed(d);
     const lines = [header.join(',')];
     for (const r of rows) {
@@ -5693,6 +7027,17 @@
           <h3>Decision rules</h3>
           <span class="rules-header-sub">Edit any value to see the table re-compute live.</span>
         </div>
+
+        <div class="target-mode-bar">
+          <div class="target-mode-row">
+            <label class="target-mode-label" for="target-final-ratio">Target final overall ratio:</label>
+            <input type="number" class="target-mode-input" id="target-final-ratio" step="0.01" min="0.5" max="1.5" value="${state.targetFinalRatio != null ? state.targetFinalRatio : 0.93}" />
+            <button type="button" class="btn-target-mode" id="btn-auto-populate">Auto-populate rules to hit target</button>
+          </div>
+          <p class="target-mode-help">Fills every rule field below with values derived to land your overall median on the target. Each field stays editable after, so you can tighten or loosen anything by hand. Safety rails: max change capped at 30%, floor capped at 0.85 — if your data needs more loosening than that, you'll be told and can adjust manually.</p>
+          <div id="target-mode-result"></div>
+        </div>
+
         <div class="preset-bar">
           <label class="preset-label">Preset:</label>
           <select class="preset-select" id="preset-select">${presetOptions}</select>
@@ -5853,9 +7198,135 @@
     document.getElementById('btn-restore-defaults').addEventListener('click', () => {
       state.modifierRules = { ...DEFAULT_MODIFIER_RULES };
       state.currentPreset = '__default__';
+      // Mirror loadPreset: defaults carry trendMethod and trendAnchoring, so
+      // recompute the trend and re-render anything that depends on adjusted ratios.
+      if (cleanRows.length) {
+        state.timeTrend = computeTimeTrend(cleanRows);
+        if (document.getElementById('time-content')) renderTimeAdjustment();
+        renderDiagnostics();
+        renderVerticalEquity();
+        renderStratificationTables();
+      }
       renderRulesPanel();
       refreshModifierResults();
     });
+
+    // Target-final-ratio mode: derives all rule values from a single overall
+    // ratio target. Auto-flex tightens the targets and no-change zone to the
+    // user's number, then expands maxChangePct and downwardFloor enough to
+    // reach every neighborhood — clamped at 30%/0.85 so it can't silently
+    // produce wildly aggressive rules. Anything tighter than the auto-flex
+    // ceiling is reported back so the user can decide whether to loosen
+    // manually.
+    document.getElementById('btn-auto-populate').addEventListener('click', () => {
+      const inp = document.getElementById('target-final-ratio');
+      const target = parseFloat(inp.value);
+      if (!isFinite(target) || target <= 0.5 || target >= 1.5) {
+        alert('Enter a target ratio between 0.50 and 1.50 (e.g., 0.93 for 93%).');
+        return;
+      }
+      const report = autoPopulateRulesForTarget(target);
+      if (!report) {
+        document.getElementById('target-mode-result').innerHTML =
+          `<div class="target-mode-msg warn">Not enough neighborhood data to derive rules. Map a Neighborhood column and try again.</div>`;
+        return;
+      }
+      state.targetFinalRatio = target;
+      state.currentPreset = '__default__';  // diverged from any preset
+      renderRulesPanel();
+      refreshModifierResults();
+
+      // Build the result banner. Show what changed and which guard rails hit.
+      const r = state.modifierRules;
+      const parts = [];
+      parts.push(`Auto-populated for ${(target * 100).toFixed(1)}% target.`);
+      parts.push(`Max change → ±${r.maxChangePct}%.`);
+      parts.push(`Downward floor → ${r.downwardFloor.toFixed(2)}.`);
+      if (report.autoflexMaxHit) {
+        parts.push(`<strong>Auto-flex cap reached:</strong> some neighborhoods need more than ±30% change to land on target. Loosen Max Change manually if you want to push them all the way.`);
+      }
+      if (report.autoflexFloorHit) {
+        parts.push(`<strong>Auto-flex floor reached:</strong> some neighborhoods would need a modifier below 0.85 to land on target. Lower Downward Floor manually if you want to allow it.`);
+      }
+      if (report.cappedCount > 0 && !(report.autoflexMaxHit || report.autoflexFloorHit)) {
+        parts.push(`${report.cappedCount} neighborhood${report.cappedCount === 1 ? '' : 's'} won't quite reach target after caps applied.`);
+      }
+      const cls = (report.autoflexMaxHit || report.autoflexFloorHit) ? 'warn' : 'ok';
+      document.getElementById('target-mode-result').innerHTML =
+        `<div class="target-mode-msg ${cls}">${parts.join(' ')}</div>`;
+    });
+  }
+
+  // Derive rule values that aim every neighborhood at a single overall ratio
+  // target. Returns a report object describing what was applied and whether
+  // any auto-flex safety rails were hit.
+  function autoPopulateRulesForTarget(target) {
+    const eff = effectiveRows();
+    const result = computeModifierRecommendations(eff, state.modifierRules);
+    if (!result || !result.recs.length) return null;
+
+    // Only consider neighborhoods with enough data to drive the rule
+    // derivation. Skipped / insufficient-data ones can't tell us anything
+    // about how loose the caps need to be.
+    const lowNT = state.modifierRules.lowNThreshold || 5;
+    const populated = result.recs.filter(rec =>
+      rec.n >= lowNT && rec.median != null && isFinite(rec.median) && rec.median > 0);
+    if (!populated.length) return null;
+
+    // Modifier needed = target / current_median. >1 pushes ratio up
+    // (modifier raises AV); <1 pushes ratio down.
+    const neededMods = populated.map(rec => target / rec.median);
+    const maxMod = Math.max(...neededMods);
+    const minMod = Math.min(...neededMods);
+    // Worst absolute percentage change among all neighborhoods. Same units as
+    // maxChangePct (which is stored as a percent, not a fraction).
+    const worstPct = Math.max(Math.abs((maxMod - 1) * 100), Math.abs((minMod - 1) * 100));
+
+    const AUTOFLEX_MAX_CHANGE = 30;       // ±%
+    const AUTOFLEX_MIN_FLOOR  = 0.85;     // modifier
+
+    // Round up max-change to the next 5% so it doesn't look arbitrary; clamp
+    // at the auto-flex ceiling.
+    const newMaxChange = Math.min(AUTOFLEX_MAX_CHANGE, Math.ceil(worstPct / 5) * 5);
+    // Floor logic: if no neighborhood needs a meaningful downward push (minMod
+    // is close to 1.0 or above), keep floor at 0.97 — the conventional safety
+    // default. Setting floor above 1.0 would look strange (it would block all
+    // downward movement) but doesn't actually buy any safety since nothing's
+    // moving down. When a real downward push IS needed, expand the floor to
+    // just below the most-downward neighborhood, clamped at AUTOFLEX_MIN_FLOOR.
+    let newFloor;
+    if (minMod >= 0.99) {
+      newFloor = 0.97;
+    } else {
+      newFloor = Math.max(AUTOFLEX_MIN_FLOOR, Math.floor(minMod * 100) / 100);
+    }
+
+    // Apply derived values. Every rule that ties to a "target ratio" snaps to
+    // the user's number; the no-change zone narrows to a ±1pp band around it.
+    state.modifierRules.lowCodTarget  = target;
+    state.modifierRules.highCodTarget = target;
+    state.modifierRules.lowNTarget    = target;
+    state.modifierRules.noChangeMin   = Math.max(0.5, Math.round((target - 0.01) * 100) / 100);
+    state.modifierRules.noChangeMax   = Math.min(1.5, Math.round((target + 0.01) * 100) / 100);
+    state.modifierRules.maxChangePct  = newMaxChange;
+    state.modifierRules.downwardFloor = newFloor;
+    state.modifierRules.overallMedianCeiling = Math.min(1.5, Math.round((target + 0.02) * 100) / 100);
+
+    // Count neighborhoods that won't quite hit target because they exceed the
+    // (possibly clamped) caps.
+    const cappedCount = neededMods.filter(m =>
+      Math.abs((m - 1) * 100) > newMaxChange || m < newFloor).length;
+
+    return {
+      target,
+      newMaxChange,
+      newFloor,
+      worstPct,
+      minMod,
+      cappedCount,
+      autoflexMaxHit: worstPct > AUTOFLEX_MAX_CHANGE,
+      autoflexFloorHit: minMod < AUTOFLEX_MIN_FLOOR,
+    };
   }
 
   // Enable/disable the Delete button based on whether the current selection
@@ -5902,6 +7373,16 @@
       state.modifierRules = { ...DEFAULT_MODIFIER_RULES, ...saved[name] };
       state.currentPreset = name;
     }
+    // Presets persist trendMethod and trendAnchoring, so recompute the trend
+    // and re-render Step 4 — otherwise the chart and dropdowns would lag the
+    // saved choice.
+    if (cleanRows.length) {
+      state.timeTrend = computeTimeTrend(cleanRows);
+      if (document.getElementById('time-content')) renderTimeAdjustment();
+      renderDiagnostics();
+      renderVerticalEquity();
+      renderStratificationTables();
+    }
     renderRulesPanel();
     refreshModifierResults();
   }
@@ -5938,8 +7419,34 @@
       return `<span class="${cls}">${sign}${body}</span>`;
     };
 
+    // Active-caps strip. Reads off the live rule values so it stays accurate
+    // as the user edits them or auto-populates from a target. The downward
+    // floor and no-change zone are always present; max-change splits to
+    // land/imps/spread caps when split-mode is on; ceiling and other nullable
+    // limits only render when set.
+    const splitOn = !!r.splitLandImps && !!(mapping.land_av && mapping.imps_av);
+    const capChips = [];
+    if (splitOn) {
+      if (r.maxLandChangePct != null) capChips.push(`±${r.maxLandChangePct}% max land`);
+      if (r.maxImpsChangePct != null) capChips.push(`±${r.maxImpsChangePct}% max imps`);
+      if (r.maxLandImpsSpreadPct != null) capChips.push(`${r.maxLandImpsSpreadPct}pp max land–imps spread`);
+    } else if (r.maxChangePct != null) {
+      capChips.push(`±${r.maxChangePct}% max change`);
+    }
+    capChips.push(`${r.downwardFloor.toFixed(2)} downward floor`);
+    capChips.push(`${(r.noChangeMin * 100).toFixed(0)}–${(r.noChangeMax * 100).toFixed(0)}% no-change zone`);
+    if (r.overallMedianCeiling != null) {
+      capChips.push(`${(r.overallMedianCeiling * 100).toFixed(0)}% overall ceiling`);
+    }
+    const capsHtml = `
+      <div class="active-caps-line">
+        <span class="active-caps-label">Caps in effect:</span>
+        <span class="active-caps-chips">${capChips.join(' · ')}</span>
+      </div>`;
+
     wrap.innerHTML = `
       ${exceeded ? `<div class="mod-summary-warning"><strong>Overall median ceiling exceeded.</strong> Simulated overall median (${pct(postMed)}) is above the set ceiling of ${pct(ceiling)}. Review the rules or roll back the most aggressive adjustments.</div>` : ''}
+      ${capsHtml}
       <div class="mod-summary-grid">
         <div class="mod-summary-stat ${exceeded ? 'warn' : ''}">
           <div class="mod-summary-label">Overall Median</div>
@@ -6178,7 +7685,16 @@
     settings.push(`<span class="es-label">Sample</span> ${n.toLocaleString()} rows after multi-parcel and missing-value filters`);
     settings.push(`<span class="es-label">Property class</span> ${escapeHtml(codRange.label)} (COD ${codRange.min.toFixed(1)}–${codRange.max.toFixed(1)})`);
     if (state.applyTimeAdjustment && state.timeTrend) {
-      settings.push(`<span class="es-label">Time adjustment</span> applied · ${(state.timeTrend.annualRate * 100).toFixed(2)}% annualized · reference ${formatDate(state.referenceDate)}`);
+      const trend = state.timeTrend;
+      const isPiecewise = trend.method && trend.method !== 'linear' && trend.segments && trend.segments.length > 1;
+      if (isPiecewise) {
+        const methodTxt = trend.method === 'piecewise-6mo' ? `6-month stepwise (${trend.anchoring})` : `12-month stepwise (${trend.anchoring})`;
+        const tgtPct = (trend.targetRatio * 100).toFixed(2) + '%';
+        settings.push(`<span class="es-label">Time adjustment</span> applied · ${methodTxt} · target ${tgtPct} · reference ${formatDate(state.referenceDate)}`);
+      } else {
+        const rateTxt = (trend.annualRate * 100).toFixed(2) + '% annualized';
+        settings.push(`<span class="es-label">Time adjustment</span> applied · linear · ${rateTxt} · reference ${formatDate(state.referenceDate)}`);
+      }
     } else {
       settings.push(`<span class="es-label">Time adjustment</span> not applied`);
     }
@@ -6331,20 +7847,31 @@
     const spearman = computeSpearman(eff);
     const modifier = mapping.neighborhood ? computeModifierRecommendations(eff, state.modifierRules || DEFAULT_MODIFIER_RULES) : null;
 
-    // Stratification — collect data per active stratifier
-    const labels = { neighborhood: 'Neighborhood', dor_use: 'DOR Primary Use', land_table: 'Land Table' };
+    // Stratification — collect data per active stratifier using the binning helper
     const stratResults = state.stratifiers.filter(Boolean).map(sKey => {
+      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+      if (!binner) return null;
       const groups = new Map();
+      const sortIdxMap = new Map();
       for (const r of eff) {
-        const k = String(r[sKey] ?? '').trim();
-        if (!k) continue;
-        if (!groups.has(k)) groups.set(k, []);
-        groups.get(k).push(r);
+        const bin = binner.binOf(r);
+        if (!bin) continue;
+        if (!groups.has(bin.label)) {
+          groups.set(bin.label, []);
+          sortIdxMap.set(bin.label, bin.sortIdx);
+        }
+        groups.get(bin.label).push(r);
       }
       const rows = [...groups.entries()].map(([k, items]) => stratRow(k, items)).filter(Boolean);
-      rows.sort((a, b) => a.stratum.localeCompare(b.stratum));
-      return { key: sKey, label: labels[sKey] || sKey, rows };
-    });
+      if (isContinuousStratifier(sKey)) {
+        rows.sort((a, b) => (sortIdxMap.get(a.stratum) ?? Infinity) - (sortIdxMap.get(b.stratum) ?? Infinity));
+      } else {
+        rows.sort((a, b) => a.stratum.localeCompare(b.stratum));
+      }
+      const label = STRATIFIER_LABELS[sKey] || sKey;
+      const labelWithDesc = binner.description ? `${label} (${binner.description})` : label;
+      return { key: sKey, label, labelWithDesc, rows };
+    }).filter(Boolean);
 
     return {
       title: state.reportTitle || '',
@@ -6629,7 +8156,18 @@
           <div class="cover-meta-row"><div class="cover-meta-label">Dataset</div><div class="cover-meta-value">${escapeHtml(d.datasetName || '—')}</div></div>
           <div class="cover-meta-row"><div class="cover-meta-label">Sample size</div><div class="cover-meta-value">${d.n.toLocaleString()} sales (after filters)</div></div>
           <div class="cover-meta-row"><div class="cover-meta-label">Property class</div><div class="cover-meta-value">${escapeHtml(d.codRange.label)} · IAAO COD range ${d.codRange.min.toFixed(1)}–${d.codRange.max.toFixed(1)}</div></div>
-          <div class="cover-meta-row"><div class="cover-meta-label">Time adjustment</div><div class="cover-meta-value">${d.timeAdjusted ? `Applied · ${(d.trend.annualRate * 100).toFixed(2)}% annualized · reference ${formatDate(d.referenceDate)}` : 'Not applied'}</div></div>
+          <div class="cover-meta-row"><div class="cover-meta-label">Time adjustment</div><div class="cover-meta-value">${(() => {
+            if (!d.timeAdjusted) return 'Not applied';
+            const isPiecewise = d.trend.method && d.trend.method !== 'linear' && d.trend.segments && d.trend.segments.length > 1;
+            if (!isPiecewise) {
+              return `Applied · linear · ${(d.trend.annualRate * 100).toFixed(2)}% annualized · reference ${formatDate(d.referenceDate)}`;
+            }
+            const methodLabel = d.trend.method === 'piecewise-6mo' ? '6-month stepwise piecewise' : '12-month stepwise piecewise';
+            const tgtPct = (d.trend.targetRatio * 100).toFixed(2);
+            const targetSrc = d.trend.target === 'reference' ? 'reference-date segment' : 'study-period median';
+            const segParts = d.trend.segments.map(s => `${s.label}: ${(s.median*100).toFixed(2)}% × ${s.multiplier.toFixed(4)}`).join(' · ');
+            return `Applied · ${methodLabel} (${d.trend.anchoring}) · target ${tgtPct}% from ${targetSrc} · reference ${formatDate(d.referenceDate)}<br><span style="font-size: 10pt; color: var(--ink-mute);">${segParts}</span>`;
+          })()}</div></div>
           <div class="cover-meta-row"><div class="cover-meta-label">Filters dropped</div><div class="cover-meta-value">${d.droppedMultiParcel} multi-parcel · ${d.droppedMissingRequired} missing required · ${d.droppedBadValues} invalid</div></div>
         </div>
       </div>
@@ -6786,7 +8324,7 @@
       }).join('');
       return `
         <div class="page-break"></div>
-        <h2>Stratified Analysis — By ${escapeHtml(strat.label)}</h2>
+        <h2>Stratified Analysis — By ${escapeHtml(strat.labelWithDesc || strat.label)}</h2>
         <p style="font-size: 10pt; color: var(--ink-mute);">${totalCount} strata${lowN ? ` · ${lowN} flagged low-n (n &lt; 10)` : ''}.${limitNote} ${sortLabel}. Italicized rows have fewer than 10 sales; treat with caution per IAAO guidance. Rows shaded red fail one or more IAAO ranges (median, COD, or PRD).</p>
         <table>
           <thead><tr><th>${escapeHtml(strat.label)}</th><th>n</th><th>Median</th><th>COD</th><th>PRD</th><th>Mean</th><th>Wtd Mean</th><th>90% CI Low</th><th>90% CI High</th></tr></thead>
@@ -7016,8 +8554,24 @@
     summary.push([lbl('COD range'), txt(`${d.codRange.min.toFixed(1)} – ${d.codRange.max.toFixed(1)}`)]);
     summary.push([lbl('Time adjustment'), txt(d.timeAdjusted ? 'Applied' : 'Not applied')]);
     if (d.timeAdjusted) {
-      summary.push([lbl('Annualized market rate'), pctC(d.trend.annualRate)]);
+      const trendIsPiecewise = d.trend.method && d.trend.method !== 'linear' && d.trend.segments && d.trend.segments.length > 1;
+      const methodLabel = !trendIsPiecewise ? 'Linear (continuous slope)'
+        : d.trend.method === 'piecewise-6mo' ? `6-month stepwise piecewise (${d.trend.anchoring})`
+        : `12-month stepwise piecewise (${d.trend.anchoring})`;
+      summary.push([lbl('Trend method'), txt(methodLabel)]);
       summary.push([lbl('Reference date'), txt(formatDate(d.referenceDate))]);
+      if (trendIsPiecewise) {
+        const targetSrc = d.trend.target === 'reference' ? 'reference-date segment' : 'study-period median';
+        summary.push([lbl('Target ratio'), pctC(d.trend.targetRatio)]);
+        summary.push([lbl('Target source'), txt(targetSrc)]);
+        summary.push([lbl('Segment'), hdr('Pre-adj median', true), hdr('SP multiplier', true), hdr('SP shift', true)]);
+        for (const seg of d.trend.segments) {
+          const tag = (seg.label || '') + (seg.isReference ? ' ★' : '');
+          summary.push([lbl(`  ${tag}`), pctC(seg.median), decC(seg.multiplier, 4), pctC((seg.multiplier - 1))]);
+        }
+      } else {
+        summary.push([lbl('Annualized market rate'), pctC(d.trend.annualRate)]);
+      }
     }
     summary.push([]);
     summary.push([sect('OVERALL DIAGNOSTICS')]);
@@ -7184,7 +8738,7 @@
     // ===== SHEETS 4+: STRATIFICATION (one per active stratifier) =====
     d.stratResults.forEach(strat => {
       const aoa = [];
-      aoa.push([ttl(`Stratified Analysis — By ${strat.label}`)]);
+      aoa.push([ttl(`Stratified Analysis — By ${strat.labelWithDesc || strat.label}`)]);
       aoa.push([]);
       aoa.push([hdr(strat.label), hdr('n', true), hdr('Median Ratio', true), hdr('COD', true), hdr('PRD', true), hdr('Mean Ratio', true), hdr('Weighted Mean', true), hdr('90% CI Low', true), hdr('90% CI High', true)]);
       const headerRowIdx = aoa.length - 1;
