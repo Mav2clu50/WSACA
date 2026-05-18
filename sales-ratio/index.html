@@ -102,6 +102,43 @@
     padding: 40px 0 32px;
     border-bottom: 3px solid var(--wsaca-cedar);
   }
+  /* Hero layout — content on left, action button(s) on right. Stacks on
+     narrow screens. */
+  .hero-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .hero-content { flex: 1 1 auto; min-width: 0; }
+  .hero-actions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  @media (max-width: 700px) {
+    .hero-wrap { flex-direction: column; }
+    .hero-actions { align-items: flex-start; }
+  }
+  .btn-start-over {
+    background: var(--paper);
+    color: var(--wsaca-green-deep);
+    border: 1.5px solid var(--wsaca-green-deep);
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-start-over:hover {
+    background: var(--wsaca-green-deep);
+    color: var(--paper);
+  }
   .agency-line {
     font-size: 13px;
     letter-spacing: 0.14em;
@@ -134,15 +171,55 @@
   /* ===== PHASE NOTE ===== */
   .phase-note {
     margin: 0 0 28px;
-    padding: 14px 18px;
+    padding: 14px 38px 14px 18px;
     background: var(--wsaca-cedar-soft);
     border-left: 3px solid var(--wsaca-cedar);
     border-radius: 2px;
     font-size: 14.5px;
     color: var(--ink-soft);
     line-height: 1.55;
+    position: relative;
   }
   .phase-note strong { color: var(--wsaca-cedar-deep); }
+  .phase-note-dismiss {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--wsaca-cedar-deep);
+    font-size: 18px;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.6;
+  }
+  .phase-note-dismiss:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.5);
+    border-color: var(--wsaca-cedar-light);
+  }
+  /* Restored "About this tool" link — appears in place of the full callout
+     after the user dismisses it. Subtle, opens the callout again on click. */
+  .phase-note-restore-line {
+    margin: 0 0 20px;
+    text-align: right;
+  }
+  .phase-note-restore-btn {
+    background: transparent;
+    border: none;
+    color: var(--wsaca-cedar-deep);
+    font-family: var(--sans);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.75;
+  }
+  .phase-note-restore-btn:hover { opacity: 1; }
 
   /* ===== STEP CARDS ===== */
   section.step {
@@ -178,6 +255,158 @@
     margin: 0 0 20px;
     max-width: 64ch;
   }
+
+  /* === COLLAPSIBLE STEPS ===
+     The step header is an interactive strip that toggles the body. On first
+     load the body is open; once a user collapses it, that preference persists
+     in localStorage. The collapsed-summary line under the title shows a brief
+     status (file name, applied trend, neighborhoods adjusted, etc.) so users
+     can scan section state without expanding everything. */
+  .step-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 18px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    font-family: inherit;
+    color: inherit;
+  }
+  .step-header:hover .step-title {
+    color: var(--wsaca-green-mid);
+  }
+  .step-header:focus-visible {
+    outline: 2px solid var(--wsaca-cedar);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+  .step-header-text {
+    min-width: 0;
+  }
+  .step-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-top: 4px;
+    color: var(--ink-mute);
+    font-size: 14px;
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+  section.step.is-collapsed .step-chevron {
+    transform: rotate(-90deg);
+  }
+  .step-collapsed-summary {
+    display: none;
+    font-size: 13px;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+  section.step.is-collapsed .step-collapsed-summary {
+    display: block;
+  }
+  section.step.is-collapsed .step-intro,
+  section.step.is-collapsed .step-body {
+    display: none;
+  }
+  /* Tighter padding for collapsed steps so a stack of headers feels scannable. */
+  section.step.is-collapsed {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  section.step.is-collapsed h2.step-title {
+    margin-bottom: 0;
+  }
+  .step-body {
+    margin-top: 4px;
+  }
+
+  /* === HELP PANEL ===
+     A friendly explainer at the top of each step's body. Dismissible per-step
+     via localStorage so power users (Danny, Jacob, Falon) aren't re-introduced
+     to the same concepts every visit. */
+  .help-panel {
+    background: var(--paper-warm);
+    border-left: 3px solid var(--wsaca-cedar);
+    border-radius: 0 3px 3px 0;
+    padding: 14px 18px 14px 16px;
+    margin: 0 0 22px;
+    position: relative;
+  }
+  .help-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .help-panel-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--wsaca-cedar);
+  }
+  .help-panel-dismiss {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink-mute);
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .help-panel-dismiss:hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .help-panel-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .help-panel-body p {
+    margin: 0 0 8px;
+  }
+  .help-panel-body p:last-child {
+    margin-bottom: 0;
+  }
+  .help-panel-body strong {
+    color: var(--ink);
+  }
+  /* When a help panel is present, the original step-intro paragraph is
+     redundant — the help panel already explains the section more thoroughly.
+     Dismissing the panel removes it from the DOM, which causes this sibling
+     selector to stop matching and the step-intro reappears for power-user
+     readers. */
+  .help-panel ~ .step-intro { display: none; }
+  /* "Restore help tips" link — surfaces when the user has dismissed any panels.
+     Sits near the page header so it's findable without cluttering each step. */
+  .help-restore-link {
+    background: transparent;
+    border: none;
+    color: var(--wsaca-cedar);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    text-decoration: underline;
+    font-family: var(--sans);
+  }
+  .help-restore-link:hover { color: var(--wsaca-cedar-deep); }
 
   /* ===== UPLOAD ZONE ===== */
 
@@ -1384,6 +1613,26 @@
     fill: none;
     opacity: 0.9;
   }
+
+  /* "MP" badge — flags rows that were kept but represent a multi-parcel sale.
+     Used inline in the parcel ID column of per-sale tables (preview, outlier
+     panel). Subtle but visible; ports cleanly to CSV/Excel as the literal
+     string "MP" via the export flag column. */
+  .mp-badge {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 1px 5px;
+    margin-left: 4px;
+    background: var(--wsaca-cedar-soft);
+    color: var(--wsaca-cedar-deep);
+    border: 1px solid var(--wsaca-cedar-light);
+    border-radius: 3px;
+    vertical-align: middle;
+    cursor: help;
+  }
   .ve-grid-line { stroke: var(--rule-soft); stroke-width: 1; }
   .ve-axis-line { stroke: var(--rule); stroke-width: 1; }
   .ve-axis-text {
@@ -1760,6 +2009,206 @@
     color: var(--ink-soft);
     font-family: var(--mono);
   }
+
+  /* === COD OPTIMIZATION DIAGNOSTIC ===
+     Sits below the active-caps strip and above the summary tiles when
+     optimization is enabled. Shows baseline-vs-optimized comparison plus
+     which soft rules were bypassed and which hard rules ended up binding. */
+  .opt-diagnostic {
+    background: var(--paper);
+    border: 1px solid var(--wsaca-slate);
+    border-left: 3px solid var(--wsaca-slate);
+    border-radius: 3px;
+    padding: 14px 18px 14px 16px;
+    margin-bottom: 14px;
+  }
+  .opt-diagnostic-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .opt-diagnostic-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--wsaca-slate);
+  }
+  .opt-diagnostic-badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: var(--rule-soft);
+    color: var(--ink-mute);
+  }
+  .opt-diagnostic-badge.positive {
+    background: var(--success-bg);
+    color: var(--success);
+  }
+  .opt-diagnostic-badge.negative {
+    background: #f7e8e8;
+    color: var(--alert-red);
+  }
+  .opt-diagnostic-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .opt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .opt-cell-label {
+    color: var(--ink-mute);
+  }
+  .opt-cell-value {
+    font-family: var(--mono);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .opt-diagnostic-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .opt-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+  }
+  .opt-section-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .opt-section-list li { margin-bottom: 3px; }
+  .opt-diagnostic-note {
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  /* === HARD/SOFT RULE CLASSIFICATION TOGGLE ===
+     Small pill that appears next to each toggleable rule when optimization
+     is enabled. Click to flip hard ↔ soft. */
+  .rule-soft-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--sans);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid;
+    margin-left: 6px;
+    vertical-align: middle;
+    user-select: none;
+  }
+  .rule-soft-toggle.hard {
+    background: var(--paper-warm);
+    color: var(--wsaca-cedar-deep);
+    border-color: var(--wsaca-cedar-light);
+  }
+  .rule-soft-toggle.soft {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: var(--success);
+  }
+  .rule-soft-toggle:hover {
+    filter: brightness(0.96);
+  }
+  /* Optimization toggle in target-mode bar */
+  .optimize-toggle-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .optimize-toggle-row input[type="checkbox"] {
+    cursor: pointer;
+    margin-top: 3px;
+  }
+  .optimize-toggle-row label {
+    cursor: pointer;
+  }
+  /* Collapsible "Advanced: optimize for COD" section. Stays compact when
+     closed (most users won't touch this); opens to a clear explanation
+     plus the checkbox. Default arrow replaced by a custom indicator so
+     it matches the rest of the page's visual language. */
+  .optimize-advanced {
+    margin-top: 12px;
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    background: var(--paper-warm);
+  }
+  .optimize-advanced-summary {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    list-style: none;
+    user-select: none;
+  }
+  .optimize-advanced-summary::-webkit-details-marker { display: none; }
+  .optimize-advanced-summary::before {
+    content: "▸";
+    color: var(--ink-mute);
+    font-size: 11px;
+    margin-right: 8px;
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+  .optimize-advanced[open] .optimize-advanced-summary::before {
+    transform: rotate(90deg);
+  }
+  .optimize-advanced-label {
+    flex: 1;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .optimize-advanced-status {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 2px;
+    background: var(--paper);
+    color: var(--ink-mute);
+    border: 1px solid var(--rule-soft);
+  }
+  .optimize-advanced[open] .optimize-advanced-status {
+    color: var(--wsaca-green-deep);
+    border-color: var(--wsaca-green-light, #b8d4c2);
+    background: var(--wsaca-green-soft);
+  }
+  .optimize-advanced-body {
+    padding: 4px 12px 14px;
+    border-top: 1px solid var(--rule-soft);
+  }
   .rules-header {
     display: flex;
     align-items: baseline;
@@ -2023,16 +2472,22 @@
     right: 16px;
     transform: translateY(-50%);
     background: var(--paper);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 10px 4px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1.5px solid var(--wsaca-cedar);
+    border-radius: 5px;
+    padding: 0;
+    box-shadow: 0 4px 16px rgba(30, 69, 48, 0.10);
     z-index: 50;
-    font-size: 12.5px;
+    font-size: 13px;
     transition: opacity 0.18s;
-    min-width: 130px;
+    min-width: 168px;
+    overflow: hidden;
   }
   .step-nav.hidden { display: none; }
+  .step-nav-header {
+    background: var(--wsaca-cedar-soft);
+    padding: 8px 14px 7px;
+    border-bottom: 1px solid var(--wsaca-cedar-light);
+  }
   .step-nav-title {
     font-family: var(--sans);
     font-size: 10.5px;
@@ -2040,14 +2495,19 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--wsaca-cedar-deep);
-    padding: 0 12px 6px;
-    border-bottom: 1px solid var(--rule-soft);
-    margin-bottom: 4px;
+    margin: 0;
+  }
+  .step-nav-progress {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--wsaca-cedar-deep);
+    margin-top: 2px;
+    opacity: 0.85;
   }
   .step-nav-list {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 6px 0;
     counter-reset: step-counter;
   }
   .step-nav-list li {
@@ -2055,7 +2515,7 @@
   }
   .step-nav-item {
     display: block;
-    padding: 5px 12px 5px 30px;
+    padding: 5px 14px 5px 34px;
     color: var(--ink-soft);
     text-decoration: none;
     border-radius: 2px;
@@ -2066,7 +2526,7 @@
   .step-nav-item::before {
     content: counter(step-counter);
     position: absolute;
-    left: 10px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     font-family: var(--mono);
@@ -2074,6 +2534,13 @@
     color: var(--ink-mute);
     width: 14px;
     text-align: center;
+  }
+  /* Completed steps get a check-mark in place of the number, in cedar tone */
+  .step-nav-item.completed::before {
+    content: "✓";
+    color: var(--wsaca-cedar-deep);
+    font-family: var(--sans);
+    font-weight: 700;
   }
   .step-nav-item:hover {
     background: var(--paper-warm);
@@ -2086,12 +2553,35 @@
   }
   .step-nav-item.active::before {
     color: var(--wsaca-green-deep);
-    font-weight: 700;
+    content: counter(step-counter);
+    font-family: var(--mono);
   }
   .step-nav-item.disabled {
     color: var(--ink-mute);
     opacity: 0.5;
     pointer-events: none;
+  }
+  .step-nav-footer {
+    padding: 8px 10px;
+    border-top: 1px solid var(--rule-soft);
+    background: var(--paper-warm);
+  }
+  .step-nav-help-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .step-nav-help-btn:hover {
+    background: var(--paper);
+    border-color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
   }
   /* Hide on narrow screens — page is already linear there */
   @media (max-width: 1100px) {
@@ -2294,34 +2784,26 @@
   .conf-badge.L { background: #fbe8e8;               color: var(--alert-red); }
   .conf-badge.X { background: var(--rule-soft);      color: var(--ink-mute); }
 
-  .conf-legend {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px 20px;
-    margin-top: 10px;
-    padding: 10px 14px;
-    background: var(--paper-warm);
-    border: 1px solid var(--rule-soft);
-    border-radius: 3px;
-    font-size: 12.5px;
-    color: var(--ink-soft);
-  }
-  .conf-legend-label {
-    font-family: var(--sans);
-    font-size: 11.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--wsaca-cedar-deep);
-  }
-  .conf-legend-item {
+  /* Modifier-table column visibility toggle. Default-hides the secondary
+     columns (COD, Conf, Notes) so the at-a-glance view shows the actionable
+     columns. The toggle is a small inline control in the table header bar;
+     the confidence legend that used to live below the table is now folded
+     into a tooltip on the Conf column header (when the column is visible). */
+  .mod-col-toggle {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-left: 12px;
+    cursor: pointer;
+    user-select: none;
   }
-  .conf-legend-item .conf-badge {
-    margin: 0;
+  .mod-col-toggle input { margin: 0; cursor: pointer; }
+  .mod-table.mod-cols-collapsed th.col-secondary,
+  .mod-table.mod-cols-collapsed td.col-secondary {
+    display: none;
   }
 
   /* ===== REPORT EXPORT (PHASE 5) ===== */
@@ -2555,18 +3037,28 @@
 </div>
 
 <header class="hero">
-  <div class="wrap">
-    <div class="agency-line">Assessor Tool · Sales Ratio Analysis</div>
-    <h1 class="hero-title">Sales Ratio Analysis</h1>
-    <p class="hero-lede">Upload a validated sales file and produce IAAO-grounded ratio statistics, vertical equity diagnostics, and modifier recommendations. Designed for assessor offices to use during the assessment cycle, before certified values are finalized. <strong>Not a substitute for the official vertical equity report.</strong></p>
+  <div class="wrap hero-wrap">
+    <div class="hero-content">
+      <div class="agency-line">Assessor Tool · Sales Ratio Analysis</div>
+      <h1 class="hero-title">Sales Ratio Analysis</h1>
+      <p class="hero-lede">Upload a validated sales file and produce IAAO-grounded ratio statistics, vertical equity diagnostics, and modifier recommendations. Designed for assessor offices to use during the assessment cycle, before certified values are finalized. <strong>Not a substitute for the official vertical equity report.</strong></p>
+    </div>
+    <div class="hero-actions">
+      <button type="button" id="btn-start-over" class="btn-start-over" style="display: none;" title="Clear all data and upload a different file">↻ Start over</button>
+    </div>
   </div>
 </header>
 
 <main id="main-content" tabindex="-1" aria-label="Main content">
   <div class="wrap">
 
-    <p class="phase-note">
+    <p class="phase-note" id="phase-note">
       <strong>Free, open-source sales ratio analysis tool</strong> for Washington county assessors. Distributed under the WSACA umbrella. Single self-contained HTML file — no installation, no backend, no data leaving your browser. Built to IAAO 2025 Standard on Ratio Studies, with editable rules and exportable reports. Created with AI assistance.
+      <button type="button" id="help-restore-btn" class="help-restore-link" onclick="window.restoreAllHelp && window.restoreAllHelp()" style="display: none; margin-left: 8px;">Restore help tips</button>
+      <button type="button" id="phase-note-dismiss" class="phase-note-dismiss" title="Hide this banner — you can restore it from the footer">×</button>
+    </p>
+    <p id="phase-note-restore-line" class="phase-note-restore-line" style="display: none;">
+      <button type="button" id="phase-note-restore" class="phase-note-restore-btn">About this tool</button>
     </p>
 
     <!-- STEP 1: UPLOAD -->
@@ -2574,7 +3066,7 @@
       <div class="step-number">Step 1</div>
       <h2 class="step-title" id="step-upload-heading">Upload your sales file</h2>
       <p class="step-intro">
-        CSV or Excel (.xlsx) file containing your validated sales. Sales should already be screened for arms-length transactions before upload — this tool does not perform sales validation. Multi-parcel sales (rows with slash-separated values) will be excluded automatically.
+        CSV or Excel (.xlsx) file containing your validated sales. Sales should already be screened for arms-length transactions before upload — this tool does not perform sales validation. Multi-parcel sales should be pre-processed before upload (see the "How to read this" panel for the convention); rows with slash-separated values in the neighborhood or DOR-use columns will be dropped automatically.
       </p>
 
       <div class="upload-data-requirements">
@@ -2778,7 +3270,10 @@
 </div>
 
 <nav class="step-nav hidden" id="step-nav" aria-label="Jump to step">
-  <div class="step-nav-title">Steps</div>
+  <div class="step-nav-header">
+    <div class="step-nav-title">Steps</div>
+    <div class="step-nav-progress" id="step-nav-progress">Step 1 of 9</div>
+  </div>
   <ol class="step-nav-list">
     <li><a href="#step-upload"      data-target="step-upload"      class="step-nav-item">Upload</a></li>
     <li><a href="#step-mapping"     data-target="step-mapping"     class="step-nav-item">Mapping</a></li>
@@ -2790,6 +3285,11 @@
     <li><a href="#step-modifier"    data-target="step-modifier"    class="step-nav-item">Modifier</a></li>
     <li><a href="#step-export"      data-target="step-export"      class="step-nav-item">Export</a></li>
   </ol>
+  <div class="step-nav-footer">
+    <button type="button" class="step-nav-help-btn" id="step-nav-help-btn" title="Hide or show the 'How to read this' panels on every step">
+      <span id="step-nav-help-btn-text">Hide help panels</span>
+    </button>
+  </div>
 </nav>
 
 <footer class="page-foot">
@@ -3039,7 +3539,23 @@
     },
   ];
 
-  const MULTI_PARCEL_COLUMNS = ['neighborhood', 'dor_use'];
+  // Multi-parcel handling has two distinct cases the tool needs to distinguish:
+  //
+  //   (1) Slash in parcel_id  → the user (or their query) put multiple parcel
+  //       numbers in one cell as a record-keeping artifact. We trust they did
+  //       the prep work — assigning the dominant parcel's stratifier values
+  //       and summing the AV across parcels — so we KEEP the row and flag it
+  //       visibly in tables. This is the recommended convention.
+  //
+  //   (2) Slash in neighborhood OR dor_use → the prep wasn't done. The
+  //       stratifier values are ambiguous so the row can't be safely placed
+  //       into a neighborhood or DOR-use bucket. Drop it with a clear notice
+  //       so the user knows to pre-assign and re-upload.
+  //
+  // We track each case separately because (1) is informational and (2) is
+  // a data-quality issue the user should act on.
+  const MULTI_PARCEL_FLAG_COLUMN = 'parcel_id';
+  const MULTI_PARCEL_DROP_COLUMNS = ['neighborhood', 'dor_use'];
 
   // ============================================================
   // STATE
@@ -3048,7 +3564,11 @@
   let rawRows = [];         // array of objects keyed by raw header
   let mapping = {};         // field key -> raw header name
   let cleanRows = [];       // post-filter analysis-ready rows
+  // Two distinct counts: rows DROPPED because slashes appeared in stratifier
+  // columns (user didn't pre-assign), and rows FLAGGED but kept because the
+  // only slashes were in parcel_id (record-keeping artifact only).
   let droppedMultiParcel = 0;
+  let flaggedMultiParcel = 0;
   let droppedMissingRequired = 0;
   let droppedBadValues = 0;
 
@@ -3107,7 +3627,6 @@
     maxChangePct:      15,
     // Post-check
     overallMedianCeiling: 0.95,
-    // Land/improvement split (Phase 5)
     // When ON and both land_av and imps_av are mapped, the tool solves for
     // separate land and improvement modifiers via OLS regression. Falls back
     // to the combined single-modifier output on neighborhoods where there's
@@ -3127,6 +3646,29 @@
     //     magnitudes above a small noise threshold.
     maxLandImpsSpreadPct: 10,
     disallowOppositeSplits: false,
+    // === COD OPTIMIZATION (analyst mode) ===
+    // When `optimizeForCOD` is on, the rules engine treats flagged-soft rules
+    // as ignored during recommendation. The result is the lowest-COD outcome
+    // that still respects all hard rules and the no-crossing constraint
+    // (no neighborhood may move past the overall target ratio). A diagnostic
+    // panel shows which soft rules were bypassed and how COD/PRB improved.
+    //
+    // Per-rule hard/soft classification defaults are set so the conservative
+    // path (DOR-strict) is the default. Counties that want tighter COD can
+    // mark additional rules soft via the toggles that appear when optimization
+    // is enabled.
+    optimizeForCOD:     false,
+    // Categorization: false = hard (enforced), true = soft (bypassed when optimizing)
+    maxChangeSoft:      false,  // hard by default — defensibility
+    downwardFloorSoft:  false,  // hard by default — safety
+    noChangeZoneSoft:   true,   // soft by default — analyst preference
+    ceilingSoft:        true,   // soft by default — informational
+    spreadSoft:         true,   // soft by default — split-mode preference
+    // No-crossing: when on (and optimizeForCOD is on), no neighborhood can be
+    // pushed past the overall target ratio. A neighborhood currently below
+    // target can move up to target (not beyond); currently above can move
+    // down to target (not below). Always defaults on under optimization.
+    preventCrossing:    true,
     // Time trend method — saved with presets so each county can persist its choice.
     //   'linear'           — single OLS slope across the whole window (default).
     //                        Continuous: every sale gets a different adjustment based on
@@ -3145,6 +3687,49 @@
     trendMethod:    'linear',
     trendAnchoring: 'calendar',
     trendTarget:    'reference',
+  };
+
+  // Built-in presets — shown in the preset dropdown alongside user-saved
+  // presets and the canonical "Default". These are one-click starting points
+  // for analysts who don't want to think about individual rule values. The
+  // user can still edit any field afterward; the preset just seeds the
+  // values. Built-ins cannot be deleted from the UI.
+  const BUILT_IN_PRESETS = {
+    'Quick start': {
+      // Single conservative target — every neighborhood aims for 0.95.
+      lowCodTarget:      0.95,
+      highCodTarget:     0.95,
+      lowCodThreshold:   5,
+      highCodThreshold:  20,
+      lowNTarget:        0.95,
+      lowNThreshold:     5,
+      // Wide no-change zone so small drifts don't trigger pointless adjustments.
+      noChangeMin:       0.93,
+      noChangeMax:       0.97,
+      noChangeMaxCod:    15,
+      // Conservative caps — keep changes modest, no surprises in the report.
+      downwardFloor:     0.92,
+      maxChangePct:      10,
+      overallMedianCeiling: 0.95,
+      // Single-modifier mode is the simple/defensible default. Counties that
+      // want land/imps split should opt in.
+      splitLandImps:     false,
+      maxLandChangePct:  10,
+      maxImpsChangePct:  10,
+      maxLandImpsSpreadPct: 10,
+      disallowOppositeSplits: false,
+      // No COD optimization — pure rules-based output.
+      optimizeForCOD:    false,
+      maxChangeSoft:     false,
+      downwardFloorSoft: false,
+      noChangeZoneSoft:  true,
+      ceilingSoft:       true,
+      spreadSoft:        true,
+      preventCrossing:   true,
+      trendMethod:       'linear',
+      trendAnchoring:    'calendar',
+      trendTarget:       'reference',
+    },
   };
 
   // IAAO 2025 §11.2.2 Table 7 — COD acceptable ranges by property class
@@ -3284,6 +3869,9 @@
     autoMapFields();
     renderMappingUI();
     document.getElementById('step-mapping').classList.remove('hidden');
+    // Surface the header-level "Start over" once we have data to start over from.
+    const sob = document.getElementById('btn-start-over');
+    if (sob) sob.style.display = '';
     document.getElementById('step-mapping').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -3508,6 +4096,17 @@
   }
 
   document.getElementById('btn-back').addEventListener('click', resetAll);
+  // Header-level "Start over" — same behavior as Step 1's Clear button, but
+  // accessible from any step. Visible only after a file has been loaded.
+  const btnStartOver = document.getElementById('btn-start-over');
+  if (btnStartOver) {
+    btnStartOver.addEventListener('click', () => {
+      if (confirm('Clear all data and start over? Unsaved settings will be lost.')) {
+        resetAll();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
   document.getElementById('btn-analyze').addEventListener('click', () => {
     // Show the loading overlay before kicking off the (synchronous) analysis.
     // setTimeout(0) gives the browser a paint cycle to draw the overlay before
@@ -3559,6 +4158,24 @@
     const stepNavEl = document.getElementById('step-nav');
     if (stepNavEl) stepNavEl.classList.add('hidden');
     if (stepNavObserver) { stepNavObserver.disconnect(); stepNavObserver = null; }
+    // Hide the header-level "Start over" button — nothing to reset until a
+    // file is loaded again.
+    const sob = document.getElementById('btn-start-over');
+    if (sob) sob.style.display = 'none';
+    // Re-expand Step 1 and Step 2 (analysis collapsed them, but reset means
+    // we're back to a clean slate). Honour user's localStorage by clearing
+    // the collapsed flag for these two steps specifically.
+    ['step-upload', 'step-mapping'].forEach(id => {
+      const sec = document.getElementById(id);
+      if (sec) {
+        sec.classList.remove('is-collapsed');
+        const hdr = sec.querySelector('.step-header');
+        if (hdr) hdr.setAttribute('aria-expanded', 'true');
+      }
+      const set = loadCollapsedSet() || new Set();
+      set.delete(id);
+      saveCollapsedSet(set);
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -3567,20 +4184,35 @@
   // ============================================================
   function runAnalysis() {
     droppedMultiParcel = 0;
+    flaggedMultiParcel = 0;
     droppedMissingRequired = 0;
     droppedBadValues = 0;
     cleanRows = [];
 
     for (const raw of rawRows) {
-      // multi-parcel filter
-      let isMulti = false;
-      for (const fk of MULTI_PARCEL_COLUMNS) {
+      // Multi-parcel handling.
+      //
+      //   Case A: slash in neighborhood or dor_use → drop. The dominant
+      //   parcel's stratifier values weren't pre-assigned, so we can't
+      //   safely place this row into a bucket.
+      //
+      //   Case B: slash in parcel_id only → keep, flag for display. The user
+      //   did the prep work; the parcel_id slash is record-keeping.
+      let dropMulti = false;
+      for (const fk of MULTI_PARCEL_DROP_COLUMNS) {
         const col = mapping[fk];
         if (!col) continue;
         const v = String(raw[col] ?? '').trim();
-        if (v.includes('/')) { isMulti = true; break; }
+        if (v.includes('/')) { dropMulti = true; break; }
       }
-      if (isMulti) { droppedMultiParcel++; continue; }
+      if (dropMulti) { droppedMultiParcel++; continue; }
+
+      let isFlaggedMulti = false;
+      const pidCol = mapping[MULTI_PARCEL_FLAG_COLUMN];
+      if (pidCol) {
+        const pidVal = String(raw[pidCol] ?? '').trim();
+        if (pidVal.includes('/')) isFlaggedMulti = true;
+      }
 
       // build mapped row
       const row = {};
@@ -3588,6 +4220,9 @@
         const col = mapping[f.key];
         if (col) row[f.key] = raw[col];
       }
+      // Flag carried through analysis for display in tables and exports.
+      // Doesn't affect any math — these rows participate fully.
+      row.multi_parcel = isFlaggedMulti;
 
       // parse required numerics & date
       const sp = parseMoney(row.sale_price);
@@ -3614,6 +4249,7 @@
       row.condition = row.condition != null && row.condition !== '' ? String(row.condition).trim() : null;
       row.ratio = av / sp;
 
+      if (isFlaggedMulti) flaggedMultiParcel++;
       cleanRows.push(row);
     }
 
@@ -3647,6 +4283,29 @@
     document.getElementById('step-strat').classList.remove('hidden');
     document.getElementById('step-modifier').classList.remove('hidden');
     document.getElementById('step-export').classList.remove('hidden');
+
+    // Once all steps are populated, update the collapsed-summary lines so a
+    // user scanning the step headers sees meaningful values without expanding.
+    if (typeof refreshStepSummaries === 'function') refreshStepSummaries();
+    // Auto-collapse Step 1 (Upload) and Step 2 (Mapping) after analysis. The
+    // user is done with those — their content is reference now, not active
+    // work. Collapsed-summary lines preserve key info ("3,630 sales loaded",
+    // "14 columns mapped"); user can re-expand if they want to remap.
+    ['step-upload', 'step-mapping'].forEach(id => {
+      const sec = document.getElementById(id);
+      if (sec && !sec.classList.contains('is-collapsed')) {
+        sec.classList.add('is-collapsed');
+        const hdr = sec.querySelector('.step-header');
+        if (hdr) hdr.setAttribute('aria-expanded', 'false');
+        const set = loadCollapsedSet() || new Set();
+        set.add(id);
+        saveCollapsedSet(set);
+      }
+    });
+    // First successful analysis dismisses the cedar promotional callout.
+    // Users can restore it via the "About this tool" link that takes its
+    // place. Subsequent analyses don't re-trigger auto-dismiss.
+    if (typeof window.autoDismissPhaseNote === 'function') window.autoDismissPhaseNote();
     activateStepNav();
     document.getElementById('step-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -3677,17 +4336,18 @@
       });
     });
 
-    // Highlight whichever step's top is currently nearest the viewport top
-    stepNavObserver = new IntersectionObserver(entries => {
-      // Pick the entry with the largest intersection ratio that's intersecting
+    // Find which step is currently "most active" based on viewport position.
+    // Extracted so both the IntersectionObserver callback and a scroll handler
+    // can call it — the observer alone fires only on threshold crossings, so
+    // scrolling smoothly past several steps in one motion doesn't always
+    // re-trigger and the progress indicator stalls.
+    function findActiveStep() {
       let bestId = null;
       let bestRatio = 0;
-      // Use all currently-visible steps from the page
       for (const id of stepIds) {
         const el = document.getElementById(id);
         if (!el || el.classList.contains('hidden')) continue;
         const rect = el.getBoundingClientRect();
-        // Score = how close the top is to 100px from viewport top, capped to 0..1
         const distFromTop = Math.abs(rect.top - 100);
         const ratio = 1 / (1 + distFromTop / 200);
         if (ratio > bestRatio) {
@@ -3695,14 +4355,108 @@
           bestId = id;
         }
       }
+      return bestId;
+    }
+    function applyActiveStep() {
+      const bestId = findActiveStep();
       nav.querySelectorAll('.step-nav-item').forEach(link => {
         link.classList.toggle('active', link.dataset.target === bestId);
       });
+      if (bestId) {
+        const idx = stepIds.indexOf(bestId);
+        if (idx >= 0) {
+          const prog = document.getElementById('step-nav-progress');
+          if (prog) prog.textContent = `Step ${idx + 1} of ${stepIds.length}`;
+        }
+      }
+    }
+
+    // Highlight whichever step's top is currently nearest the viewport top
+    stepNavObserver = new IntersectionObserver(() => {
+      applyActiveStep();
     }, { rootMargin: '-80px 0px -50% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
+
+    // Scroll handler — runs the active-step logic on every scroll. Cheap
+    // (one getBoundingClientRect per step), throttled implicitly by the
+    // browser. Same handler also refreshes completion markers.
+    let scrollRaf = null;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = null;
+        applyActiveStep();
+        refreshCompletedMarkers();
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Mark completed steps: any step where the user has scrolled past it OR
+    // that the analysis has produced content for. After analysis runs all
+    // are technically "available" — but we mark them completed only as the
+    // user has actually visited (scrolled past) them. Simple heuristic:
+    // upload + mapping + summary are completed if cleanRows.length > 0;
+    // the rest are completed once the user scrolls past their top.
+    function refreshCompletedMarkers() {
+      const completed = new Set();
+      // Always-completed steps once we have analysis results
+      if (cleanRows && cleanRows.length) {
+        completed.add('step-upload');
+        completed.add('step-mapping');
+        completed.add('step-summary');
+      }
+      // For the rest, "completed" means the user has scrolled past the step
+      // (its bottom is above the viewport top).
+      for (const id of stepIds) {
+        const el = document.getElementById(id);
+        if (!el || el.classList.contains('hidden')) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.bottom < window.innerHeight * 0.4) completed.add(id);
+      }
+      nav.querySelectorAll('.step-nav-item').forEach(link => {
+        link.classList.toggle('completed', completed.has(link.dataset.target));
+      });
+    }
+    refreshCompletedMarkers();
+    applyActiveStep();
 
     for (const id of stepIds) {
       const el = document.getElementById(id);
       if (el) stepNavObserver.observe(el);
+    }
+
+    // Hide-all-help button in the nav footer. Toggles every help panel on
+    // the page; persists user's choice across sessions and across all steps.
+    const helpBtn = document.getElementById('step-nav-help-btn');
+    if (helpBtn) {
+      const updateHelpBtn = () => {
+        const txt = document.getElementById('step-nav-help-btn-text');
+        if (!txt) return;
+        const dismissed = loadDismissedHelp();
+        // If every step's help is dismissed, button reads "Show help panels"
+        const stepsWithHelp = Object.keys(HELP_CONTENT);
+        const allDismissed = stepsWithHelp.every(id => dismissed.has(id));
+        txt.textContent = allDismissed ? 'Show help panels' : 'Hide help panels';
+      };
+      helpBtn.onclick = () => {
+        const dismissed = loadDismissedHelp();
+        const stepsWithHelp = Object.keys(HELP_CONTENT);
+        const allDismissed = stepsWithHelp.every(id => dismissed.has(id));
+        if (allDismissed) {
+          // Restore all
+          if (typeof restoreAllHelp === 'function') restoreAllHelp();
+        } else {
+          // Dismiss all
+          stepsWithHelp.forEach(id => {
+            const panel = document.querySelector(`[data-help="${id}"]`);
+            if (panel) panel.remove();
+            dismissed.add(id);
+          });
+          saveDismissedHelp(dismissed);
+          updateRestoreHelpButton();
+        }
+        updateHelpBtn();
+      };
+      updateHelpBtn();
     }
   }
 
@@ -4323,9 +5077,14 @@
         <div class="summary-stat-value">${totalIn.toLocaleString()}</div>
       </div>
       <div class="summary-stat">
-        <div class="summary-stat-label">Multi-Parcel Excluded</div>
+        <div class="summary-stat-label">Multi-Parcel Dropped</div>
         <div class="summary-stat-value">${droppedMultiParcel.toLocaleString()}</div>
-        <div class="summary-stat-sub">rows with slash-separated values</div>
+        <div class="summary-stat-sub">slash in neighborhood or DOR-use — pre-assign dominant parcel and re-upload</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-label">Multi-Parcel Included</div>
+        <div class="summary-stat-value">${flaggedMultiParcel.toLocaleString()}</div>
+        <div class="summary-stat-sub">slash in parcel ID only — flagged in tables, analyzed normally</div>
       </div>
       <div class="summary-stat">
         <div class="summary-stat-label">Missing or Invalid</div>
@@ -4355,6 +5114,12 @@
     }
     if ((droppedMissingRequired + droppedBadValues) > totalIn * 0.05) {
       warnHtml += `<div class="summary-warning"><strong>Heads up.</strong> More than 5% of rows were excluded for missing or invalid required fields. Verify your column mapping above before relying on these results.</div>`;
+    }
+    if (droppedMultiParcel > 0) {
+      // Slash in stratifier columns means the dominant-parcel prep wasn't done.
+      // Surface the convention so the county can re-export and include these
+      // rows instead of losing them silently.
+      warnHtml += `<div class="summary-warning"><strong>${droppedMultiParcel.toLocaleString()} multi-parcel row${droppedMultiParcel === 1 ? '' : 's'} dropped.</strong> The neighborhood or DOR-use column had slash-separated values, which means the dominant parcel wasn't pre-assigned. To include these sales in the analysis, pre-process so each multi-parcel row carries the dominant parcel's neighborhood, DOR code, and land table — sum the AV across parcels and use the combined sale price. Leave the slash in the parcel ID for record-keeping; the tool will flag those rows in tables but include them.</div>`;
     }
     warns.innerHTML = warnHtml;
 
@@ -4408,8 +5173,12 @@
       const nbrTxt = s.neighborhood ? escapeHtml(String(s.neighborhood)) : '—';
       const sideClass = s.side === 'low' ? 'outlier-side-low' : 'outlier-side-high';
       const sideTxt = s.side === 'low' ? 'Low' : 'High';
+      // Show the MP badge for multi-parcel outliers — these are often worth
+      // re-reviewing because the combined-AV/combined-sale-price math can
+      // make a single odd parcel's ratio look extreme at the sale level.
+      const mpBadge = s.multi_parcel ? ` <span class="mp-badge" title="Multi-parcel sale">MP</span>` : '';
       return `<tr>
-        <td>${parcelTxt}</td>
+        <td>${parcelTxt}${mpBadge}</td>
         <td>${nbrTxt}</td>
         <td class="num">${formatDate(s.sale_date)}</td>
         <td class="num">$${Math.round(s.sale_price).toLocaleString()}</td>
@@ -4461,7 +5230,7 @@
   }
 
   function exportOutliersCSV(sales) {
-    const header = ['parcel_id', 'neighborhood', 'sale_date', 'sale_price', 'total_av', 'ratio', 'side', 'distance_from_fence'];
+    const header = ['parcel_id', 'neighborhood', 'sale_date', 'sale_price', 'total_av', 'ratio', 'side', 'distance_from_fence', 'multi_parcel'];
     const lines = [header.join(',')];
     for (const s of sales) {
       const parcel = s.parcel_id == null ? '' : String(s.parcel_id);
@@ -4476,6 +5245,7 @@
         s.ratio.toFixed(4),
         s.side,
         s.distance.toFixed(4),
+        s.multi_parcel ? 'MP' : '',
       ].join(','));
     }
     const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
@@ -4518,6 +5288,12 @@
         else if (k === 'ratio') display = v.toFixed(4);
         else if (v === null || v === undefined) display = '—';
         else display = String(v);
+        // Render the parcel_id cell with an "MP" badge when the row was
+        // flagged as multi-parcel. Reviewers scanning preview rows can spot
+        // the bundled sales without hovering or checking tooltips.
+        if (k === 'parcel_id' && r.multi_parcel) {
+          return `<td>${escapeHtml(display)} <span class="mp-badge" title="Multi-parcel sale — AV and sale price are combined across parcels listed in this cell">MP</span></td>`;
+        }
         return `<td>${escapeHtml(display)}</td>`;
       }).join('') + '</tr>';
     }).join('');
@@ -4689,6 +5465,10 @@
     iqr: {
       full: 'Interquartile Range',
       def: 'Difference between the 75th and 25th percentile ratios (Q3 − Q1). Used in Tukey-fence outlier detection: extreme outliers fall more than 3 × IQR beyond either quartile.',
+    },
+    confidence: {
+      full: 'Confidence Grade',
+      def: 'How reliable the recommendation is. H (High) — COD inside IAAO range, n ≥ 30, and a narrow 90% CI on the median. M (Medium) — meets two of those three. L (Low) — meets one. X — insufficient data (n below the low-n threshold). Treat L and X recommendations as hints, not directives.',
     },
   };
 
@@ -4972,6 +5752,234 @@
     paragraphs.push(nextStep);
 
     return { paragraphs, hasFailures: failures > 0 };
+  }
+
+  // ── Section synopsis builders ───────────────────────────────────────────
+  // Each returns { paragraphs: [html], hasFailures: bool } | null. Voice
+  // matches the diagnostics synopsis: direct, no hedging, names the headline
+  // finding, ends with what to do next when applicable.
+
+  // Step 4 — Time adjustment: explains whether to turn the toggle on, what an
+  // applied trend means, and where seasonality is hiding for stepwise.
+  function buildTimeAdjustmentSynopsis() {
+    const trend = state.timeTrend;
+    if (!trend) return null;
+    const span = dataSpanMonths(trend);
+    const annualPct = trend.annualRate * 100;
+    const isApplied = state.applyTimeAdjustment;
+    const isPiecewise = trend.method !== 'linear';
+    const paragraphs = [];
+    let hasFailures = false;
+
+    if (!isApplied) {
+      const driftMag = Math.abs(annualPct);
+      if (driftMag < 1.5) {
+        paragraphs.push(`Over the ${span}-month study window the market drifted by about <strong>${annualPct >= 0 ? '+' : ''}${annualPct.toFixed(2)}%/year</strong> — essentially flat. Time adjustment is optional here; applying it won't move the downstream numbers much, though it's defensible if your office's practice is to always adjust to a common reference date.`);
+      } else if (driftMag < 5) {
+        paragraphs.push(`The market moved <strong>${annualPct >= 0 ? '+' : ''}${annualPct.toFixed(2)}%/year</strong> over the ${span}-month study window. That's enough drift to bias your ratio study — sales from early in the window will read systematically different from later sales in the downstream diagnostics. Turning the toggle on will move everything to a common reference date and clean that up.`);
+        hasFailures = true;
+      } else {
+        paragraphs.push(`The market moved <strong>${annualPct >= 0 ? '+' : ''}${annualPct.toFixed(2)}%/year</strong> over the ${span}-month window — a substantial trend. Without time adjustment, your overall median and COD will be distorted by sales-date mix rather than reflecting true assessment-to-market relationships. Apply time adjustment before drawing conclusions from later steps.`);
+        hasFailures = true;
+      }
+      paragraphs.push(`<strong>Next step:</strong> flip the "Apply time adjustment" toggle if the trend warrants it, then continue to overall diagnostics. If your data has seasonal swings (common in residential markets), stepwise piecewise will handle them more cleanly than linear.`);
+    } else if (!isPiecewise) {
+      paragraphs.push(`Linear adjustment is applied at <strong>${annualPct >= 0 ? '+' : ''}${annualPct.toFixed(2)}%/year</strong>. Every sale's price has been moved to ${formatDate(state.referenceDate)} based on how many months out it sat. Downstream diagnostics now read as if every sale closed on the reference date.`);
+      if (Math.abs(annualPct) < 1) {
+        paragraphs.push(`The fitted trend is small in magnitude. Comparing the downstream numbers with adjustment on vs. off would show whether it's actually doing anything — for nearly-flat markets the two look almost identical.`);
+      }
+    } else {
+      const segs = trend.segments;
+      const target = (trend.targetRatio * 100).toFixed(2);
+      const targetSrc = trend.target === 'reference' ? 'reference-date segment' : 'overall study-period median';
+      const maxShift = Math.max(...segs.map(s => Math.abs(s.shiftPct)));
+      const methodTxt = trend.method === 'piecewise-6mo' ? '6-month' : '12-month';
+      const anchorTxt = trend.anchoring === 'dor' ? 'DOR sales year' : trend.anchoring === 'calendar' ? 'calendar' : 'backward from reference';
+      paragraphs.push(`${methodTxt} stepwise piecewise adjustment is applied with each segment's median shifted to <strong>${target}%</strong> (from the ${targetSrc}, anchored by ${anchorTxt}). The largest individual segment shift is <strong>±${maxShift.toFixed(2)}%</strong>. Within-segment seasonal variation is preserved — every sale in a segment got the same multiplier — so the chart still shows monthly wiggle even after adjustment; what's removed is the cross-segment level drift.`);
+      // Flag if any segment shift is unusually large
+      if (maxShift > 5) {
+        paragraphs.push(`One or more segments needed an adjustment greater than ±5%. That's a strong seasonal or trend pattern. Check the segment-breakdown table to make sure the segment with the largest shift isn't a data-quality artifact (e.g., a thin month with a few unusual sales pulling the segment median).`);
+      }
+    }
+
+    return { paragraphs, hasFailures };
+  }
+
+  // Step 6 — Vertical equity: bottom-line PRB read, Spearman cross-check,
+  // pointer to the decile chart when the two diverge.
+  function buildVerticalEquitySynopsis(prb, spearman, vei) {
+    if (!prb && !spearman && !vei) return null;
+    const paragraphs = [];
+    let hasFailures = false;
+    const prbBeta = prb ? prb.beta : null;
+    const prbInRange = prb ? Math.abs(prbBeta) <= 0.05 : null;
+    const prbSignif = prb && prb.pValue != null && prb.pValue < 0.05;
+
+    // Lead: bottom-line PRB
+    if (prb) {
+      if (prbInRange) {
+        paragraphs.push(`PRB sits at <strong>${prbBeta >= 0 ? '+' : ''}${prbBeta.toFixed(4)}</strong>, comfortably inside the IAAO ±0.05 range. No statistically meaningful price-related bias to flag. The decile chart will still show some variation across value groups — that's normal noise; what matters is whether the trend line through the medians shows a systematic slope.`);
+      } else {
+        hasFailures = true;
+        const direction = prbBeta > 0 ? 'progressive' : 'regressive';
+        const detail = prbBeta > 0
+          ? 'low-value parcels are over-assessed relative to high-value parcels'
+          : 'high-value parcels are under-assessed relative to low-value parcels';
+        paragraphs.push(`PRB at <strong>${prbBeta >= 0 ? '+' : ''}${prbBeta.toFixed(4)}</strong> falls outside the IAAO ±0.05 range, flagging a <strong>${direction}</strong> pattern — ${detail}. ${prbSignif ? `The result is statistically significant (p ${prb.pValue < 0.001 ? '< 0.001' : '= ' + prb.pValue.toFixed(3)}).` : `The result isn't statistically significant; treat as a soft signal pending more data, especially if your sample is under 100 sales.`}`);
+      }
+    }
+
+    // Spearman cross-check when it adds information
+    if (prb && spearman) {
+      const spInRange = Math.abs(spearman.rho) <= 0.39;
+      if (prbInRange && !spInRange) {
+        paragraphs.push(`Spearman's ρ at <strong>${spearman.rho >= 0 ? '+' : ''}${spearman.rho.toFixed(3)}</strong> is outside its IAAO range even though PRB isn't. That combination usually means there's a consistent monotonic pattern across the value range — ratios are reliably higher or lower at one end — but the per-dollar magnitude isn't large enough to push PRB out. Worth a closer look at the decile chart to see exactly where the drift sits.`);
+        hasFailures = true;
+      } else if (!prbInRange && spInRange) {
+        paragraphs.push(`Spearman's ρ at <strong>${spearman.rho >= 0 ? '+' : ''}${spearman.rho.toFixed(3)}</strong> passes the IAAO range even though PRB doesn't. That can happen when a small number of high-value sales are doing most of the work — PRB is sensitive to magnitude, Spearman is rank-only. Check whether removing the top decile or two changes the picture; if it does, the PRB result is being driven by outliers.`);
+      } else if (!prbInRange && Math.sign(spearman.rho) === Math.sign(prbBeta)) {
+        paragraphs.push(`Spearman's ρ agrees with PRB: ${spearman.rho >= 0 ? '+' : ''}${spearman.rho.toFixed(3)}, same direction. When both measures flag the same pattern, the bias is well established and not driven by a few influential sales.`);
+      }
+    }
+
+    // Next-step pointer
+    if (hasFailures) {
+      paragraphs.push(`<strong>Next step:</strong> review the decile chart above to see which value bins are pulling away from the sample median. Vertical-equity drift concentrated in one or two deciles is typically fixable via stratification + targeted modifiers; drift spread across all deciles usually points to a model-level issue and may need cost-table re-calibration.`);
+    }
+
+    return paragraphs.length ? { paragraphs, hasFailures } : null;
+  }
+
+  // Step 7 — Per-stratifier synopsis: identify spread across strata, point at
+  // the worst-COD stratum if any, suggest where targeted modifiers help.
+  function buildStratifierSynopsis(strataRows, sKey, codRange) {
+    if (!strataRows || strataRows.length < 2) return null;
+    const populated = strataRows.filter(r => r.n >= 10 && r.median != null && isFinite(r.median));
+    if (populated.length < 2) return null;
+    const paragraphs = [];
+    let hasFailures = false;
+
+    const sortedByMed = [...populated].sort((a, b) => a.median - b.median);
+    const lowest = sortedByMed[0];
+    const highest = sortedByMed[sortedByMed.length - 1];
+    const spread = (highest.median - lowest.median) * 100;
+
+    const worstCod = populated.reduce((a, b) => (a.cod || 0) > (b.cod || 0) ? a : b);
+    const isContinuous = isContinuousStratifier(sKey);
+    const stratifierLabel = (STRATIFIER_LABELS[sKey] || sKey).toLowerCase();
+
+    // Lead: characterize the spread
+    if (spread > 5) {
+      hasFailures = true;
+      paragraphs.push(`Median ratios span <strong>${(lowest.median * 100).toFixed(1)}% to ${(highest.median * 100).toFixed(1)}%</strong> across the ${populated.length} populated ${stratifierLabel} strata — a ${spread.toFixed(1)}-point spread. <strong>${escapeHtml(lowest.stratum)}</strong> is the lowest, <strong>${escapeHtml(highest.stratum)}</strong> the highest. That's wide enough to warrant per-stratum attention; a flat overall adjustment will overshoot some strata and undershoot others.`);
+    } else if (spread > 2) {
+      paragraphs.push(`Median ratios span <strong>${(lowest.median * 100).toFixed(1)}% to ${(highest.median * 100).toFixed(1)}%</strong> across the ${populated.length} populated ${stratifierLabel} strata — a ${spread.toFixed(1)}-point spread. Moderate variation; the overall level is mostly holding but the lowest and highest strata are drifting from the middle.`);
+    } else {
+      paragraphs.push(`Median ratios are tight across ${stratifierLabel} strata — only a ${spread.toFixed(1)}-point spread between ${escapeHtml(lowest.stratum)} (${(lowest.median * 100).toFixed(1)}%) and ${escapeHtml(highest.stratum)} (${(highest.median * 100).toFixed(1)}%). The overall level holds evenly across this dimension; no per-stratum drift to worry about here.`);
+    }
+
+    // Continuous-stratifier trend interpretation
+    if (isContinuous && spread > 2) {
+      // Read whether ratios rise or fall with the stratifier rank
+      const ranked = [...populated].sort((a, b) => (a.sortIdx ?? 0) - (b.sortIdx ?? 0));
+      const firstThird = ranked.slice(0, Math.max(1, Math.floor(ranked.length / 3)));
+      const lastThird = ranked.slice(-Math.max(1, Math.floor(ranked.length / 3)));
+      const avgFirst = firstThird.reduce((a, r) => a + r.median, 0) / firstThird.length;
+      const avgLast  = lastThird.reduce((a, r) => a + r.median, 0) / lastThird.length;
+      const trendDir = avgLast - avgFirst;
+      if (Math.abs(trendDir) > 0.01) {
+        const direction = trendDir > 0 ? 'rises' : 'falls';
+        const implication = sKey === 'gla' ?
+            (trendDir > 0 ? 'larger homes are over-assessed relative to smaller ones' : 'smaller homes are over-assessed relative to larger ones')
+          : sKey === 'year_built' ?
+            (trendDir > 0 ? 'newer homes are over-assessed relative to older ones' : 'older homes are over-assessed relative to newer ones')
+          : sKey === 'effective_age' ?
+            (trendDir > 0 ? 'high-age homes are over-assessed relative to recently-renovated ones' : 'recently-renovated homes are over-assessed relative to high-age ones')
+          : sKey === 'acreage' ?
+            (trendDir > 0 ? 'larger parcels are over-assessed relative to smaller ones' : 'smaller parcels are over-assessed relative to larger ones')
+          : 'one end of the range is over-assessed relative to the other';
+        paragraphs.push(`The trend chart above confirms direction: ratio ${direction} across the range, meaning ${implication}. If your cost table or land schedule produced this, it's a model-level signal — fix the calibration rather than papering over with per-stratum modifiers.`);
+      }
+    }
+
+    // Worst-COD callout
+    if (worstCod.cod != null && worstCod.cod > codRange.max) {
+      hasFailures = true;
+      paragraphs.push(`Highest dispersion is in <strong>${escapeHtml(worstCod.stratum)}</strong> at COD <strong>${worstCod.cod.toFixed(1)}</strong> (IAAO max for this property class is ${codRange.max.toFixed(0)}). Within-stratum uniformity is the issue here, not level — a flat multiplier on that stratum won't fix it. Investigate the underlying valuation parameters or split the stratum further to localize the dispersion.`);
+    }
+
+    return { paragraphs, hasFailures };
+  }
+
+  // Step 8 — Modifier recommendations: count what changed, name the biggest
+  // movers, flag rows that hit caps or floors.
+  function buildModifierSynopsis(result) {
+    if (!result || !result.recs.length) return null;
+    const paragraphs = [];
+    let hasFailures = false;
+    const counts = result.counts || {};
+    const noChange = (counts['No change'] || 0) + (counts['Skipped'] || 0);
+    const changed = (counts['Adjusted'] || 0) + (counts['Capped'] || 0) + (counts['Floored'] || 0) + (counts['Low-n conservative'] || 0);
+    const capped  = counts['Capped'] || 0;
+    const floored = counts['Floored'] || 0;
+    const lowN    = counts['Low-n conservative'] || 0;
+    const adjusted = result.recs.filter(r => r.suggestedPct != null && Math.abs(r.suggestedPct) > 0.005);
+    let biggestUp = null, biggestDown = null;
+    for (const r of adjusted) {
+      if (r.suggestedPct > 0 && (!biggestUp || r.suggestedPct > biggestUp.suggestedPct)) biggestUp = r;
+      if (r.suggestedPct < 0 && (!biggestDown || r.suggestedPct < biggestDown.suggestedPct)) biggestDown = r;
+    }
+    const overallShift = (result.post.median - result.pre.median) * 100;
+    const overallShiftSign = overallShift >= 0 ? '+' : '';
+
+    // Lead: overall effect
+    paragraphs.push(`<strong>${changed} of ${result.recs.length}</strong> neighborhoods have proposed adjustments; ${noChange} land inside the no-change zone and are left alone. Overall sample median shifts <strong>${overallShiftSign}${overallShift.toFixed(2)} points</strong> (${(result.pre.median * 100).toFixed(2)}% → ${(result.post.median * 100).toFixed(2)}%) after applying these modifiers, with overall COD ${result.post.cod < result.pre.cod ? 'improving' : 'rising'} from ${result.pre.cod.toFixed(2)} to ${result.post.cod.toFixed(2)}.`);
+
+    // Biggest movers — name the neighborhoods at the extremes so the reader
+    // can spot-check them against local knowledge.
+    if (biggestUp || biggestDown) {
+      const parts = [];
+      if (biggestUp) parts.push(`<strong>${escapeHtml(biggestUp.stratum)}</strong> takes the largest upward adjustment (+${biggestUp.suggestedPct.toFixed(2)}%)`);
+      if (biggestDown) parts.push(`<strong>${escapeHtml(biggestDown.stratum)}</strong> the largest downward (${biggestDown.suggestedPct.toFixed(2)}%)`);
+      const closer = (biggestUp && biggestDown) ? 'Spot-check those two against local knowledge before applying — the math is sound, but if either result surprises you, the underlying COD or sample size is worth a second look.' : 'Spot-check that against local knowledge before applying — if it surprises you, the underlying COD or sample size is worth a second look.';
+      paragraphs.push(parts.join('; ') + '. ' + closer);
+    }
+
+    // Flagged rows
+    if (capped + floored + lowN > 0) {
+      hasFailures = true;
+      const issues = [];
+      if (capped > 0) issues.push(`${capped} hit the max-change cap`);
+      if (floored > 0) issues.push(`${floored} hit the downward floor`);
+      if (lowN > 0) issues.push(`${lowN} use conservative low-n targets`);
+      paragraphs.push(`<strong>${issues.join(', ')}.</strong> These rows need manual review — the recommended modifier was clipped to satisfy the rules above, so the post-adjustment ratio won't fully land on target. Either relax the binding rule (the "Caps in effect" strip above shows what's binding), apply a smaller manual adjustment, or accept that the stratum won't fully converge this cycle.`);
+    }
+
+    // Ceiling warning
+    if (result.overallCeilingExceeded) {
+      hasFailures = true;
+      paragraphs.push(`<strong>Overall median ceiling exceeded.</strong> Simulated overall would land above the configured ceiling. Tighten the per-neighborhood targets or back off the most aggressive recommendations before applying.`);
+    }
+
+    return { paragraphs, hasFailures };
+  }
+
+  // Shared synopsis renderer — writes a synopsis structure into a container
+  // ID. Uses the same .diag-synopsis class as the diagnostics synopsis so all
+  // four section synopses are visually consistent.
+  function renderSectionSynopsis(containerId, synopsis, titleText) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!synopsis || !synopsis.paragraphs.length) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = `
+      <div class="diag-synopsis${synopsis.hasFailures ? ' has-failures' : ''}">
+        <div class="diag-synopsis-title">${titleText || 'Interpretation'}</div>
+        ${synopsis.paragraphs.map(p => `<p style="margin: 0 0 10px;">${p}</p>`).join('')}
+      </div>
+    `;
   }
 
   function renderHistogram(ratios, med) {
@@ -5299,6 +6307,7 @@
         ${spCardHtml}
       </div>
       ${chartHtml}
+      <div id="ve-synopsis"></div>
       ${tableHtml}
       <div class="ve-method-note">
         <strong>Methodology.</strong> PRB is computed per Gloudemans (2011) as the OLS slope of (ratio − sample median)/sample median regressed on log<sub>2</sub>(0.5·SP + 0.5·AV/median). Standard errors are HC3 heteroscedasticity-consistent (MacKinnon &amp; White) because sales-ratio data typically exhibits heteroscedasticity — plain OLS standard errors would understate uncertainty. Two-sided p-values use the normal approximation, which is essentially equivalent to a t-test for n ≥ 30. Spearman's ρ p-value uses the same approximation. ${state.applyTimeAdjustment ? '<strong>Time-adjusted sale prices in use.</strong>' : 'Unadjusted sale prices in use.'}
@@ -5306,6 +6315,7 @@
     `;
 
     if (vei) drawGroupMediansChart(vei);
+    renderSectionSynopsis('ve-synopsis', buildVerticalEquitySynopsis(prb, sp, vei), 'Interpretation');
   }
 
   function drawGroupMediansChart(vei) {
@@ -5588,6 +6598,8 @@
 
       ${segmentTable}
 
+      <div id="time-synopsis"></div>
+
       <div class="controls-bar">
         <div class="control-group">
           <span class="control-label">Method:</span>
@@ -5615,6 +6627,7 @@
 
     drawTrendChart();
     updateTrendLegend();
+    renderSectionSynopsis('time-synopsis', buildTimeAdjustmentSynopsis(), 'Interpretation');
 
     // Wire method/anchoring/target changes — all trigger a full recompute since
     // the segment structure or multipliers change.
@@ -5659,6 +6672,8 @@
       state.applyTimeAdjustment = e.target.checked;
       drawTrendChart();
       updateTrendLegend();
+      // Synopsis content depends on applied state; refresh it inline.
+      renderSectionSynopsis('time-synopsis', buildTimeAdjustmentSynopsis(), 'Interpretation');
       renderDiagnostics();
       renderVerticalEquity();
       renderStratificationTables();
@@ -6300,6 +7315,16 @@
         ? drawStratTrendChart(rows, sortIdxMap, sKey)
         : '';
 
+      // Attach sortIdx onto rows so the synopsis can read trend direction.
+      // Cheap copy — rows is just the strata-summary array.
+      const rowsForSynopsis = rows.map(r => ({ ...r, sortIdx: sortIdxMap.get(r.stratum) }));
+      const stratSynopsis = buildStratifierSynopsis(rowsForSynopsis, sKey, codRange);
+      const synopsisHtml = stratSynopsis && stratSynopsis.paragraphs.length ? `
+          <div class="diag-synopsis${stratSynopsis.hasFailures ? ' has-failures' : ''}" style="margin-top: 14px;">
+            <div class="diag-synopsis-title">Interpretation</div>
+            ${stratSynopsis.paragraphs.map(p => `<p style="margin: 0 0 10px;">${p}</p>`).join('')}
+          </div>` : '';
+
       return `
         <div class="strat-block">
           <div class="strat-block-header">
@@ -6311,6 +7336,7 @@
           </div>
           <div class="strat-table-wrap">${tableHtml}</div>
           ${trendChart}
+          ${synopsisHtml}
           ${lowN ? `<p class="strat-footnote">Italicized rows have fewer than 10 sales — per IAAO guidance, treat these statistics with caution. They are included for visibility but the small samples make their point estimates unreliable.</p>` : ''}
         </div>
       `;
@@ -6614,11 +7640,21 @@
       decision = 'Low-n conservative';
     }
 
-    // Rule 1: No-change zone (skipped if user is forcing adjustment)
+    // Optimization mode: rules tagged "soft" are bypassed so the optimizer can
+    // pull medians toward the overall target where the hard rules don't block
+    // it. Soft = ignored entirely during recommendation; not penalized, not
+    // partially applied. The optimizeForCOD master switch gates all of this.
+    const optimizing = !!rules.optimizeForCOD;
+    const skipNoChangeZone = optimizing && rules.noChangeZoneSoft;
+    const skipMaxChange    = optimizing && rules.maxChangeSoft;
+    const skipFloor        = optimizing && rules.downwardFloorSoft;
+
+    // Rule 1: No-change zone (skipped if user is forcing adjustment OR if
+    // optimization mode is on and the no-change zone is marked soft)
     const inNoChangeZone = (cur >= rules.noChangeMin && cur <= rules.noChangeMax);
     const codOK = (cod == null) || (cod <= rules.noChangeMaxCod);
     let isNoChange = false;
-    if (!bypassNoChangeZone && inNoChangeZone && codOK && !lowN) {
+    if (!bypassNoChangeZone && !skipNoChangeZone && inNoChangeZone && codOK && !lowN) {
       decision = 'No change';
       decisionClass = 'no-change';
       suggestedPct = 0;
@@ -6628,7 +7664,8 @@
       suggestedPct = (target / cur - 1) * 100;
 
       // Rule 2: Downward floor — don't push any neighborhood below the floor
-      if (suggestedPct < 0) {
+      // (skipped if floor is marked soft under optimization)
+      if (!skipFloor && suggestedPct < 0) {
         const minPctToFloor = (rules.downwardFloor / cur - 1) * 100;
         if (suggestedPct < minPctToFloor) {
           suggestedPct = minPctToFloor;
@@ -6640,8 +7677,8 @@
         }
       }
 
-      // Rule 3: Cap at ±max change (null = no cap)
-      if (rules.maxChangePct != null) {
+      // Rule 3: Cap at ±max change (null = no cap; skipped if marked soft)
+      if (!skipMaxChange && rules.maxChangePct != null) {
         const cap = Math.abs(rules.maxChangePct);
         if (suggestedPct > cap) {
           suggestedPct = cap;
@@ -6657,6 +7694,41 @@
             decision = 'Capped';
             decisionClass = 'capped';
           }
+        }
+      }
+
+      // Rule 4: No-crossing toward the overall target. Active only under
+      // optimization mode + when rules.overallTarget is set. Enforces a
+      // direction constraint: a neighborhood currently below target can move
+      // up to (but not past) target; currently above can move down to (but
+      // not below) target. This stops the optimizer from "trading" overshoot
+      // in one neighborhood against undershoot in another to fake a lower
+      // COD at the per-sale level while damaging per-neighborhood landing.
+      if (optimizing && rules.preventCrossing && rules.overallTarget != null) {
+        const overallT = rules.overallTarget;
+        if (cur < overallT) {
+          // Currently below — only upward (or no) movement allowed, capped at target
+          const maxUpward = (overallT / cur - 1) * 100;
+          if (suggestedPct < 0) {
+            suggestedPct = 0;
+            notes.push('No-crossing: blocked downward push (already below target)');
+          }
+          if (suggestedPct > maxUpward) {
+            suggestedPct = maxUpward;
+            notes.push(`No-crossing: clipped at overall target ${(overallT * 100).toFixed(1)}%`);
+          }
+        } else if (cur > overallT) {
+          const maxDownward = (overallT / cur - 1) * 100;  // negative
+          if (suggestedPct > 0) {
+            suggestedPct = 0;
+            notes.push('No-crossing: blocked upward push (already above target)');
+          }
+          if (suggestedPct < maxDownward) {
+            suggestedPct = maxDownward;
+            notes.push(`No-crossing: clipped at overall target ${(overallT * 100).toFixed(1)}%`);
+          }
+        } else {
+          suggestedPct = 0;
         }
       }
     }
@@ -6767,8 +7839,10 @@
       // effect, preserving the aggregate change on the neighborhood. This
       // keeps the bulk of parcels at roughly the same simulated ratio while
       // sharply reducing the impact on edge-case (land-only / imps-only)
-      // parcels. Null = no cap (skip redistribution).
-      if (rules.maxLandImpsSpreadPct != null) {
+      // parcels. Null = no cap (skip redistribution). Skipped entirely when
+      // marked soft under optimization mode.
+      const skipSpread = rules.optimizeForCOD && rules.spreadSoft;
+      if (!skipSpread && rules.maxLandImpsSpreadPct != null) {
         const spread = landPct - impsPct;
         const maxSpread = Math.abs(rules.maxLandImpsSpreadPct);
         if (Math.abs(spread) > maxSpread) {
@@ -6848,6 +7922,145 @@
       return baseRec;
     });
 
+    // ── COD COORDINATE-DESCENT OPTIMIZER ────────────────────────────────────
+    // When optimizeForCOD is on AND we have a target ratio, refine the
+    // recommendations by trying partial-push variations per neighborhood.
+    // For each neighborhood, we try scaling its modifier down (0%, 25%, 50%,
+    // 75%, 100% of current push), and accept the variation that minimizes
+    // overall sales-weighted COD subject to: (a) overall median stays within
+    // tolerance of target, (b) hard rules unchanged, (c) no-crossing toward
+    // target preserved (which is automatic since scaling down a push can't
+    // overshoot target).
+    //
+    // This is the actual COD-optimization step. The recommendFor function
+    // above only bypasses soft rules; this loop is where real per-sale
+    // dispersion gets compressed by trading off how aggressively each
+    // neighborhood lands.
+    if (rules.optimizeForCOD && rules.overallTarget != null && groups.size > 0) {
+      const overallT = rules.overallTarget;
+      const MEDIAN_TOL = 0.003;  // 0.3pp tolerance around target
+      const MIN_IMPROVE = 0.02;  // require COD drop ≥ 0.02 to accept
+      const MAX_ITER = 4;
+      // Build a sales-by-neighborhood lookup once
+      const salesByNbr = new Map();
+      for (const r of effRows) {
+        const k = String(r.neighborhood ?? '').trim();
+        if (!k) continue;
+        if (!salesByNbr.has(k)) salesByNbr.set(k, []);
+        salesByNbr.get(k).push(r);
+      }
+      // Helper: compute overall median + COD given current recs' modifiers
+      function computeOverallStats(recsRef) {
+        const arr = [];
+        const adjLookup = new Map();
+        for (const rec of recsRef) {
+          adjLookup.set(rec.stratum, {
+            suggestedPct: rec.suggestedPct,
+            landPct: rec.landPct,
+            impsPct: rec.impsPct,
+            usesSplit: (rec.landPct != null && rec.impsPct != null),
+          });
+        }
+        for (const r of effRows) {
+          const k = String(r.neighborhood ?? '').trim();
+          if (!k) continue;
+          const adj = adjLookup.get(k);
+          let adjAV;
+          if (adj && adj.usesSplit) {
+            adjAV = r.land_av * (1 + adj.landPct / 100) + r.imps_av * (1 + adj.impsPct / 100);
+          } else {
+            const pct = adj ? adj.suggestedPct : 0;
+            adjAV = r.total_av * (1 + pct / 100);
+          }
+          arr.push(adjAV / r.effective_price);
+        }
+        if (!arr.length) return { median: null, cod: null };
+        const med = median(arr);
+        const cod = 100 * mean(arr.map(x => Math.abs(x - med))) / med;
+        return { median: med, cod };
+      }
+      // Snapshot baseline rec state we may need to roll back to
+      const baselineState = recs.map(r => ({
+        suggestedPct: r.suggestedPct,
+        landPct: r.landPct,
+        impsPct: r.impsPct,
+        simulated: r.simulated,
+        decision: r.decision,
+        decisionClass: r.decisionClass,
+        notes: r.notes,
+      }));
+      let { cod: bestCod, median: bestMedian } = computeOverallStats(recs);
+      let improved = true;
+      let iters = 0;
+      while (improved && iters < MAX_ITER) {
+        improved = false;
+        iters++;
+        for (let i = 0; i < recs.length; i++) {
+          const rec = recs[i];
+          // Skip recs that are already at no-change (no push to scale back)
+          if (rec.decision === 'No change' || rec.decision === 'Skipped') continue;
+          const origSugg = baselineState[i].suggestedPct;
+          const origLand = baselineState[i].landPct;
+          const origImps = baselineState[i].impsPct;
+          const usesSplit = (origLand != null && origImps != null);
+          if (Math.abs(origSugg) < 0.01 && !usesSplit) continue;
+          // Save current state to roll back
+          const saved = {
+            suggestedPct: rec.suggestedPct, landPct: rec.landPct, impsPct: rec.impsPct,
+            simulated: rec.simulated, decision: rec.decision,
+            decisionClass: rec.decisionClass, notes: rec.notes,
+          };
+          // Try alphas from 0 (no push) to 1 (full push). Skip 1.0 since
+          // that's the current state at start; the loop will revisit on
+          // later iterations to verify nothing else changed.
+          const ALPHAS = [0, 0.25, 0.5, 0.75];
+          let acceptedAlpha = null;
+          let acceptedCod = bestCod;
+          let acceptedMed = bestMedian;
+          for (const alpha of ALPHAS) {
+            // Apply scaled push to this rec
+            if (usesSplit) {
+              rec.landPct = origLand * alpha;
+              rec.impsPct = origImps * alpha;
+            } else {
+              rec.suggestedPct = origSugg * alpha;
+            }
+            rec.simulated = rec.median * (1 + (rec.suggestedPct || 0) / 100);
+            const stats = computeOverallStats(recs);
+            const medianOk = Math.abs(stats.median - overallT) <= MEDIAN_TOL;
+            if (medianOk && stats.cod < acceptedCod - MIN_IMPROVE) {
+              acceptedAlpha = alpha;
+              acceptedCod = stats.cod;
+              acceptedMed = stats.median;
+            }
+          }
+          if (acceptedAlpha != null) {
+            // Lock in the accepted alpha
+            if (usesSplit) {
+              rec.landPct = origLand * acceptedAlpha;
+              rec.impsPct = origImps * acceptedAlpha;
+            } else {
+              rec.suggestedPct = origSugg * acceptedAlpha;
+            }
+            rec.simulated = rec.median * (1 + (rec.suggestedPct || 0) / 100);
+            // Mark the decision so user can see this rec was optimization-scaled
+            if (acceptedAlpha < 0.99) {
+              rec.notes = (rec.notes ? rec.notes + ' · ' : '') + `COD-scaled to ${(acceptedAlpha * 100).toFixed(0)}% of push`;
+            }
+            bestCod = acceptedCod;
+            bestMedian = acceptedMed;
+            improved = true;
+          } else {
+            // Roll back to whatever it was before this trial
+            rec.suggestedPct = saved.suggestedPct;
+            rec.landPct = saved.landPct;
+            rec.impsPct = saved.impsPct;
+            rec.simulated = saved.simulated;
+          }
+        }
+      }
+    }
+
     // Overall pre/post: simulate the adjustment on each individual sale, then re-stat.
     // Skipped neighborhoods contribute 0% adjustment (their post = pre).
     // For split-mode rows, apply land/imps mods to each parcel separately.
@@ -6922,17 +8135,14 @@
           <h3>Recommendations by neighborhood</h3>
           <div class="mod-table-meta">
             <span id="mod-table-meta-text"></span>
+            <label class="mod-col-toggle" title="Show or hide secondary columns (COD, Conf, Notes)">
+              <input type="checkbox" id="mod-col-toggle-input" />
+              <span>Show all columns</span>
+            </label>
             <button class="btn-csv" id="btn-export-mod" style="margin-left: 8px;">Download CSV</button>
           </div>
         </div>
         <div class="mod-table-wrap"><table class="mod-table" id="mod-table"></table></div>
-        <div class="conf-legend">
-          <span class="conf-legend-label">Confidence:</span>
-          <span class="conf-legend-item"><span class="conf-badge H">H</span> High — COD in IAAO range, n ≥ 30, narrow 90% CI</span>
-          <span class="conf-legend-item"><span class="conf-badge M">M</span> Medium — meets 2 of 3 criteria above</span>
-          <span class="conf-legend-item"><span class="conf-badge L">L</span> Low — meets 1 of 3 criteria above</span>
-          <span class="conf-legend-item"><span class="conf-badge X">X</span> Insufficient data (n &lt; low-n threshold)</span>
-        </div>
       </div>
     `;
 
@@ -6940,6 +8150,36 @@
     refreshModifierResults();
 
     document.getElementById('btn-export-mod').addEventListener('click', exportModifierCSV);
+
+    // Modifier table column-visibility toggle. Default-hides COD, Conf, and
+    // Notes columns so the at-a-glance view shows just the actionable
+    // columns (Neighborhood, n, Median, Target, Decision, Suggested %,
+    // Simulated). Toggle reveals all columns. Preference persists across
+    // sessions via localStorage.
+    const colToggle = document.getElementById('mod-col-toggle-input');
+    if (colToggle) {
+      const KEY = 'wsaca_mod_cols_expanded_v1';
+      let expanded = false;
+      try { expanded = localStorage.getItem(KEY) === '1'; } catch {}
+      colToggle.checked = expanded;
+      const applyState = () => {
+        const tbl = document.getElementById('mod-table');
+        if (tbl) tbl.classList.toggle('mod-cols-collapsed', !colToggle.checked);
+      };
+      applyState();
+      colToggle.addEventListener('change', () => {
+        try {
+          if (colToggle.checked) localStorage.setItem(KEY, '1');
+          else localStorage.removeItem(KEY);
+        } catch {}
+        applyState();
+      });
+      // Re-apply after each table re-render (refreshModifierResults rebuilds
+      // the table DOM, so classes need to be re-set).
+      const origRefresh = window._origRefreshMod || refreshModifierResults;
+      window._origRefreshMod = origRefresh;
+      window._applyModColState = applyState;
+    }
   }
 
   function renderRulesPanel() {
@@ -6963,10 +8203,28 @@
       return `<input type="number" class="rule-input" data-rule="${key}" value="${isBlank ? '' : val}" step="${step}"${placeholder} />`;
     };
 
-    // Build the preset dropdown — "Default" is always available; the rest come from localStorage
+    // Pill next to togglable rule labels that flips hard ↔ soft. Only renders
+    // when optimization mode is on. Click handler is wired below the panel
+    // render — flipping a pill triggers a recompute.
+    const softPill = (categoryKey) => {
+      if (!r.optimizeForCOD) return '';
+      const isSoft = !!r[categoryKey];
+      const cls = isSoft ? 'soft' : 'hard';
+      const label = isSoft ? 'Soft' : 'Hard';
+      const title = isSoft
+        ? 'Soft — bypassed during COD optimization. Click to make hard.'
+        : 'Hard — enforced even during COD optimization. Click to make soft.';
+      return ` <button type="button" class="rule-soft-toggle ${cls}" data-soft-key="${categoryKey}" title="${title}">${label}</button>`;
+    };
+
+    // Build the preset dropdown — "Default" first, then built-in presets,
+    // then user-saved presets from localStorage. Built-ins are prefixed with
+    // a distinguishing value so loadPreset can route them correctly.
     const savedPresets = loadSavedPresets();
     const presetNames = Object.keys(savedPresets);
+    const builtInNames = Object.keys(BUILT_IN_PRESETS);
     const presetOptions = ['<option value="__default__">Default</option>']
+      .concat(builtInNames.map(n => `<option value="__builtin__${escapeAttr(n)}">${escapeHtml(n)}</option>`))
       .concat(presetNames.map(n => `<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`))
       .join('');
 
@@ -6979,19 +8237,19 @@
     // the single combined cap.
     const capRowsHtml = splitOn ? `
             <div class="rule-row">
-              <label>Max land change ± %<span class="rule-sub">hard cap on land modifier</span></label>
+              <label>Max land change ± %${softPill('maxChangeSoft')}<span class="rule-sub">hard cap on land modifier</span></label>
               ${input('maxLandChangePct', 0.5)}
             </div>
             <div class="rule-row">
-              <label>Max imps change ± %<span class="rule-sub">hard cap on improvement modifier</span></label>
+              <label>Max imps change ± %${softPill('maxChangeSoft')}<span class="rule-sub">hard cap on improvement modifier</span></label>
               ${input('maxImpsChangePct', 0.5)}
             </div>
             <div class="rule-row">
-              <label>Max land–imps spread (pp)<span class="rule-sub">cap on |land − imps| difference; redistribute symmetrically when exceeded</span></label>
+              <label>Max land–imps spread (pp)${softPill('spreadSoft')}<span class="rule-sub">cap on |land − imps| difference; redistribute symmetrically when exceeded</span></label>
               ${input('maxLandImpsSpreadPct', 0.5)}
             </div>` : `
             <div class="rule-row">
-              <label>Max change ± %<span class="rule-sub">hard cap on suggested adjustment</span></label>
+              <label>Max change ± %${softPill('maxChangeSoft')}<span class="rule-sub">hard cap on suggested adjustment</span></label>
               ${input('maxChangePct', 0.5)}
             </div>`;
 
@@ -7032,9 +8290,27 @@
           <div class="target-mode-row">
             <label class="target-mode-label" for="target-final-ratio">Target final overall ratio:</label>
             <input type="number" class="target-mode-input" id="target-final-ratio" step="0.01" min="0.5" max="1.5" value="${state.targetFinalRatio != null ? state.targetFinalRatio : 0.93}" />
-            <button type="button" class="btn-target-mode" id="btn-auto-populate">Auto-populate rules to hit target</button>
+            <button type="button" class="btn-target-mode" id="btn-auto-populate">Set rules to hit ${(state.targetFinalRatio != null ? state.targetFinalRatio : 0.93).toFixed(2)} target</button>
           </div>
           <p class="target-mode-help">Fills every rule field below with values derived to land your overall median on the target. Each field stays editable after, so you can tighten or loosen anything by hand. Safety rails: max change capped at 30%, floor capped at 0.85 — if your data needs more loosening than that, you'll be told and can adjust manually.</p>
+          <!-- "Optimize for COD" is an advanced workflow that bypasses soft
+               rules to tighten per-sale dispersion. Most users won't need it;
+               wrap in a collapsible <details> so the rules panel doesn't
+               look overwhelming on first view. Setting [open] preserves the
+               expanded state when optimizeForCOD is already on (page reloads
+               with the rule active should show the user that it's on). -->
+          <details class="optimize-advanced" ${state.modifierRules.optimizeForCOD ? 'open' : ''}>
+            <summary class="optimize-advanced-summary">
+              <span class="optimize-advanced-label">Advanced: optimize for COD</span>
+              <span class="optimize-advanced-status">${state.modifierRules.optimizeForCOD ? 'On' : 'Off'}</span>
+            </summary>
+            <div class="optimize-advanced-body">
+              <div class="optimize-toggle-row">
+                <input type="checkbox" id="optimize-cod-toggle" ${state.modifierRules.optimizeForCOD ? 'checked' : ''} />
+                <label for="optimize-cod-toggle">Bypass soft rules to tighten the per-sale dispersion around target. When on, each rule gets a hard/soft toggle so you can decide which rails the optimizer is allowed to push past. Use when your data has good neighborhood structure but you want to squeeze the COD lower than the rules-of-thumb would alone.</label>
+              </div>
+            </div>
+          </details>
           <div id="target-mode-result"></div>
         </div>
 
@@ -7042,7 +8318,7 @@
           <label class="preset-label">Preset:</label>
           <select class="preset-select" id="preset-select">${presetOptions}</select>
           <button type="button" class="btn-preset" id="btn-save-preset" title="Save the current rule values as a named preset">Save current as preset…</button>
-          <button type="button" class="btn-preset btn-preset-danger" id="btn-delete-preset" title="Delete the currently selected preset">Delete</button>
+          <button type="button" class="btn-preset btn-preset-danger" id="btn-delete-preset" title="Delete the currently selected preset"${(state.currentPreset === '__default__' || (state.currentPreset && state.currentPreset.startsWith('__builtin__'))) ? ' disabled' : ''}>Delete</button>
           <button type="button" class="btn-restore" id="btn-restore-defaults">Restore defaults</button>
         </div>
         ${splitToggleHtml}
@@ -7065,7 +8341,7 @@
           <div class="rules-group">
             <div class="rules-group-title">Constraints</div>
             <div class="rule-row">
-              <label>No-change zone min<span class="rule-sub">leave alone if median is in this range</span></label>
+              <label>No-change zone min${softPill('noChangeZoneSoft')}<span class="rule-sub">leave alone if median is in this range</span></label>
               ${input('noChangeMin')}
             </div>
             <div class="rule-row">
@@ -7073,12 +8349,12 @@
               ${input('noChangeMax')}
             </div>
             <div class="rule-row">
-              <label>Downward floor<span class="rule-sub">never push a neighborhood below this</span></label>
+              <label>Downward floor${softPill('downwardFloorSoft')}<span class="rule-sub">never push a neighborhood below this</span></label>
               ${input('downwardFloor')}
             </div>
             ${capRowsHtml}
             <div class="rule-row">
-              <label>Overall median ceiling<span class="rule-sub">warn if simulated overall exceeds this</span></label>
+              <label>Overall median ceiling${softPill('ceilingSoft')}<span class="rule-sub">warn if simulated overall exceeds this</span></label>
               ${input('overallMedianCeiling')}
             </div>
           </div>
@@ -7174,6 +8450,10 @@
         alert('"Default" is reserved. Pick a different name.');
         return;
       }
+      if (BUILT_IN_PRESETS[trimmed]) {
+        alert(`"${trimmed}" is a built-in preset name. Pick a different name.`);
+        return;
+      }
       const existing = loadSavedPresets();
       if (existing[trimmed] && !confirm(`Replace existing preset "${trimmed}"?`)) return;
       existing[trimmed] = { ...state.modifierRules };
@@ -7184,7 +8464,8 @@
 
     document.getElementById('btn-delete-preset').addEventListener('click', () => {
       const current = state.currentPreset;
-      if (!current || current === '__default__') return;
+      // Built-ins (and Default) are non-deletable.
+      if (!current || current === '__default__' || (current && current.startsWith('__builtin__'))) return;
       if (!confirm(`Delete preset "${current}"?`)) return;
       const existing = loadSavedPresets();
       delete existing[current];
@@ -7210,6 +8491,49 @@
       renderRulesPanel();
       refreshModifierResults();
     });
+
+    // Optimize-for-COD master switch. Toggling this rerenders the rules panel
+    // (so hard/soft pills appear/disappear) and recomputes recommendations
+    // through the optimization-aware path.
+    const optEl = document.getElementById('optimize-cod-toggle');
+    if (optEl) {
+      optEl.addEventListener('change', e => {
+        state.modifierRules.optimizeForCOD = e.target.checked;
+        renderRulesPanel();
+        refreshModifierResults();
+      });
+    }
+
+    // Hard/soft classification toggles next to individual rule labels.
+    // Clicking flips the rule's *Soft flag, which the recommendation engine
+    // reads to decide whether to apply or bypass the rule.
+    wrap.querySelectorAll('.rule-soft-toggle').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = btn.dataset.softKey;
+        if (!key) return;
+        state.modifierRules[key] = !state.modifierRules[key];
+        renderRulesPanel();
+        refreshModifierResults();
+      });
+    });
+
+    // Live update of the auto-populate button label as the user edits the
+    // target field — keeps the action concrete ("Set rules to hit 0.94 target")
+    // rather than abstract ("Auto-populate rules to hit target").
+    const targetInp = document.getElementById('target-final-ratio');
+    const autoBtn = document.getElementById('btn-auto-populate');
+    if (targetInp && autoBtn) {
+      targetInp.addEventListener('input', () => {
+        const v = parseFloat(targetInp.value);
+        if (isFinite(v) && v > 0.5 && v < 1.5) {
+          autoBtn.textContent = `Set rules to hit ${v.toFixed(2)} target`;
+        } else {
+          autoBtn.textContent = `Set rules to hit target`;
+        }
+      });
+    }
 
     // Target-final-ratio mode: derives all rule values from a single overall
     // ratio target. Auto-flex tightens the targets and no-change zone to the
@@ -7335,7 +8659,11 @@
     const btn = document.getElementById('btn-delete-preset');
     if (!btn) return;
     const current = state.currentPreset;
-    btn.disabled = !current || current === '__default__';
+    // Disabled for: nothing selected, Default, or built-in presets (which
+    // ship with the tool and can't be removed by the user).
+    btn.disabled = !current
+      || current === '__default__'
+      || current.startsWith('__builtin__');
   }
 
   // localStorage-backed preset storage. Keyed under wsaca_rule_presets so it
@@ -7363,6 +8691,18 @@
     if (name === '__default__') {
       state.modifierRules = { ...DEFAULT_MODIFIER_RULES };
       state.currentPreset = '__default__';
+    } else if (name && name.startsWith('__builtin__')) {
+      // Built-in preset — resolve to BUILT_IN_PRESETS map.
+      const key = name.slice('__builtin__'.length);
+      const preset = BUILT_IN_PRESETS[key];
+      if (!preset) {
+        alert(`Built-in preset "${key}" not found.`);
+        return;
+      }
+      // Merge with defaults so any missing keys get sane values (forward-compat
+      // when DEFAULT_MODIFIER_RULES adds new fields).
+      state.modifierRules = { ...DEFAULT_MODIFIER_RULES, ...preset };
+      state.currentPreset = name;
     } else {
       const saved = loadSavedPresets();
       if (!saved[name]) {
@@ -7389,13 +8729,133 @@
 
   function refreshModifierResults() {
     const eff = effectiveRows();
-    const result = computeModifierRecommendations(eff, state.modifierRules);
+    const rules = state.modifierRules;
+    // Stash the overall target on the rules object so recommendFor's no-crossing
+    // check can see it. Pulled from state.targetFinalRatio (set by target-mode
+    // auto-populate) or, if unset, falls back to the user's lowCodTarget.
+    const overallTarget = (state.targetFinalRatio != null && isFinite(state.targetFinalRatio))
+      ? state.targetFinalRatio
+      : rules.lowCodTarget;
+    rules.overallTarget = overallTarget;
+
+    const result = computeModifierRecommendations(eff, rules);
     if (!result) return;
-    renderModifierSummary(result);
+
+    // When optimization is on, also compute the unoptimized baseline so the
+    // diagnostic panel can show pre/post side-by-side. Baseline uses the same
+    // rule values but with optimizeForCOD forced off so every soft rule is
+    // applied and no-crossing is not enforced.
+    let baseline = null;
+    if (rules.optimizeForCOD) {
+      const baselineRules = { ...rules, optimizeForCOD: false };
+      baseline = computeModifierRecommendations(eff, baselineRules);
+    }
+
+    renderModifierSummary(result, baseline);
     renderModifierTable(result);
+    // Step header summaries depend on modifier + time-adjust state; refresh.
+    if (typeof window.refreshStepSummaries === 'function') window.refreshStepSummaries();
   }
 
-  function renderModifierSummary(result) {
+  // Build the optimization diagnostic panel HTML. Shows the pre/post
+  // comparison (baseline = rules as-configured, optimized = soft rules
+  // bypassed), the soft rules that ended up affecting outcomes, and the
+  // hard rules that bound the optimizer. Returns empty string when
+  // optimization isn't active.
+  function buildOptimizationDiagnostic(result, baseline, rules) {
+    if (!rules.optimizeForCOD || !baseline) return '';
+    const bPre = baseline.pre, bPost = baseline.post;
+    const oPre = result.pre, oPost = result.post;
+    const codImprovement = bPost.cod - oPost.cod;
+    const codClass = codImprovement > 0 ? 'positive' : codImprovement < 0 ? 'negative' : '';
+    const medDelta = (oPost.median - bPost.median) * 100;
+    // Count binding/bypassed by scanning decisions and notes.
+    let capped = 0, floored = 0, noCrossingClipped = 0;
+    let movedFromNoChange = 0, spreadBypassed = 0;
+    for (const rec of result.recs) {
+      if (rec.decision === 'Capped') capped++;
+      if (rec.decision === 'Floored') floored++;
+      if (rec.notes && /No-crossing: clipped/.test(rec.notes)) noCrossingClipped++;
+    }
+    // Soft rules bypassed: compare baseline decisions to optimized.
+    // A "no change" in baseline that becomes adjusted in optimized = no-change zone bypassed.
+    const baselineByName = new Map(baseline.recs.map(r => [r.stratum, r]));
+    for (const rec of result.recs) {
+      const b = baselineByName.get(rec.stratum);
+      if (!b) continue;
+      if (b.decision === 'No change' && rec.decision !== 'No change') movedFromNoChange++;
+    }
+    // Track which softs are actually bypassed (have an effect)
+    const softBypassed = [];
+    if (rules.noChangeZoneSoft && movedFromNoChange > 0) {
+      softBypassed.push(`No-change zone: ${movedFromNoChange} neighborhood${movedFromNoChange === 1 ? '' : 's'} moved (would have stayed put under baseline)`);
+    }
+    if (rules.maxChangeSoft) {
+      // Compare cap-bound count between baseline and optimized
+      const bCapped = baseline.recs.filter(x => x.decision === 'Capped').length;
+      if (bCapped > capped) {
+        softBypassed.push(`Max change: ${bCapped - capped} neighborhood${(bCapped - capped) === 1 ? '' : 's'} pushed past ±${rules.maxChangePct}% cap`);
+      }
+    }
+    if (rules.downwardFloorSoft) {
+      const bFloored = baseline.recs.filter(x => x.decision === 'Floored').length;
+      if (bFloored > floored) {
+        softBypassed.push(`Downward floor: ${bFloored - floored} neighborhood${(bFloored - floored) === 1 ? '' : 's'} pushed below ${rules.downwardFloor.toFixed(2)}`);
+      }
+    }
+    if (rules.ceilingSoft && result.overallCeilingExceeded) {
+      softBypassed.push(`Overall median ceiling: simulated overall exceeds ${(rules.overallMedianCeiling * 100).toFixed(0)}% but optimization permitted it`);
+    }
+    if (rules.spreadSoft) {
+      // Count split-mode neighborhoods whose spread exceeds cap
+      const wideSplits = result.recs.filter(rec => {
+        if (rec.landPct == null || rec.impsPct == null) return false;
+        return Math.abs(rec.landPct - rec.impsPct) > (rules.maxLandImpsSpreadPct || 10);
+      }).length;
+      if (wideSplits > 0) {
+        softBypassed.push(`Land–imps spread: ${wideSplits} neighborhood${wideSplits === 1 ? '' : 's'} exceeded ${rules.maxLandImpsSpreadPct}pp spread cap`);
+      }
+    }
+    const hardBinding = [];
+    if (capped > 0) hardBinding.push(`Max change: ${capped} neighborhood${capped === 1 ? '' : 's'} at ±${rules.maxChangePct}% cap`);
+    if (floored > 0) hardBinding.push(`Downward floor: ${floored} neighborhood${floored === 1 ? '' : 's'} at ${rules.downwardFloor.toFixed(2)}`);
+    if (noCrossingClipped > 0) hardBinding.push(`No-crossing: ${noCrossingClipped} neighborhood${noCrossingClipped === 1 ? '' : 's'} clipped at overall target`);
+
+    const codSign = codImprovement >= 0 ? '−' : '+';
+    const codAbs = Math.abs(codImprovement).toFixed(2);
+    return `
+      <div class="opt-diagnostic">
+        <div class="opt-diagnostic-header">
+          <span class="opt-diagnostic-label">COD OPTIMIZATION</span>
+          <span class="opt-diagnostic-badge ${codClass}">${codImprovement >= 0 ? 'COD ' + codSign + codAbs : 'COD ' + codSign + codAbs}</span>
+        </div>
+        <div class="opt-diagnostic-grid">
+          <div class="opt-row">
+            <div class="opt-cell-label">Without optimization</div>
+            <div class="opt-cell-value">COD ${bPost.cod.toFixed(2)} · Median ${pct(bPost.median)}</div>
+          </div>
+          <div class="opt-row">
+            <div class="opt-cell-label">With optimization</div>
+            <div class="opt-cell-value">COD ${oPost.cod.toFixed(2)} · Median ${pct(oPost.median)}</div>
+          </div>
+        </div>
+        ${softBypassed.length > 0 ? `
+          <div class="opt-diagnostic-section">
+            <div class="opt-section-label">Soft rules bypassed by optimizer</div>
+            <ul class="opt-section-list">${softBypassed.map(s => `<li>${s}</li>`).join('')}</ul>
+          </div>` : ''}
+        ${hardBinding.length > 0 ? `
+          <div class="opt-diagnostic-section">
+            <div class="opt-section-label">Hard rules binding</div>
+            <ul class="opt-section-list">${hardBinding.map(s => `<li>${s}</li>`).join('')}</ul>
+          </div>` : ''}
+        ${softBypassed.length === 0 && codImprovement <= 0.01 ? `
+          <p class="opt-diagnostic-note">No soft rules had an effect this run. The baseline result was already at or near the optimum given your hard rules.</p>` : ''}
+      </div>
+    `;
+  }
+
+  function renderModifierSummary(result, baseline) {
     const wrap = document.getElementById('mod-summary-wrap');
     if (!wrap) return;
     const r = state.modifierRules;
@@ -7447,6 +8907,7 @@
     wrap.innerHTML = `
       ${exceeded ? `<div class="mod-summary-warning"><strong>Overall median ceiling exceeded.</strong> Simulated overall median (${pct(postMed)}) is above the set ceiling of ${pct(ceiling)}. Review the rules or roll back the most aggressive adjustments.</div>` : ''}
       ${capsHtml}
+      ${buildOptimizationDiagnostic(result, baseline, r)}
       <div class="mod-summary-grid">
         <div class="mod-summary-stat ${exceeded ? 'warn' : ''}">
           <div class="mod-summary-label">Overall Median</div>
@@ -7469,7 +8930,10 @@
           <div class="mod-summary-sub">${result.counts['Capped'] || 0} capped · ${result.counts['Floored'] || 0} floored · ${result.counts['Low-n conservative'] || 0} low-n${result.counts['Skipped'] ? ` · ${result.counts['Skipped']} user-skipped` : ''}</div>
         </div>
       </div>
+      <div id="mod-synopsis"></div>
     `;
+
+    renderSectionSynopsis('mod-synopsis', buildModifierSynopsis(result), 'Interpretation');
   }
 
   function renderModifierTable(result) {
@@ -7486,8 +8950,9 @@
       return sort.dir === 'asc' ? cmp : -cmp;
     });
 
-    const headerCell = (col, label) => {
-      const cls = sort.col === col ? `sortable sorted-${sort.dir}` : 'sortable';
+    const headerCell = (col, label, extraCls) => {
+      let cls = sort.col === col ? `sortable sorted-${sort.dir}` : 'sortable';
+      if (extraCls) cls += ' ' + extraCls;
       return `<th class="${cls}" data-col="${col}">${label}</th>`;
     };
 
@@ -7541,13 +9006,13 @@
           <td>${escapeHtml(r.stratum)}</td>
           <td class="num">${r.n}</td>
           <td class="num">${pct(r.median)}</td>
-          <td class="num">${dec(r.cod, 2)}</td>
+          <td class="num col-secondary col-cod">${dec(r.cod, 2)}</td>
           <td class="num">${pct(r.target)}</td>
           <td><span class="decision-pill ${r.decisionClass}">${escapeHtml(r.decision)}</span></td>
           ${adjustmentCells(r)}
           <td class="num">${pct(r.simulated)}</td>
-          <td><span class="conf-badge ${r.conf.grade}" title="${escapeAttr(confTitle)}">${r.conf.grade}</span></td>
-          <td style="font-size: 11.5px; color: var(--ink-mute);">${escapeHtml(displayNotes)}</td>
+          <td class="col-secondary col-conf"><span class="conf-badge ${r.conf.grade}" title="${escapeAttr(confTitle)}">${r.conf.grade}</span></td>
+          <td class="col-secondary col-notes" style="font-size: 11.5px; color: var(--ink-mute);">${escapeHtml(displayNotes)}</td>
         </tr>
       `;
     }).join('');
@@ -7565,17 +9030,20 @@
           ${headerCell('stratum', 'Neighborhood')}
           ${headerCell('n', 'n')}
           ${headerCell('median', 'Current Median')}
-          ${headerCell('cod', 'COD')}
+          ${headerCell('cod', 'COD', 'col-secondary col-cod')}
           ${headerCell('target', 'Target')}
           ${headerCell('decision', 'Decision')}
           ${adjHeaderCells}
           ${headerCell('simulated', 'Simulated Median')}
-          ${headerCell('grade', 'Conf')}
-          <th>Notes</th>
+          ${headerCell('grade', tip('Conf', 'confidence'), 'col-secondary col-conf')}
+          <th class="col-secondary col-notes">Notes</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>
     `;
+
+    // Re-apply column visibility state after table DOM is rebuilt.
+    if (typeof window._applyModColState === 'function') window._applyModColState();
 
     tbl.querySelectorAll('th.sortable').forEach(th => {
       th.addEventListener('click', () => {
@@ -7883,7 +9351,7 @@
       timeAdjusted: state.applyTimeAdjustment && !!state.timeTrend,
       trend: state.timeTrend,
       referenceDate: state.referenceDate,
-      droppedMultiParcel, droppedMissingRequired, droppedBadValues,
+      droppedMultiParcel, flaggedMultiParcel, droppedMissingRequired, droppedBadValues,
       vei, prb, spearman, modifier, stratResults,
       rules: state.modifierRules || DEFAULT_MODIFIER_RULES,
       stratLimit: state.stratLimit || 0,
@@ -8168,7 +9636,8 @@
             const segParts = d.trend.segments.map(s => `${s.label}: ${(s.median*100).toFixed(2)}% × ${s.multiplier.toFixed(4)}`).join(' · ');
             return `Applied · ${methodLabel} (${d.trend.anchoring}) · target ${tgtPct}% from ${targetSrc} · reference ${formatDate(d.referenceDate)}<br><span style="font-size: 10pt; color: var(--ink-mute);">${segParts}</span>`;
           })()}</div></div>
-          <div class="cover-meta-row"><div class="cover-meta-label">Filters dropped</div><div class="cover-meta-value">${d.droppedMultiParcel} multi-parcel · ${d.droppedMissingRequired} missing required · ${d.droppedBadValues} invalid</div></div>
+          <div class="cover-meta-row"><div class="cover-meta-label">Filters dropped</div><div class="cover-meta-value">${d.droppedMultiParcel} multi-parcel (slash in stratifier) · ${d.droppedMissingRequired} missing required · ${d.droppedBadValues} invalid</div></div>
+          ${d.flaggedMultiParcel > 0 ? `<div class="cover-meta-row"><div class="cover-meta-label">Multi-parcel included</div><div class="cover-meta-value">${d.flaggedMultiParcel} sales with combined AV / sale price across parcels — flagged in tables, analyzed normally</div></div>` : ''}
         </div>
       </div>
     `;
@@ -8786,6 +10255,414 @@
     const y = d.getUTCFullYear(), m = String(d.getUTCMonth() + 1).padStart(2, '0'), da = String(d.getUTCDate()).padStart(2, '0');
     return `${y}-${m}-${da}`;
   }
+
+  // =========================================================================
+  // COLLAPSIBLE STEPS + HELP PANELS
+  // Restructures each .step section at load time so users get a scannable
+  // header strip + collapsible body, plus an in-step "How to read this" panel.
+  // Power users (Danny et al.) dismiss the help once and never see it again;
+  // newer county staff get a gentle on-ramp without being talked down to.
+  // =========================================================================
+
+  // Help content — one entry per step ID. Voice is direct, no hedging, written
+  // for a county analyst who hasn't done a ratio study before but isn't naive
+  // about property tax.
+  const HELP_CONTENT = {
+    'step-upload': {
+      body: `
+        <p>Drop in a CSV or Excel export from your assessment system. <strong>The file is read in your browser — nothing is uploaded or sent anywhere.</strong> Required columns: sale price, sale date, total assessed value, parcel or sale ID.</p>
+        <p>Optional columns unlock more diagnostics — map a Neighborhood column to get per-neighborhood breakdowns and modifier recommendations; map Year Built, GLA, Quality, or Effective Age to surface vertical-equity drift along structural dimensions. The next step will auto-detect column names against common assessor schemas (PACS, AssessorPro, custom DOR exports), so don't worry about renaming things.</p>
+        <p><strong>Multi-parcel sales:</strong> pre-process them before upload — assign the dominant parcel's neighborhood, DOR code, and land table to the row, sum the AV across all parcels, and use the actual combined sale price. Leave the parcel IDs as slash-separated in the parcel ID column for record-keeping (e.g., <code>P101/P102/P103</code>); the tool flags those rows with an "MP" badge in tables but includes them in the analysis. If slashes appear in the <strong>neighborhood</strong> or <strong>DOR-use</strong> columns instead, the dominant-parcel assignment wasn't done and the tool will drop those rows with a notice on the next step.</p>
+      `,
+    },
+    'step-mapping': {
+      body: `
+        <p>Match each column in your file to what the tool needs. If you see a green "Common assessor schema detected" banner, the auto-mapping got everything — click Analyze. Otherwise, pick the right column from each dropdown.</p>
+        <p>Required fields (marked) must be mapped. Optional ones expand what's available downstream: <strong>Neighborhood</strong> enables Step 8 modifier recommendations, <strong>Land AV + Improvement AV</strong> enables split modifiers in Step 8, <strong>GLA / Year Built / Effective Age / Quality / Condition / Acreage</strong> each add a stratifier in Step 7.</p>
+      `,
+    },
+    'step-summary': {
+      body: `
+        <p>This page shows how your file was prepared for analysis — total rows, how many were excluded, and how many were flagged but kept. A clean assessor export usually loses a few percent of rows to validation issues (zero sale prices, future dates, multi-parcel sales with bad stratifier values) and that's fine.</p>
+        <p>If a <strong>large fraction</strong> of your file got excluded, scan the exclusion reasons. The most common cause is a column mapped to the wrong field (e.g., site address mapped as parcel ID), which makes every row look "missing required data." Re-check Step 2 if the counts look wrong.</p>
+        <p><strong>Multi-Parcel Included</strong> counts rows where the dominant parcel was pre-assigned and slashes only appear in the parcel ID — those participate in the analysis and get an "MP" badge in tables. <strong>Multi-Parcel Dropped</strong> counts rows where the neighborhood or DOR-use column had slash-separated values; those can't be safely bucketed and were excluded. To include them, pre-assign and re-upload (see Step 1 help).</p>
+      `,
+    },
+    'step-time': {
+      body: `
+        <p>Sales happen over months. Assessed values are frozen at one date. If prices have moved since then, older sales sit at one ratio level and newer sales at another — and any analysis that mixes them is comparing apples to oranges. Time adjustment puts every sale on the same footing by moving its price to a common reference date.</p>
+        <p>The chart shows monthly median ratio across your study period. A clear slope means the market drifted; flat means it didn't. <strong>Linear</strong> works when drift is steady. <strong>Stepwise piecewise</strong> (6- or 12-month) is the IAAO-standard approach for markets with seasonality or non-monotonic drift — each segment gets one multiplier sized to put its median onto the target. Toggle "Apply" on once you've picked a method; the rest of the tool will use the adjusted prices.</p>
+        <p>Reference date matters because the target ratio defaults to the segment containing it. For DOR-aligned counties, set the anchoring to "DOR sales year (May–Apr)" so segments line up with your sales window.</p>
+      `,
+    },
+    'step-diagnostics': {
+      body: `
+        <p>The IAAO standard ratio-study statistics for your full sample. <strong>Median</strong> is your level — where most assessments sit relative to market. <strong>COD</strong> is uniformity — how spread out the ratios are. <strong>PRD</strong> and the <strong>IAAO 2025 VEI</strong> are vertical-equity measures — whether high-value and low-value parcels get the same treatment.</p>
+        <p>Green ✓ means inside the IAAO acceptable range; red ✗ means outside. The synopsis paragraph below the table reads the pattern and tells you which step to look at next — typically Vertical Equity if PRB/VEI flagged, Stratification if COD flagged, or Modifier Recommendations if level flagged.</p>
+      `,
+    },
+    'step-vequity': {
+      body: `
+        <p><strong>PRB</strong> regresses ratio against a value proxy and tells you whether ratios drift with value. Inside ±0.05 = no significant bias. <strong>Spearman's ρ</strong> is the non-parametric version — looks at rank correlation instead of magnitude, so it catches monotonic bias even if the slope is curved. Inside ±0.39 = acceptable.</p>
+        <p>The decile chart plots median ratio across 10 value bins with 90% confidence intervals on each. The trend line through the medians shows direction and magnitude — slopes <strong>down</strong> means high-value parcels are <strong>under-assessed</strong> (regressive), slopes <strong>up</strong> means over-assessed (progressive). If the trend line is flat or sits inside the shaded IAAO band, you're fine.</p>
+      `,
+    },
+    'step-strat': {
+      body: `
+        <p>Same diagnostics, run within sub-groups instead of across the whole sample. Overall numbers can pass while a specific neighborhood, decade of construction, or quality grade fails badly — stratification surfaces that.</p>
+        <p>Add up to three stratifiers. <strong>Neighborhood</strong> is the most actionable (drives Step 8 recommendations). <strong>Quality / condition / DOR primary use</strong> catch cost-table miscalibration. <strong>GLA / Year Built / Effective Age / Acreage</strong> get a trend chart underneath — a clear slope there is a vertical-equity signal along that structural dimension, often a sign the underlying valuation model needs work.</p>
+        <p>Italicized rows have fewer than 10 sales — per IAAO guidance, treat their statistics with caution.</p>
+      `,
+    },
+    'step-modifier': {
+      body: `
+        <p>Suggested per-neighborhood multipliers to bring each one to a target ratio. The rules panel above controls how aggressively the tool moves things — targets, no-change zones, max-change caps, downward floors.</p>
+        <p>The fastest workflow: enter a target final overall ratio at the top of the rules panel and click <strong>Auto-populate rules to hit target</strong>. The tool will derive sensible cap and floor values to reach that target across your neighborhoods. The "Caps in effect" strip above the summary always shows what's binding live.</p>
+        <p>Flagged rows (capped, floored, low-n) need a manual review before applying. Confidence grades (H/M/L/X) reflect sample size, COD, and CI width — High means the recommendation is on solid statistical ground; Low or X means treat as a hint, not a directive.</p>
+      `,
+    },
+    'step-export': {
+      body: `
+        <p>Print-ready PDF for a board packet, full Excel workbook with every diagnostic and every row for audit trails, or per-section CSVs. The Excel cover page is timestamped and notes which time-adjustment method, anchoring, and rule values produced these numbers — re-running with different settings produces a different cover.</p>
+        <p>Use the section toggles below to control what the PDF includes. Excel always contains everything; toggles only affect the print output.</p>
+      `,
+    },
+  };
+
+  // Compute the one-line summary shown in the collapsed step header. Reads
+  // current state when called, so callers can refresh on changes.
+  function getStepSummary(stepId) {
+    try {
+      switch (stepId) {
+        case 'step-upload': {
+          if (cleanRows && cleanRows.length) return `${cleanRows.length} sales loaded`;
+          return 'No file loaded yet';
+        }
+        case 'step-mapping': {
+          const mapped = Object.values(mapping || {}).filter(v => v && v !== '').length;
+          return `${mapped} columns mapped`;
+        }
+        case 'step-summary': {
+          if (!cleanRows || !cleanRows.length) return '';
+          // Excluded = rows the tool refused to use. Multi-parcel rows kept
+          // and flagged (flaggedMultiParcel) are NOT counted here since they
+          // participate fully in the analysis.
+          const excl = droppedMultiParcel + droppedMissingRequired + droppedBadValues;
+          const tot = cleanRows.length + excl;
+          const flaggedNote = flaggedMultiParcel > 0 ? ` · ${flaggedMultiParcel} multi-parcel flagged` : '';
+          return `${cleanRows.length.toLocaleString()} of ${tot.toLocaleString()} usable · ${excl.toLocaleString()} excluded${flaggedNote}`;
+        }
+        case 'step-time': {
+          if (!state.timeTrend) return '';
+          if (state.applyTimeAdjustment) {
+            const m = state.timeTrend.method;
+            if (m === 'linear') {
+              return `Applied · linear · ${(state.timeTrend.annualRate * 100).toFixed(2)}%/yr`;
+            }
+            const target = (state.timeTrend.targetRatio * 100).toFixed(1);
+            const methodTxt = m === 'piecewise-6mo' ? '6-month stepwise' : '12-month stepwise';
+            return `Applied · ${methodTxt} · target ${target}%`;
+          }
+          return 'Not applied · viewing raw prices';
+        }
+        case 'step-diagnostics': {
+          if (!cleanRows || !cleanRows.length) return '';
+          const eff = effectiveRows();
+          const ratios = eff.map(r => r.effective_ratio).sort((a, b) => a - b);
+          const n = ratios.length;
+          if (!n) return '';
+          const med = n % 2 ? ratios[(n - 1) / 2] : (ratios[n / 2 - 1] + ratios[n / 2]) / 2;
+          // Quick COD: mean absolute deviation from median, divided by median
+          const mad = ratios.reduce((a, r) => a + Math.abs(r - med), 0) / n;
+          const cod = (mad / med) * 100;
+          return `Median ${(med * 100).toFixed(1)}% · COD ${cod.toFixed(1)}`;
+        }
+        case 'step-vequity': {
+          if (!cleanRows || cleanRows.length < 20) return '';
+          const eff = effectiveRows();
+          const prb = computePRB(eff);
+          if (!prb) return '';
+          const sign = prb.beta >= 0 ? '+' : '';
+          const inRange = prb.beta >= -0.05 && prb.beta <= 0.05;
+          return `PRB ${sign}${prb.beta.toFixed(3)} · ${inRange ? 'within IAAO range' : 'outside IAAO range'}`;
+        }
+        case 'step-strat': {
+          const active = (state.activeStratifiers || []).filter(s => s && s !== '__none__');
+          if (!active.length) return 'No stratifiers active';
+          return `${active.length} stratifier${active.length === 1 ? '' : 's'} active`;
+        }
+        case 'step-modifier': {
+          if (!cleanRows || !cleanRows.length) return '';
+          if (!mapping || !mapping.neighborhood) return 'Requires Neighborhood column';
+          try {
+            const eff = effectiveRows();
+            const result = computeModifierRecommendations(eff, state.modifierRules);
+            if (!result) return '';
+            const changed = (result.counts['Adjusted'] || 0) + (result.counts['Capped'] || 0) + (result.counts['Floored'] || 0) + (result.counts['Low-n conservative'] || 0);
+            return `${result.recs.length} neighborhoods · ${changed} with proposed changes`;
+          } catch { return ''; }
+        }
+        case 'step-export': return 'PDF + Excel + per-section CSV available';
+        default: return '';
+      }
+    } catch { return ''; }
+  }
+
+  // Recompute every collapsed-summary line. Called after state changes that
+  // would affect what's displayed (time adjustment toggle, modifier rule edit,
+  // stratifier change, etc.). Idempotent and cheap.
+  function refreshStepSummaries() {
+    document.querySelectorAll('[data-summary]').forEach(span => {
+      const id = span.dataset.summary;
+      span.textContent = getStepSummary(id) || '';
+    });
+  }
+
+  // localStorage keys for collapse/help state. Versioned in the key so
+  // a future restructure can invalidate without leaving zombie entries.
+  const STEP_COLLAPSED_KEY = 'wsaca_step_collapsed_v1';
+  const HELP_DISMISSED_KEY = 'wsaca_help_dismissed_v1';
+
+  function loadCollapsedSet() {
+    try {
+      const raw = localStorage.getItem(STEP_COLLAPSED_KEY);
+      if (!raw) return null;  // null = no preference set yet (use progressive default)
+      return new Set(JSON.parse(raw));
+    } catch { return null; }
+  }
+  function saveCollapsedSet(set) {
+    try { localStorage.setItem(STEP_COLLAPSED_KEY, JSON.stringify([...set])); } catch {}
+  }
+  function loadDismissedHelp() {
+    try {
+      const raw = localStorage.getItem(HELP_DISMISSED_KEY);
+      if (!raw) return new Set();
+      return new Set(JSON.parse(raw));
+    } catch { return new Set(); }
+  }
+  function saveDismissedHelp(set) {
+    try { localStorage.setItem(HELP_DISMISSED_KEY, JSON.stringify([...set])); } catch {}
+  }
+
+  function toggleStep(stepId) {
+    const section = document.getElementById(stepId);
+    if (!section) return;
+    const isCollapsing = !section.classList.contains('is-collapsed');
+    section.classList.toggle('is-collapsed', isCollapsing);
+    const toggle = section.querySelector('.step-header');
+    if (toggle) toggle.setAttribute('aria-expanded', String(!isCollapsing));
+    // Update persistent state
+    const set = loadCollapsedSet() || new Set();
+    if (isCollapsing) set.add(stepId); else set.delete(stepId);
+    saveCollapsedSet(set);
+    // Refresh summary text in case state changed since last render
+    if (isCollapsing) refreshStepSummaries();
+  }
+
+  function dismissHelp(stepId) {
+    const panel = document.querySelector(`[data-help="${stepId}"]`);
+    if (panel) panel.remove();
+    const set = loadDismissedHelp();
+    set.add(stepId);
+    saveDismissedHelp(set);
+    updateRestoreHelpButton();
+  }
+
+  function restoreAllHelp() {
+    saveDismissedHelp(new Set());
+    // Re-inject help panels into any step that's missing one
+    document.querySelectorAll('section.step').forEach(section => {
+      const id = section.id;
+      if (!id || !HELP_CONTENT[id]) return;
+      if (section.querySelector(`[data-help="${id}"]`)) return;  // already there
+      const body = section.querySelector('.step-body');
+      if (!body) return;
+      const panel = buildHelpPanel(id);
+      body.insertBefore(panel, body.firstChild);
+    });
+    updateRestoreHelpButton();
+  }
+
+  function buildHelpPanel(stepId) {
+    const help = HELP_CONTENT[stepId];
+    const panel = document.createElement('div');
+    panel.className = 'help-panel';
+    panel.dataset.help = stepId;
+    panel.innerHTML = `
+      <div class="help-panel-header">
+        <span class="help-panel-label">How to read this</span>
+        <button type="button" class="help-panel-dismiss" data-dismiss="${stepId}" aria-label="Hide tip for this section" title="Hide tip for this section">×</button>
+      </div>
+      <div class="help-panel-body">${help.body}</div>
+    `;
+    panel.querySelector('.help-panel-dismiss').addEventListener('click', e => {
+      e.stopPropagation();
+      dismissHelp(stepId);
+    });
+    return panel;
+  }
+
+  function updateRestoreHelpButton() {
+    const btn = document.getElementById('help-restore-btn');
+    if (!btn) return;
+    const dismissed = loadDismissedHelp();
+    btn.style.display = dismissed.size > 0 ? 'inline' : 'none';
+  }
+
+  // Initial collapse state per step. Progressive: only the most recently
+  // "reached" step is open by default; everything else is collapsed. We treat
+  // step-summary (first analytical step) as the entry point so the user lands
+  // on the data-summary view and clicks through from there.
+  function progressiveDefaults() {
+    // Defaults to collapsed=true for everything except the active entry step.
+    // Upload + mapping aren't collapsed by default because they're the input
+    // path — collapsing them on load would hide the file picker.
+    return {
+      'step-upload':      false,
+      'step-mapping':     false,
+      'step-summary':     false,  // visible by default after analyze runs
+      'step-time':        true,
+      'step-diagnostics': true,
+      'step-vequity':     true,
+      'step-strat':       true,
+      'step-modifier':    true,
+      'step-export':      true,
+    };
+  }
+
+  function initCollapsibleSteps() {
+    const sections = document.querySelectorAll('section.step');
+    const stored = loadCollapsedSet();
+    const defaults = progressiveDefaults();
+    const dismissed = loadDismissedHelp();
+
+    sections.forEach(section => {
+      const stepId = section.id;
+      if (!stepId) return;
+      const numEl = section.querySelector(':scope > .step-number');
+      const titleEl = section.querySelector(':scope > .step-title');
+      if (!numEl || !titleEl) return;
+
+      // Build new header structure
+      const header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'step-header';
+      header.setAttribute('aria-controls', `${stepId}-body`);
+      header.setAttribute('aria-expanded', 'true');
+
+      const textWrap = document.createElement('div');
+      textWrap.className = 'step-header-text';
+      // Move existing number + title into the text wrap
+      const numClone = numEl.cloneNode(true);
+      const titleClone = titleEl.cloneNode(true);
+      textWrap.appendChild(numClone);
+      textWrap.appendChild(titleClone);
+      const summary = document.createElement('div');
+      summary.className = 'step-collapsed-summary';
+      summary.dataset.summary = stepId;
+      textWrap.appendChild(summary);
+
+      const chevron = document.createElement('span');
+      chevron.className = 'step-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.textContent = '▼';
+
+      header.appendChild(textWrap);
+      header.appendChild(chevron);
+
+      // Remove old standalone number+title
+      numEl.remove();
+      titleEl.remove();
+
+      // Wrap remaining children in step-body
+      const body = document.createElement('div');
+      body.className = 'step-body';
+      body.id = `${stepId}-body`;
+      while (section.firstChild) body.appendChild(section.firstChild);
+
+      // Insert help panel at top of body (unless dismissed)
+      if (HELP_CONTENT[stepId] && !dismissed.has(stepId)) {
+        body.insertBefore(buildHelpPanel(stepId), body.firstChild);
+      }
+
+      // Assemble
+      section.appendChild(header);
+      section.appendChild(body);
+      header.addEventListener('click', () => toggleStep(stepId));
+
+      // Apply initial collapsed state
+      let shouldCollapse;
+      if (stored && stored.has !== undefined) {
+        // User has interacted before — honor their preference
+        shouldCollapse = stored.has(stepId);
+      } else {
+        // First-time: progressive default
+        shouldCollapse = !!defaults[stepId];
+      }
+      if (shouldCollapse) {
+        section.classList.add('is-collapsed');
+        header.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    refreshStepSummaries();
+    updateRestoreHelpButton();
+  }
+
+  // Run init after DOM is ready. We're inside a DOMContentLoaded-after IIFE
+  // already (the whole script runs at end of body) so DOM is available now.
+  initCollapsibleSteps();
+
+  // Phase note (cedar callout) dismiss/restore. The callout is useful on a
+  // first visit (explains what the tool is, where it came from) but stays
+  // visually prominent forever otherwise. We auto-dismiss it after the first
+  // successful analysis and remember that choice; users can restore it via
+  // a small "About this tool" link that appears in its place.
+  const PHASE_NOTE_KEY = 'wsaca_phase_note_dismissed_v1';
+  function isPhaseNoteDismissed() {
+    try { return localStorage.getItem(PHASE_NOTE_KEY) === '1'; }
+    catch { return false; }
+  }
+  function setPhaseNoteDismissed(dismissed) {
+    try {
+      if (dismissed) localStorage.setItem(PHASE_NOTE_KEY, '1');
+      else localStorage.removeItem(PHASE_NOTE_KEY);
+    } catch {}
+    applyPhaseNoteState();
+  }
+  function applyPhaseNoteState() {
+    const note = document.getElementById('phase-note');
+    const restore = document.getElementById('phase-note-restore-line');
+    if (!note || !restore) return;
+    if (isPhaseNoteDismissed()) {
+      note.style.display = 'none';
+      restore.style.display = '';
+    } else {
+      note.style.display = '';
+      restore.style.display = 'none';
+    }
+  }
+  document.getElementById('phase-note-dismiss')?.addEventListener('click', () => setPhaseNoteDismissed(true));
+  document.getElementById('phase-note-restore')?.addEventListener('click', () => setPhaseNoteDismissed(false));
+  // Expose so runAnalysis can call after a successful first analysis.
+  window.autoDismissPhaseNote = () => {
+    // Only auto-dismiss once — if the user explicitly restored it, don't
+    // auto-dismiss again on subsequent analyses.
+    try {
+      const hasInteracted = localStorage.getItem(PHASE_NOTE_KEY + '_seen') === '1';
+      if (!hasInteracted) {
+        localStorage.setItem(PHASE_NOTE_KEY + '_seen', '1');
+        setPhaseNoteDismissed(true);
+      }
+    } catch {}
+  };
+  applyPhaseNoteState();
+
+  // Hook into a few key render functions so summaries stay current. We expose
+  // refreshStepSummaries on window because some inline handlers want to call
+  // it too.
+  window.refreshStepSummaries = refreshStepSummaries;
+  window.restoreAllHelp = restoreAllHelp;
 })();
 </script>
 
