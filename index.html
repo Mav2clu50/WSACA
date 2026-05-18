@@ -197,79 +197,57 @@
     }
   }
 
-  /* ===== VERSION CHOOSER ===== */
-  .versions {
+  /* ===== TOOLS DIRECTORY ===== */
+  .tools {
     padding: 56px 0 80px;
   }
-  .versions-header {
+  .tools-header {
     margin-bottom: 36px;
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 56px;
     align-items: end;
   }
-  .versions-title {
+  .tools-title {
     font-family: var(--serif);
     font-weight: 600;
     font-size: 28px;
     color: var(--wsaca-green-deep);
     line-height: 1.1;
   }
-  .versions-sub {
+  .tools-sub {
     font-family: var(--serif);
     font-size: 17px;
     color: var(--ink-soft);
     line-height: 1.55;
   }
   @media (max-width: 700px) {
-    .versions-header { grid-template-columns: 1fr; gap: 12px; }
+    .tools-header { grid-template-columns: 1fr; gap: 12px; }
   }
 
-  /* The primary v2 card: substantial, document-like, visually dominant */
-  .current-card {
+  /* Each tool card: substantial, document-like, visually equal */
+  .tool-card {
     background: white;
     border: 1px solid var(--rule);
     border-top: 6px solid var(--wsaca-green-deep);
     border-radius: 4px;
     padding: 40px 44px 36px;
     box-shadow: var(--shadow-card);
-    margin-bottom: 24px;
     position: relative;
   }
-  .current-card::before {
-    /* Recommended ribbon: diagonal, top-right, cedar */
-    content: "Recommended";
-    position: absolute;
-    top: 18px;
-    right: -6px;
-    background: var(--wsaca-cedar);
-    color: white;
-    font-family: var(--sans);
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 6px 14px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .current-card::after {
-    /* Tiny triangular shadow under the ribbon for depth */
-    content: "";
-    position: absolute;
-    top: 30px;
-    right: -6px;
-    border-top: 6px solid var(--wsaca-cedar-deep);
-    border-right: 6px solid transparent;
+  .tool-card + .tool-card {
+    margin-top: 36px;
   }
 
-  .card-eyebrow {
+  /* The audience pill sits where the eyebrow used to: cedar, uppercase, all-caps tiny label */
+  .card-audience {
     font-family: var(--sans);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--wsaca-cedar);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .card-title {
     font-family: var(--serif);
@@ -351,130 +329,42 @@
     transform: translateX(3px);
   }
 
-
-  /* The v1 card: smaller, quieter, secondary */
-  .older-versions-header {
-    margin: 36px 0 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--rule-soft);
-  }
-  .older-versions-label {
+  /* The inline "Older versions" line lives inside the exemption tool's card, after the CTA.
+     Quiet, sans-serif, separated by a thin rule. Keeps version history associated with the
+     exemption tool rather than dominating the page. */
+  .card-foot {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule-soft);
     font-family: var(--sans);
     font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.01em;
+  }
+  .card-foot-label {
     font-weight: 700;
-    letter-spacing: 0.16em;
     text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11.5px;
     color: var(--ink-mute);
-    margin: 0 0 4px;
+    margin-right: 10px;
   }
-  .older-versions-sub {
-    font-family: var(--serif);
-    font-size: 14.5px;
-    color: var(--ink-mute);
-    margin: 0;
-    font-style: italic;
-  }
-  .archived-cards-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .archived-card {
-    background: var(--paper-warm);
-    border: 1px solid var(--rule-soft);
-    border-radius: 3px;
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .archived-card-meta {
-    flex: 1;
-    min-width: 0;
-  }
-  .archived-card .card-eyebrow {
-    margin-bottom: 4px;
-    color: var(--ink-mute);
-    font-size: 11px;
-  }
-  .archived-card-title {
-    font-family: var(--serif);
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--wsaca-green-deep);
-    margin: 0 0 4px;
-  }
-  .archived-card-summary {
-    font-family: var(--serif);
-    font-size: 13.5px;
-    line-height: 1.45;
-    color: var(--ink-soft);
-    margin: 0;
-  }
-  .archived-card-cta a {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--wsaca-green-deep);
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 13.5px;
+  .card-foot a {
+    color: var(--wsaca-green);
     text-decoration: none;
-    border-bottom: 1px solid var(--wsaca-green-mid);
-    padding-bottom: 2px;
+    border-bottom: 1px dotted var(--wsaca-green-mid);
+    padding-bottom: 1px;
     transition: color 0.15s ease;
-    white-space: nowrap;
+    margin-right: 6px;
   }
-  .archived-card-cta a:hover {
+  .card-foot a:hover {
     color: var(--wsaca-cedar);
     border-bottom-color: var(--wsaca-cedar);
   }
-  @media (max-width: 700px) {
-    .archived-cards-row {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* "What's next" section below older versions. Forward-looking, lower stakes than the
-     tool card itself. The third About paragraph used to live here in the About section,
-     which raised a question right before the user engages with the tool. Moved here. */
-  .whats-next {
-    padding: 48px 0 24px;
-    border-top: 1px solid var(--rule-soft);
-    margin-top: 48px;
-  }
-  .whats-next-grid {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 48px;
-    align-items: start;
-  }
-  .whats-next-label {
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--wsaca-cedar);
-    padding-top: 4px;
-  }
-  .whats-next-body p {
-    font-family: var(--serif);
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--ink-soft);
-    margin: 0 0 14px;
-    max-width: 60ch;
-  }
-  .whats-next-body p:last-child {
-    margin-bottom: 0;
-  }
-  @media (max-width: 800px) {
-    .whats-next-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
+  .card-foot-sep {
+    color: var(--ink-mute);
+    margin-right: 6px;
+    opacity: 0.6;
   }
 
   /* ===== FOOTER ===== */
@@ -567,25 +457,24 @@
     <div class="intro-grid">
       <div class="intro-label">About</div>
       <div class="intro-body">
-        <p>Washington's property tax exemption program for senior citizens and people with disabilities expanded substantially in tax year 2027 under <strong>Engrossed Substitute Senate Bill 6162</strong>. New thresholds. New deductions. A consolidated state school levy. Larger benefits at every qualification level.</p>
-        <p>WSACA built this screening tool so that any of Washington's 39 county assessor offices can hand a homeowner a clear, county-specific answer to the question: <em>do I qualify, and what would I save?</em> No login, no data collection, no installation. The tool runs in any browser, points the applicant toward their county assessor for the official determination, and is free for any county office to link to or embed.</p>
+        <p>The Washington State Association of County Assessors represents all 39 county assessor offices in Washington. Most counties operate with limited technical staff, and most of the digital work involved in property tax administration would benefit from being <strong>built once, shared, and maintained collectively</strong>.</p>
+        <p>Some of the tools below serve homeowners directly; others are built for assessor staff to use during the assessment cycle. All are free, open source, and run entirely in the browser. No login, no data collection, no installation — free for any county office to link to or embed.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="versions" id="versions">
+<section class="tools" id="tools">
   <div class="wrap">
-    <div class="versions-header">
-      <h2 class="versions-title">Property Tax Exemption Screening Tool</h2>
-      <p class="versions-sub">The current version reflects multiple rounds of feedback from member counties. Older versions are preserved for reference and for counties that integrated against earlier releases.</p>
+    <div class="tools-header">
+      <h2 class="tools-title">Tools</h2>
+      <p class="tools-sub">Each tool is purpose-built for a specific audience, free to use, and self-contained — no installation, no backend, no data leaving the browser.</p>
     </div>
 
-
-    <article class="current-card">
-      <div class="card-eyebrow">Version 3 · Current</div>
-      <h3 class="card-title">The recommended version</h3>
-      <p class="card-summary">A guided screening tool that helps homeowners check whether they may qualify for the expanded 2027 property tax exemption program in their county. Walks the user from county selection through eligibility, household composition, and an income calculation, then returns a clear, county-specific result with a printable summary.</p>
+    <article class="tool-card" id="exemption-tool">
+      <div class="card-audience">For homeowners</div>
+      <h3 class="card-title">Property Tax Exemption Screening Tool</h3>
+      <p class="card-summary">Washington's property tax exemption program for senior citizens and people with disabilities expanded substantially in tax year 2027 under <strong>Engrossed Substitute Senate Bill 6162</strong>. This screening tool walks a homeowner from county selection through eligibility, household composition, and an income calculation, then returns a clear, county-specific result with a printable summary.</p>
       <ul class="card-features">
         <li>Walks homeowners through 5 questions: county, age or disability, residence, household, income</li>
         <li>Returns a clear A/B/C level result showing what they'd be exempt from</li>
@@ -597,45 +486,30 @@
         Try the screening tool
         <span class="card-cta-arrow" aria-hidden="true">→</span>
       </a>
+      <div class="card-foot">
+        <span class="card-foot-label">Older versions</span>
+        <a href="v2/">v2</a>
+        <span class="card-foot-sep">·</span>
+        <a href="v1/">v1</a>
+      </div>
     </article>
 
-    <div class="older-versions-header">
-      <p class="older-versions-label">Older versions</p>
-      <p class="older-versions-sub">Preserved for reference and for counties that integrated against earlier releases.</p>
-    </div>
-
-    <div class="archived-cards-row">
-      <article class="archived-card">
-        <div class="archived-card-meta">
-          <div class="card-eyebrow">Version 2</div>
-          <p class="archived-card-title">Previous version</p>
-          <p class="archived-card-summary">First full guided release. Same screening flow as v3 with less polish.</p>
-        </div>
-        <div class="archived-card-cta">
-          <a href="v2/">Open v2 →</a>
-        </div>
-      </article>
-
-      <article class="archived-card">
-        <div class="archived-card-meta">
-          <div class="card-eyebrow">Version 1</div>
-          <p class="archived-card-title">Original release</p>
-          <p class="archived-card-summary">First published version. Simpler presentation, fewer features.</p>
-        </div>
-        <div class="archived-card-cta">
-          <a href="v1/">Open v1 →</a>
-        </div>
-      </article>
-    </div>
-
-    <section class="whats-next" aria-labelledby="whats-next-title">
-      <div class="whats-next-grid">
-        <div class="whats-next-label" id="whats-next-title">What's next</div>
-        <div class="whats-next-body">
-          <p>This screening tool is the first of what we hope will become a growing collection of WSACA tools. Property tax appeal flowcharts. Deferral program estimators. Whatever the assessor community needs and decides to build together. All free, all open source, all here.</p>
-        </div>
-      </div>
-    </section>
+    <article class="tool-card" id="sales-ratio-tool">
+      <div class="card-audience">For assessor offices</div>
+      <h3 class="card-title">Sales Ratio Analysis</h3>
+      <p class="card-summary">A self-contained sales ratio analysis tool for assessor offices to use during the assessment cycle, before certified values are finalized. Upload a validated sales file and produce IAAO 2025-grounded ratio statistics, vertical equity diagnostics, and modifier recommendations. <strong>Not a substitute for the official vertical equity report.</strong></p>
+      <ul class="card-features">
+        <li>Accepts CSV or Excel (.xlsx) sales files with automatic column mapping</li>
+        <li>Overall ratio diagnostics: median, COD, PRD, PRB with IAAO threshold flags</li>
+        <li>Time adjustment, vertical equity, and stratified analysis by neighborhood or use code</li>
+        <li>Modifier recommendations to support assessment cycle decisions</li>
+        <li>Runs entirely in the browser; no data leaves the analyst's machine</li>
+      </ul>
+      <a href="sales-ratio/" class="card-cta">
+        Open the sales tool
+        <span class="card-cta-arrow" aria-hidden="true">→</span>
+      </a>
+    </article>
   </div>
 </section>
 
@@ -648,7 +522,7 @@
       </div>
     </div>
     <div class="foot-contributors">
-      Built collaboratively with feedback from Whatcom, Thurston, Spokane, Pierce, Skamania, Yakima, and San Juan counties, and the WSACA Public Engagement Committee.
+      Built collaboratively with feedback from Whatcom, Thurston, Spokane, Pierce, Skamania, Yakima, Skagit, and San Juan counties, and the WSACA Public Engagement Committee.
     </div>
   </div>
 </footer>
