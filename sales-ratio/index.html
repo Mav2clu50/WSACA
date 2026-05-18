@@ -8010,52 +8010,97 @@
             simulated: rec.simulated, decision: rec.decision,
             decisionClass: rec.decisionClass, notes: rec.notes,
           };
-          // Try alphas from 0 (no push) to 1 (full push). Skip 1.0 since
-          // that's the current state at start; the loop will revisit on
-          // later iterations to verify nothing else changed.
-          const ALPHAS = [0, 0.25, 0.5, 0.75];
-          let acceptedAlpha = null;
-          let acceptedCod = bestCod;
-          let acceptedMed = bestMedian;
-          for (const alpha of ALPHAS) {
-            // Apply scaled push to this rec
-            if (usesSplit) {
-              rec.landPct = origLand * alpha;
-              rec.impsPct = origImps * alpha;
+          // Items for this neighborhood — used to recompute simulated median
+          // when split mode is active (since suggestedPct doesn't capture the
+          // per-parcel land/imps split).
+          const nbrItems = salesByNbr.get(rec.stratum) || [];
+
+          if (usesSplit) {
+            // SPLIT MODE: 2D grid scan over (α_L, α_I) — independent scaling of
+            // the land and improvement coefficients lets the optimizer trade
+            // off the two levers separately. This is the COD-aware step that
+            // the OLS regression alone doesn't do (regression solves squared
+            // dollar error against target AVs, not COD on ratios). Skip the
+            // (1, 1) corner since that's the regression's current output and
+            // already reflected in bestCod.
+            const ALPHAS = [0, 0.25, 0.5, 0.75, 1.0];
+            let acceptedLA = null, acceptedIA = null;
+            let acceptedCod = bestCod;
+            let acceptedMed = bestMedian;
+            for (const aL of ALPHAS) {
+              for (const aI of ALPHAS) {
+                if (aL === 1.0 && aI === 1.0) continue;
+                rec.landPct = origLand * aL;
+                rec.impsPct = origImps * aI;
+                const stats = computeOverallStats(recs);
+                const medianOk = Math.abs(stats.median - overallT) <= MEDIAN_TOL;
+                if (medianOk && stats.cod < acceptedCod - MIN_IMPROVE) {
+                  acceptedLA = aL;
+                  acceptedIA = aI;
+                  acceptedCod = stats.cod;
+                  acceptedMed = stats.median;
+                }
+              }
+            }
+            if (acceptedLA != null) {
+              rec.landPct = origLand * acceptedLA;
+              rec.impsPct = origImps * acceptedIA;
+              // Recompute simulated via applySplitMods — uses neighborhood items
+              // to reflect the actual per-parcel composition. This is the line
+              // that the original 1D-only optimizer got wrong for split recs.
+              if (nbrItems.length) {
+                rec.simulated = median(applySplitMods(nbrItems, rec.landPct, rec.impsPct));
+              }
+              // Note format: if both alphas equal, present as a single scale;
+              // otherwise show each side separately so the user knows it's a
+              // genuine independent adjustment, not a uniform softening.
+              let scaleNote;
+              if (acceptedLA === acceptedIA) {
+                scaleNote = `COD-scaled to ${(acceptedLA * 100).toFixed(0)}% of split`;
+              } else {
+                scaleNote = `COD-scaled L=${(acceptedLA * 100).toFixed(0)}% / I=${(acceptedIA * 100).toFixed(0)}% of split`;
+              }
+              rec.notes = (rec.notes ? rec.notes + ' · ' : '') + scaleNote;
+              bestCod = acceptedCod;
+              bestMedian = acceptedMed;
+              improved = true;
             } else {
-              rec.suggestedPct = origSugg * alpha;
+              // Roll back
+              rec.suggestedPct = saved.suggestedPct;
+              rec.landPct = saved.landPct;
+              rec.impsPct = saved.impsPct;
+              rec.simulated = saved.simulated;
             }
-            rec.simulated = rec.median * (1 + (rec.suggestedPct || 0) / 100);
-            const stats = computeOverallStats(recs);
-            const medianOk = Math.abs(stats.median - overallT) <= MEDIAN_TOL;
-            if (medianOk && stats.cod < acceptedCod - MIN_IMPROVE) {
-              acceptedAlpha = alpha;
-              acceptedCod = stats.cod;
-              acceptedMed = stats.median;
-            }
-          }
-          if (acceptedAlpha != null) {
-            // Lock in the accepted alpha
-            if (usesSplit) {
-              rec.landPct = origLand * acceptedAlpha;
-              rec.impsPct = origImps * acceptedAlpha;
-            } else {
-              rec.suggestedPct = origSugg * acceptedAlpha;
-            }
-            rec.simulated = rec.median * (1 + (rec.suggestedPct || 0) / 100);
-            // Mark the decision so user can see this rec was optimization-scaled
-            if (acceptedAlpha < 0.99) {
-              rec.notes = (rec.notes ? rec.notes + ' · ' : '') + `COD-scaled to ${(acceptedAlpha * 100).toFixed(0)}% of push`;
-            }
-            bestCod = acceptedCod;
-            bestMedian = acceptedMed;
-            improved = true;
           } else {
-            // Roll back to whatever it was before this trial
-            rec.suggestedPct = saved.suggestedPct;
-            rec.landPct = saved.landPct;
-            rec.impsPct = saved.impsPct;
-            rec.simulated = saved.simulated;
+            // COMBINED MODE (single modifier): original 1D scaling logic.
+            const ALPHAS = [0, 0.25, 0.5, 0.75];
+            let acceptedAlpha = null;
+            let acceptedCod = bestCod;
+            let acceptedMed = bestMedian;
+            for (const alpha of ALPHAS) {
+              rec.suggestedPct = origSugg * alpha;
+              rec.simulated = rec.median * (1 + (rec.suggestedPct || 0) / 100);
+              const stats = computeOverallStats(recs);
+              const medianOk = Math.abs(stats.median - overallT) <= MEDIAN_TOL;
+              if (medianOk && stats.cod < acceptedCod - MIN_IMPROVE) {
+                acceptedAlpha = alpha;
+                acceptedCod = stats.cod;
+                acceptedMed = stats.median;
+              }
+            }
+            if (acceptedAlpha != null) {
+              rec.suggestedPct = origSugg * acceptedAlpha;
+              rec.simulated = rec.median * (1 + (rec.suggestedPct || 0) / 100);
+              if (acceptedAlpha < 0.99) {
+                rec.notes = (rec.notes ? rec.notes + ' · ' : '') + `COD-scaled to ${(acceptedAlpha * 100).toFixed(0)}% of push`;
+              }
+              bestCod = acceptedCod;
+              bestMedian = acceptedMed;
+              improved = true;
+            } else {
+              rec.suggestedPct = saved.suggestedPct;
+              rec.simulated = saved.simulated;
+            }
           }
         }
       }
@@ -8292,7 +8337,7 @@
             <input type="number" class="target-mode-input" id="target-final-ratio" step="0.01" min="0.5" max="1.5" value="${state.targetFinalRatio != null ? state.targetFinalRatio : 0.93}" />
             <button type="button" class="btn-target-mode" id="btn-auto-populate">Set rules to hit ${(state.targetFinalRatio != null ? state.targetFinalRatio : 0.93).toFixed(2)} target</button>
           </div>
-          <p class="target-mode-help">Fills every rule field below with values derived to land your overall median on the target. Each field stays editable after, so you can tighten or loosen anything by hand. Safety rails: max change capped at 30%, floor capped at 0.85 — if your data needs more loosening than that, you'll be told and can adjust manually.</p>
+          <p class="target-mode-help">Shifts the COD-aware target curve (low-COD target and high-COD target, together) by the amount needed for the cascade to land your overall simulated median at the target ratio. Your no-change zone, low-n target, and overall median ceiling are <strong>not</strong> touched — neighborhoods that the cascade would have left alone still get left alone. If reaching the target requires more push than your current max-change cap or downward floor allows, those rails are auto-flexed and you'll see it noted in the result.</p>
           <!-- "Optimize for COD" is an advanced workflow that bypasses soft
                rules to tighten per-sale dispersion. Most users won't need it;
                wrap in a collapsible <details> so the rules panel doesn't
@@ -8560,96 +8605,189 @@
       renderRulesPanel();
       refreshModifierResults();
 
-      // Build the result banner. Show what changed and which guard rails hit.
-      const r = state.modifierRules;
+      // Build the result banner. The redesigned auto-populate calibrates by
+      // shifting the COD-aware target curve, not by collapsing everything to
+      // target — so the message describes what the calibration did and how
+      // many neighborhoods actually move, rather than what caps got widened.
       const parts = [];
-      parts.push(`Auto-populated for ${(target * 100).toFixed(1)}% target.`);
-      parts.push(`Max change → ±${r.maxChangePct}%.`);
-      parts.push(`Downward floor → ${r.downwardFloor.toFixed(2)}.`);
-      if (report.autoflexMaxHit) {
-        parts.push(`<strong>Auto-flex cap reached:</strong> some neighborhoods need more than ±30% change to land on target. Loosen Max Change manually if you want to push them all the way.`);
+      const tLow  = (report.newLowCodTarget  * 100).toFixed(1);
+      const tHigh = (report.newHighCodTarget * 100).toFixed(1);
+      if (report.reachedTarget) {
+        if (report.newLowCodTarget === report.newHighCodTarget) {
+          parts.push(`Targets calibrated to <strong>${tLow}%</strong> to land overall median at ${(target * 100).toFixed(1)}%.`);
+        } else {
+          parts.push(`Targets calibrated to <strong>${tLow}% / ${tHigh}%</strong> (low-COD / high-COD) to land overall median at ${(target * 100).toFixed(1)}%.`);
+        }
+      } else {
+        parts.push(`Closest achievable overall median is <strong>${(report.achievedMedian * 100).toFixed(2)}%</strong> with current rules. Targets set to ${tLow}% / ${tHigh}%.`);
       }
-      if (report.autoflexFloorHit) {
-        parts.push(`<strong>Auto-flex floor reached:</strong> some neighborhoods would need a modifier below 0.85 to land on target. Lower Downward Floor manually if you want to allow it.`);
+      // Cascade outcome — most informative single line for the user.
+      if (report.totalRecs > 0) {
+        const stillRules = [];
+        if (report.noChange > 0) stillRules.push(`${report.noChange} left in no-change zone`);
+        if (report.adjusted > 0) stillRules.push(`${report.adjusted} adjusted`);
+        if (report.capped   > 0) stillRules.push(`${report.capped} capped`);
+        if (report.floored  > 0) stillRules.push(`${report.floored} floored`);
+        if (report.lowN     > 0) stillRules.push(`${report.lowN} low-n conservative`);
+        if (stillRules.length) parts.push(stillRules.join(', ') + '.');
       }
-      if (report.cappedCount > 0 && !(report.autoflexMaxHit || report.autoflexFloorHit)) {
-        parts.push(`${report.cappedCount} neighborhood${report.cappedCount === 1 ? '' : 's'} won't quite reach target after caps applied.`);
+      // Auto-flex notice — fires only when calibration had to widen rails.
+      if (report.autoflexed) {
+        const flexBits = [];
+        if (report.newMaxChange !== report.origMaxChange) {
+          flexBits.push(`max change ${report.origMaxChange}% → ${report.newMaxChange}%`);
+        }
+        if (report.newFloor !== report.origFloor) {
+          flexBits.push(`floor ${report.origFloor.toFixed(2)} → ${report.newFloor.toFixed(2)}`);
+        }
+        if (flexBits.length) parts.push(`<strong>Auto-flexed:</strong> ${flexBits.join(', ')} to reach target.`);
       }
-      const cls = (report.autoflexMaxHit || report.autoflexFloorHit) ? 'warn' : 'ok';
+      const cls = report.reachedTarget ? 'ok' : 'warn';
       document.getElementById('target-mode-result').innerHTML =
         `<div class="target-mode-msg ${cls}">${parts.join(' ')}</div>`;
     });
   }
 
-  // Derive rule values that aim every neighborhood at a single overall ratio
-  // target. Returns a report object describing what was applied and whether
-  // any auto-flex safety rails were hit.
+  // Calibrate the (lowCodTarget, highCodTarget) pair so the cascade — running
+  // against the user's CURRENT no-change zone, low-n target, max-change cap,
+  // and floor — produces the desired overall simulated median.
+  //
+  // Approach: shift both targets together by a single δ, preserving the user's
+  // current spread between low- and high-COD targets. Bisect over δ to find
+  // the shift that lands overall median on `target`. If even maximum shift
+  // can't reach target inside the user's rule limits, auto-flex the max-change
+  // cap or downward floor (whichever side the target is on) and retry.
+  //
+  // Untouched by this routine — the user expressed preferences here and we
+  // respect them: noChangeMin, noChangeMax, noChangeMaxCod, lowNTarget,
+  // overallMedianCeiling. The button shifts the COD-aware target curve; it
+  // does NOT redefine what counts as "near target" or how to handle small-n.
   function autoPopulateRulesForTarget(target) {
     const eff = effectiveRows();
-    const result = computeModifierRecommendations(eff, state.modifierRules);
-    if (!result || !result.recs.length) return null;
+    if (!eff || !eff.length) return null;
 
-    // Only consider neighborhoods with enough data to drive the rule
-    // derivation. Skipped / insufficient-data ones can't tell us anything
-    // about how loose the caps need to be.
-    const lowNT = state.modifierRules.lowNThreshold || 5;
-    const populated = result.recs.filter(rec =>
-      rec.n >= lowNT && rec.median != null && isFinite(rec.median) && rec.median > 0);
-    if (!populated.length) return null;
+    const rules = state.modifierRules;
+    const origLow   = rules.lowCodTarget;
+    const origHigh  = rules.highCodTarget;
+    const origMaxChange = rules.maxChangePct;
+    const origFloor     = rules.downwardFloor;
+    // Preserve spread — even if it's zero (Quick Start preset uses lowCodTarget
+    // === highCodTarget). Shifting both by the same δ preserves the user's
+    // COD-differentiation philosophy whatever it currently is.
+    // (origLow - origHigh) is the spread; we just translate the curve.
 
-    // Modifier needed = target / current_median. >1 pushes ratio up
-    // (modifier raises AV); <1 pushes ratio down.
-    const neededMods = populated.map(rec => target / rec.median);
-    const maxMod = Math.max(...neededMods);
-    const minMod = Math.min(...neededMods);
-    // Worst absolute percentage change among all neighborhoods. Same units as
-    // maxChangePct (which is stored as a percent, not a fraction).
-    const worstPct = Math.max(Math.abs((maxMod - 1) * 100), Math.abs((minMod - 1) * 100));
+    // Auto-flex safety ceilings — same as before but only invoked if needed.
+    const AUTOFLEX_MAX_CHANGE = 30;
+    const AUTOFLEX_MIN_FLOOR  = 0.85;
 
-    const AUTOFLEX_MAX_CHANGE = 30;       // ±%
-    const AUTOFLEX_MIN_FLOOR  = 0.85;     // modifier
-
-    // Round up max-change to the next 5% so it doesn't look arbitrary; clamp
-    // at the auto-flex ceiling.
-    const newMaxChange = Math.min(AUTOFLEX_MAX_CHANGE, Math.ceil(worstPct / 5) * 5);
-    // Floor logic: if no neighborhood needs a meaningful downward push (minMod
-    // is close to 1.0 or above), keep floor at 0.97 — the conventional safety
-    // default. Setting floor above 1.0 would look strange (it would block all
-    // downward movement) but doesn't actually buy any safety since nothing's
-    // moving down. When a real downward push IS needed, expand the floor to
-    // just below the most-downward neighborhood, clamped at AUTOFLEX_MIN_FLOOR.
-    let newFloor;
-    if (minMod >= 0.99) {
-      newFloor = 0.97;
-    } else {
-      newFloor = Math.max(AUTOFLEX_MIN_FLOOR, Math.floor(minMod * 100) / 100);
+    // Simulate the cascade with shifted targets and possibly widened caps,
+    // return overall simulated median. We accept all the optimizer behavior
+    // the user has configured (split mode, COD optimization, etc.) by passing
+    // through the full rules object — calibration matches what the user sees.
+    function simulate(delta, maxChange, floor) {
+      const tentative = {
+        ...rules,
+        lowCodTarget:  origLow  + delta,
+        highCodTarget: origHigh + delta,
+        maxChangePct:  maxChange,
+        downwardFloor: floor,
+      };
+      const result = computeModifierRecommendations(eff, tentative);
+      if (!result || !result.post || result.post.median == null) return null;
+      return result.post.median;
     }
 
-    // Apply derived values. Every rule that ties to a "target ratio" snaps to
-    // the user's number; the no-change zone narrows to a ±1pp band around it.
-    state.modifierRules.lowCodTarget  = target;
-    state.modifierRules.highCodTarget = target;
-    state.modifierRules.lowNTarget    = target;
-    state.modifierRules.noChangeMin   = Math.max(0.5, Math.round((target - 0.01) * 100) / 100);
-    state.modifierRules.noChangeMax   = Math.min(1.5, Math.round((target + 0.01) * 100) / 100);
-    state.modifierRules.maxChangePct  = newMaxChange;
-    state.modifierRules.downwardFloor = newFloor;
-    state.modifierRules.overallMedianCeiling = Math.min(1.5, Math.round((target + 0.02) * 100) / 100);
+    // Bisect over δ for the shift that lands overall median at target. Search
+    // range ±0.20 covers any realistic calibration; outside that range the
+    // result is "unreachable inside max-change cap" and we'll auto-flex.
+    function bisect(maxChange, floor) {
+      const TOL = 0.001;          // 0.1pp
+      const MAX_ITER = 25;
+      let lo = -0.20, hi = 0.20;
+      // Evaluate endpoints to detect saturation (caps binding).
+      const medLo = simulate(lo, maxChange, floor);
+      const medHi = simulate(hi, maxChange, floor);
+      if (medLo == null || medHi == null) return null;
+      // If target is outside the [medLo, medHi] range, return the closest
+      // endpoint — caller can decide whether to auto-flex.
+      if (target <= medLo) return { delta: lo, med: medLo, saturated: 'low' };
+      if (target >= medHi) return { delta: hi, med: medHi, saturated: 'high' };
+      let bestDelta = 0, bestMed = simulate(0, maxChange, floor);
+      for (let i = 0; i < MAX_ITER; i++) {
+        const mid = (lo + hi) / 2;
+        const m = simulate(mid, maxChange, floor);
+        if (m == null) break;
+        bestDelta = mid; bestMed = m;
+        if (Math.abs(m - target) < TOL) break;
+        if (m < target) lo = mid; else hi = mid;
+      }
+      return { delta: bestDelta, med: bestMed, saturated: null };
+    }
 
-    // Count neighborhoods that won't quite hit target because they exceed the
-    // (possibly clamped) caps.
-    const cappedCount = neededMods.filter(m =>
-      Math.abs((m - 1) * 100) > newMaxChange || m < newFloor).length;
+    // First pass: respect the user's caps. If we hit target, done.
+    let pass = bisect(origMaxChange, origFloor);
+    if (!pass) return null;
+    let usedMaxChange = origMaxChange;
+    let usedFloor     = origFloor;
+    let autoflexed    = false;
+
+    // Second pass: target unreachable inside user's caps. Widen the relevant
+    // safety rail (only the one that's binding) and retry. If target wants
+    // higher simulated median than reachable, the max-change cap is what's
+    // pinning aggressive neighborhoods; widen it. If target wants lower,
+    // it's the floor; lower it.
+    if (Math.abs(pass.med - target) > 0.001 || pass.saturated) {
+      const needHigher = pass.med < target;
+      const flexMaxChange = needHigher ? AUTOFLEX_MAX_CHANGE : origMaxChange;
+      const flexFloor     = needHigher ? origFloor : AUTOFLEX_MIN_FLOOR;
+      if (flexMaxChange !== origMaxChange || flexFloor !== origFloor) {
+        const flexPass = bisect(flexMaxChange, flexFloor);
+        if (flexPass && Math.abs(flexPass.med - target) < Math.abs(pass.med - target)) {
+          pass = flexPass;
+          usedMaxChange = flexMaxChange;
+          usedFloor     = flexFloor;
+          autoflexed    = true;
+        }
+      }
+    }
+
+    // Apply the calibrated values. Round to 4 decimal places so the displayed
+    // values don't show floating-point noise like 0.8875000000000001. Note we
+    // touch ONLY the targets and the (possibly auto-flexed) max-change / floor
+    // — no-change zone, low-n target, and overall-median ceiling stay at the
+    // user's current values.
+    const round4 = v => Math.round(v * 10000) / 10000;
+    state.modifierRules.lowCodTarget  = round4(origLow  + pass.delta);
+    state.modifierRules.highCodTarget = round4(origHigh + pass.delta);
+    if (autoflexed) {
+      state.modifierRules.maxChangePct  = usedMaxChange;
+      state.modifierRules.downwardFloor = round4(usedFloor);
+    }
+
+    // Compute report data: how many neighborhoods will actually move, how many
+    // stay in the no-change zone, what the closest-achievable median is.
+    const finalResult = computeModifierRecommendations(eff, state.modifierRules);
+    const counts = finalResult?.counts || {};
+    const noChange = counts['No change'] || 0;
+    const adjusted = counts['Adjusted'] || 0;
+    const capped   = counts['Capped']   || 0;
+    const floored  = counts['Floored']  || 0;
+    const lowN     = counts['Low-n conservative'] || 0;
+    const totalRecs = noChange + adjusted + capped + floored + lowN;
 
     return {
       target,
-      newMaxChange,
-      newFloor,
-      worstPct,
-      minMod,
-      cappedCount,
-      autoflexMaxHit: worstPct > AUTOFLEX_MAX_CHANGE,
-      autoflexFloorHit: minMod < AUTOFLEX_MIN_FLOOR,
+      reachedTarget: Math.abs(pass.med - target) < 0.001,
+      achievedMedian: pass.med,
+      newLowCodTarget:  state.modifierRules.lowCodTarget,
+      newHighCodTarget: state.modifierRules.highCodTarget,
+      delta: pass.delta,
+      autoflexed,
+      newMaxChange: usedMaxChange,
+      newFloor:     usedFloor,
+      origMaxChange,
+      origFloor,
+      noChange, adjusted, capped, floored, lowN, totalRecs,
     };
   }
 
@@ -10316,8 +10454,9 @@
     },
     'step-modifier': {
       body: `
-        <p>Suggested per-neighborhood multipliers to bring each one to a target ratio. The rules panel above controls how aggressively the tool moves things — targets, no-change zones, max-change caps, downward floors.</p>
-        <p>The fastest workflow: enter a target final overall ratio at the top of the rules panel and click <strong>Auto-populate rules to hit target</strong>. The tool will derive sensible cap and floor values to reach that target across your neighborhoods. The "Caps in effect" strip above the summary always shows what's binding live.</p>
+        <p>Suggested per-neighborhood multipliers to bring each one to a target ratio. The rules panel above controls how aggressively the tool moves things — targets, no-change zones, max-change caps, downward floors. The base workflow runs the rule cascade with whatever values you have set, and the recommendations table updates live on every edit.</p>
+        <p>Three optional controls layer on top of the base workflow, and they compose cleanly. <strong>Set rules to hit target</strong> (calibration) finds the target shift that lands your overall median where you want it — it shifts the low-COD and high-COD targets together by a single amount, leaving your no-change zone and other safety rails intact. <strong>Separate land &amp; improvement modifiers</strong> (split mode) solves land and improvement adjustments independently per neighborhood when the data has enough land-vs-improvement composition variation; it falls back to a combined modifier when it doesn't, and tells you which case applies in the notes column. <strong>Optimize for COD</strong> scans modifier values to compress per-sale dispersion around target — combined-mode recs get scaled toward zero, split-mode recs get a 2D scan over land and improvement scaling independently. The three layers operate at different levels: calibration decides where to aim, split decides whether each neighborhood gets one modifier or two, optimization refines either choice toward minimum COD.</p>
+        <p>Whether each control meaningfully moves the needle depends on your data. Split mode needs compositional variation within neighborhoods to separate the two coefficients — uniform composition triggers fallback. COD optimization needs room to compress dispersion — tight data has little to give. Calibration is most useful when the default rules don't quite land your overall median where you need it. When a control has nothing to do, it gracefully no-ops and the cascade still produces a defensible answer.</p>
         <p>Flagged rows (capped, floored, low-n) need a manual review before applying. Confidence grades (H/M/L/X) reflect sample size, COD, and CI width — High means the recommendation is on solid statistical ground; Low or X means treat as a hint, not a directive.</p>
       `,
     },
