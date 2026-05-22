@@ -1669,7 +1669,7 @@
     <section class="step hidden" id="step-age" aria-labelledby="step-age-heading">
       <div class="step-number" data-num="2" aria-hidden="true">Age or disability</div>
       <h3 class="step-title" id="step-age-heading">Do you meet the age or disability requirement?</h3>
-      <p class="step-intro">By December 31 of the assessment year (December 31, 2026 for taxes due in 2027), at least one of the following must be true.</p>
+      <p class="step-intro">To qualify for the 2027 exemption, at least one of the following must be true <strong>on December 31, 2026</strong>. Your status as of that date is what determines eligibility. A qualifying status that begins after December 31, 2026 won't apply to taxes due in 2027.</p>
       <fieldset>
         <legend class="visually-hidden">Age or disability status</legend>
         <div class="options-group">
@@ -1687,7 +1687,7 @@
           </label>
           <label class="option-card">
             <input type="radio" name="age" value="veteran">
-            <span class="option-label">Yes, I am a disabled veteran<small>Service-connected evaluation of at least 40%, or receiving compensation from the U.S. Department of Veterans Affairs at the 100% rate for a service-connected disability</small></span>
+            <span class="option-label">Yes, I am a disabled veteran<small>Service-connected evaluation of at least 40%, or receiving compensation from the U.S. Department of Veterans Affairs at the 100% rate for a service-connected disability. This rating must be in effect on December 31, 2026.</small></span>
           </label>
           <label class="option-card">
             <input type="radio" name="age" value="none">
@@ -2890,15 +2890,36 @@ function handleReset() {
   document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
   document.querySelectorAll('input[type="number"]').forEach(i => { i.value = ''; });
 
-  // Reset to quick tab if user was on guided
-  const quickPane = document.querySelector('[data-pane="quick"]');
-  const guidedPane = document.querySelector('[data-pane="guided"]');
-  if (quickPane && guidedPane) {
-    quickPane.classList.add('is-active');
-    guidedPane.classList.remove('is-active');
-    document.getElementById('pane-quick').classList.remove('hidden');
-    document.getElementById('pane-guided').classList.add('hidden');
+  // Re-check the standard deduction radio so the UI matches state.dedMode='standard'.
+  // Without this, the user would see neither radio selected after reset, which is wrong
+  // since the calculator defaults to applying standard.
+  const stdRadio = document.querySelector('input[name="dedMode"][value="standard"]');
+  if (stdRadio) {
+    stdRadio.checked = true;
+    stdRadio.closest('.option-card')?.classList.add('selected');
   }
+
+  // Reset tab and pane visibility back to "Quick estimate" (the default).
+  // Bug fix from Pierce County feedback: the previous code wrote 'is-active' on the
+  // tab buttons and 'hidden' on the panes, but the CSS uses 'active' on .calc-tab and
+  // 'active' on .calc-pane for visibility. After reset, the previously-active guided
+  // pane stayed visible while state.mode silently flipped to 'quick' — typing in the
+  // guided fields didn't update the running total because computeCDI was reading
+  // state.quick.income (zero) instead of state.guided.*. A page refresh worked around
+  // it; reset alone did not.
+  document.querySelectorAll('.calc-tab').forEach(tab => {
+    const isQuick = tab.dataset.pane === 'quick';
+    tab.classList.toggle('active', isQuick);
+    tab.setAttribute('aria-selected', isQuick ? 'true' : 'false');
+  });
+  document.querySelectorAll('.calc-pane').forEach(p => {
+    p.classList.toggle('active', p.id === 'pane-quick');
+  });
+
+  // Rental block visibility: visible in quick mode (always), hidden in guided + standard.
+  // Since reset returns to quick mode, the rental block should be visible.
+  const rentalBlock = document.getElementById('rental-ded-block');
+  if (rentalBlock) rentalBlock.classList.remove('hidden');
 
   // Reset itemized-lines panel if it was visible
   const itemizedBox = document.getElementById('itemized-lines');
