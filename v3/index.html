@@ -1605,7 +1605,7 @@
 <div class="masthead-bar">
   <div class="wrap">
     <div class="mb-brand">
-      <img class="mb-logo" src="../wsaca-logo.png" alt="WSACA" />
+      <img class="mb-logo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="WSACA" />
       <strong>Washington State Association of County Assessors</strong>
     </div>
     <div class="mb-secondary">Serving Washington's 39 counties</div>
@@ -2152,6 +2152,14 @@ const state = {
    INIT
    ============================================================ */
 function init() {
+  // Point the masthead logo at the embedded data URI (same image used by the print
+  // document). This removes the tool's only external file dependency — previously the
+  // masthead used src="../wsaca-logo.png", which would break if the logo file wasn't
+  // deployed at the repo root or if the tool were loaded from a different path. The
+  // tool is now fully self-contained.
+  const mbLogo = document.querySelector('.mb-logo');
+  if (mbLogo) mbLogo.src = WSACA_LOGO_DATA_URI;
+
   const sel = document.getElementById('county-select');
   Object.keys(THRESHOLDS).sort().forEach(c => {
     const opt = document.createElement('option');
