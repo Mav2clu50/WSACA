@@ -4,25 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WSACA Tools | Washington State Association of County Assessors</title>
-<meta name="description" content="Free, web-based tools developed by the Washington State Association of County Assessors. Open source. Built once, shared across all 39 counties.">
+<meta name="description" content="Free, open-source tools for county assessor offices. Built once, shared freely, and improved together — small, purpose-built tools for public work.">
+
+<!-- Social preview: the link gets shared in professional contexts and at presentations -->
+<meta property="og:title" content="WSACA Tools — open-source tools for public work">
+<meta property="og:description" content="Free, open-source tools for county assessor offices. Built once, shared freely, improved together.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mav2clu50.github.io/WSACA/">
+<meta property="og:image" content="https://mav2clu50.github.io/WSACA/wsaca-logo.png">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="wsaca-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Match the screening tool's palette so the visual language is consistent across the project */
+    /* Restrained Pacific Northwest editorial palette — carried across the whole project */
     --wsaca-green-deep: #2d5a3d;
     --wsaca-green: #4a8059;
     --wsaca-green-mid: #6b9b78;
     --wsaca-green-soft: #e8f0e9;
-    --wsaca-cedar: #b87d4b;
-    --wsaca-cedar-deep: #8b5a32;
+    --wsaca-cedar: #b87d4b;       /* decorative use only — accents, rules, dots */
+    --wsaca-cedar-deep: #8b5a32;  /* text use — passes WCAG AA on cream */
     --wsaca-slate: #5b6e7d;
     --paper: #fdfbf5;
     --paper-warm: #f5f0e3;
     --ink: #2a2a28;
-    --ink-soft: #555550;
-    --ink-mute: #888880;
+    --ink-soft: #54544e;
+    --ink-mute: #6e6e66;          /* darkened from prior build for AA contrast on cream */
     --rule: #d8d2c2;
     --rule-soft: #ebe6d8;
     --shadow-panel: 0 1px 3px rgba(45, 90, 61, 0.06), 0 8px 24px -6px rgba(45, 90, 61, 0.1);
@@ -34,9 +44,7 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
     background: var(--paper);
@@ -44,11 +52,8 @@
     font-family: var(--sans);
     line-height: 1.55;
     font-size: 17px;
-    /* Subtle Pacific Northwest topographic texture using stacked thin horizontal rules at very low opacity */
     background-image:
-      linear-gradient(180deg, transparent 0%, transparent 100%),
-      repeating-linear-gradient(0deg, transparent 0, transparent 79px, rgba(45, 90, 61, 0.025) 80px);
-    background-attachment: fixed;
+      repeating-linear-gradient(0deg, transparent 0, transparent 79px, rgba(45, 90, 61, 0.022) 80px);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -86,50 +91,45 @@
     display: block;
   }
   .topbar-secondary {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.78);
     font-size: 13.5px;
   }
 
   /* ===== HERO ===== */
   .hero {
-    padding: 80px 0 48px;
-    position: relative;
+    padding: 84px 0 52px;
   }
-  .hero-eyebrow {
+  .eyebrow {
     font-family: var(--sans);
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--wsaca-cedar);
-    margin-bottom: 18px;
+    color: var(--wsaca-cedar-deep);
   }
+  .hero .eyebrow { margin-bottom: 20px; }
   .hero-title {
     font-family: var(--serif);
     font-weight: 600;
     font-size: clamp(38px, 5vw, 56px);
-    line-height: 1.08;
+    line-height: 1.1;
     letter-spacing: -0.015em;
     color: var(--wsaca-green-deep);
-    margin-bottom: 24px;
-    max-width: 18ch;
+    margin-bottom: 28px;
+    max-width: 19ch;
   }
   .hero-lede {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(18px, 2.2vw, 22px);
-    line-height: 1.5;
+    font-size: clamp(18px, 2.2vw, 21px);
+    line-height: 1.6;
     color: var(--ink-soft);
-    max-width: 56ch;
-  }
-  .hero-lede strong {
-    color: var(--ink);
-    font-weight: 600;
+    max-width: 60ch;
   }
 
-  /* The horizon line: a single hairline rule with the WSACA cedar accent dot, a subtle PNW reference */
+  /* Horizon hairline with the cedar accent dot — a quiet PNW reference */
   .horizon {
-    margin: 56px auto 0;
+    margin: 60px auto 0;
     max-width: 980px;
     padding: 0 28px;
     position: relative;
@@ -153,100 +153,97 @@
     box-shadow: 0 0 0 3px var(--paper);
   }
 
-  /* ===== INTRO PROSE ===== */
-  .intro {
-    padding: 64px 0 24px;
-  }
-  .intro-grid {
+  /* ===== SECTION HEADER (shared two-column pattern) ===== */
+  .section-head {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 56px;
     align-items: start;
+    margin-bottom: 40px;
   }
-  .intro-label {
-    font-family: var(--sans);
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--wsaca-cedar);
-    padding-top: 6px;
-  }
-  .intro-body p {
+  .section-head .eyebrow { padding-top: 5px; }
+  .section-head-intro {
     font-family: var(--serif);
     font-size: 19px;
-    line-height: 1.65;
+    line-height: 1.6;
     color: var(--ink);
-    margin-bottom: 20px;
   }
-  .intro-body p:last-child {
-    margin-bottom: 0;
-  }
-  .intro-body strong {
+  .section-head-intro strong {
     color: var(--wsaca-green-deep);
     font-weight: 600;
   }
-
   @media (max-width: 700px) {
-    .intro-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    .intro-body p {
-      font-size: 17.5px;
-    }
+    .section-head { grid-template-columns: 1fr; gap: 14px; }
+    .section-head-intro { font-size: 17.5px; }
+  }
+
+  /* ===== PRINCIPLES ===== */
+  .principles {
+    padding: 64px 0 16px;
+  }
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px 44px;
+  }
+  .principle-rule {
+    width: 34px;
+    height: 3px;
+    background: var(--wsaca-cedar);
+    margin-bottom: 18px;
+  }
+  .principle-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.25;
+    color: var(--wsaca-green-deep);
+    margin-bottom: 10px;
+  }
+  .principle-body {
+    font-family: var(--serif);
+    font-size: 16.5px;
+    line-height: 1.62;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 720px) {
+    .principles-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* The AI disclosure: one quiet, readable line. Not boxed, not promoted — just plainly stated. */
+  .ai-note {
+    margin-top: 52px;
+    padding-top: 26px;
+    border-top: 1px solid var(--rule-soft);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 64ch;
   }
 
   /* ===== TOOLS DIRECTORY ===== */
   .tools {
-    padding: 56px 0 80px;
+    padding: 64px 0 24px;
   }
-  .tools-header {
-    margin-bottom: 36px;
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 56px;
-    align-items: end;
-  }
-  .tools-title {
-    font-family: var(--serif);
-    font-weight: 600;
-    font-size: 28px;
-    color: var(--wsaca-green-deep);
-    line-height: 1.1;
-  }
-  .tools-sub {
-    font-family: var(--serif);
-    font-size: 17px;
-    color: var(--ink-soft);
-    line-height: 1.55;
-  }
-  @media (max-width: 700px) {
-    .tools-header { grid-template-columns: 1fr; gap: 12px; }
-  }
-
-  /* Each tool card: substantial, document-like, visually equal */
   .tool-card {
     background: white;
     border: 1px solid var(--rule);
     border-top: 6px solid var(--wsaca-green-deep);
     border-radius: 4px;
-    padding: 40px 44px 36px;
+    padding: 40px 44px 32px;
     box-shadow: var(--shadow-card);
-    position: relative;
   }
-  .tool-card + .tool-card {
-    margin-top: 36px;
-  }
+  .tool-card + .tool-card { margin-top: 36px; }
 
-  /* The audience pill sits where the eyebrow used to: cedar, uppercase, all-caps tiny label */
   .card-audience {
     font-family: var(--sans);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     margin-bottom: 12px;
   }
   .card-title {
@@ -322,32 +319,29 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(45, 90, 61, 0.25);
   }
-  .card-cta-arrow {
-    transition: transform 0.15s ease;
-  }
-  .card-cta:hover .card-cta-arrow {
-    transform: translateX(3px);
-  }
+  .card-cta-arrow { transition: transform 0.15s ease; }
+  .card-cta:hover .card-cta-arrow { transform: translateX(3px); }
 
-  /* The inline "Older versions" line lives inside the exemption tool's card, after the CTA.
-     Quiet, sans-serif, separated by a thin rule. Keeps version history associated with the
-     exemption tool rather than dominating the page. */
+  /* Quiet meta strip at the foot of each card: AI disclosure + version history */
   .card-foot {
-    margin-top: 28px;
+    margin-top: 26px;
     padding-top: 18px;
     border-top: 1px solid var(--rule-soft);
     font-family: var(--sans);
     font-size: 13px;
     color: var(--ink-mute);
     letter-spacing: 0.01em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
   }
+  .card-foot-item { display: flex; align-items: baseline; gap: 8px; }
   .card-foot-label {
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    font-size: 11px;
     color: var(--ink-mute);
-    margin-right: 10px;
   }
   .card-foot a {
     color: var(--wsaca-green);
@@ -355,22 +349,70 @@
     border-bottom: 1px dotted var(--wsaca-green-mid);
     padding-bottom: 1px;
     transition: color 0.15s ease;
-    margin-right: 6px;
   }
   .card-foot a:hover {
-    color: var(--wsaca-cedar);
-    border-bottom-color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
+    border-bottom-color: var(--wsaca-cedar-deep);
   }
-  .card-foot-sep {
-    color: var(--ink-mute);
-    margin-right: 6px;
-    opacity: 0.6;
+  .card-foot-sep { opacity: 0.55; }
+
+  /* ===== INVITATION ===== */
+  .invitation {
+    margin-top: 72px;
+    background: var(--paper-warm);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 64px 0;
   }
+  .invitation .eyebrow { margin-bottom: 18px; }
+  .invitation-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(26px, 3.4vw, 34px);
+    line-height: 1.18;
+    color: var(--wsaca-green-deep);
+    margin-bottom: 18px;
+    max-width: 20ch;
+  }
+  .invitation-body {
+    font-family: var(--serif);
+    font-size: 18.5px;
+    line-height: 1.62;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-bottom: 30px;
+  }
+  .invitation-body strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .ghost-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wsaca-green-deep);
+    color: white;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 16px;
+    padding: 14px 28px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(45, 90, 61, 0.2);
+  }
+  .ghost-cta:hover {
+    background: var(--wsaca-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.25);
+  }
+  .ghost-cta .card-cta-arrow { transition: transform 0.15s ease; }
+  .ghost-cta:hover .card-cta-arrow { transform: translateX(3px); }
 
   /* ===== FOOTER ===== */
   footer.page-foot {
     background: var(--wsaca-green-deep);
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
     padding: 36px 0 32px;
     font-size: 14px;
   }
@@ -382,7 +424,7 @@
   }
   .foot-grid .foot-right { text-align: right; }
   .foot-grid a {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-style: dotted;
@@ -391,9 +433,9 @@
   .foot-contributors {
     margin-top: 20px;
     padding-top: 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.82);
     line-height: 1.6;
   }
   @media (max-width: 600px) {
@@ -402,30 +444,21 @@
   }
 
   /* ===== ENTRANCE ANIMATION ===== */
-  /* Subtle, staggered fade-up: this is the one moment of motion on the page */
   @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .hero-eyebrow,
+  .hero .eyebrow,
   .hero-title,
   .hero-lede {
     animation: fadeUp 0.8s ease-out backwards;
   }
-  .hero-eyebrow { animation-delay: 0.05s; }
+  .hero .eyebrow { animation-delay: 0.05s; }
   .hero-title { animation-delay: 0.15s; }
   .hero-lede { animation-delay: 0.3s; }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-eyebrow, .hero-title, .hero-lede {
-      animation: none;
-    }
+    .hero .eyebrow, .hero-title, .hero-lede { animation: none; }
     html { scroll-behavior: auto; }
   }
 </style>
@@ -444,31 +477,48 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="hero-eyebrow">Free for Washington counties</div>
-    <h1 class="hero-title">Free tools, built once and shared across all 39 counties.</h1>
-    <p class="hero-lede">A growing collection of open-source tools developed by the Washington State Association of County Assessors. <strong>Modern infrastructure should be a shared resource</strong>, not something every county office has to build independently.</p>
+    <div class="eyebrow">Built for the public good</div>
+    <h1 class="hero-title">Tools for public work, built in the open and free for everyone.</h1>
+    <p class="hero-lede">County assessors do essential public work, often with limited staff and budgets. Some of the tools they need are too small or specialized to be worth building and maintaining commercially, but they are needed all the same. These are tools like that: built carefully once, shared freely, and improved together.</p>
   </div>
 </header>
 
 <div class="horizon" aria-hidden="true"></div>
 
-<section class="intro">
+<section class="principles">
   <div class="wrap">
-    <div class="intro-grid">
-      <div class="intro-label">About</div>
-      <div class="intro-body">
-        <p>The Washington State Association of County Assessors represents all 39 county assessor offices in Washington. Most counties operate with limited technical staff, and most of the digital work involved in property tax administration would benefit from being <strong>built once, shared, and maintained collectively</strong>.</p>
-        <p>Some of the tools below serve homeowners directly; others are built for assessor staff to use during the assessment cycle. All are free, open source, and run entirely in the browser. No login, no data collection, no installation — free for any county office to link to or embed.</p>
+    <div class="section-head">
+      <div class="eyebrow">The approach</div>
+      <p class="section-head-intro">A few simple commitments shape every tool in this collection. They are not complicated, and that is the point — <strong>good public tools should be straightforward to trust</strong>.</p>
+    </div>
+
+    <div class="principles-grid">
+      <div class="principle">
+        <div class="principle-rule" aria-hidden="true"></div>
+        <h3 class="principle-title">Built once, shared with all</h3>
+        <p class="principle-body">A small rural county gets exactly the same tool as the largest urban one. Build it carefully a single time, and every office benefits equally — no office is too small to be served well.</p>
+      </div>
+      <div class="principle">
+        <div class="principle-rule" aria-hidden="true"></div>
+        <h3 class="principle-title">Open by default</h3>
+        <p class="principle-body">The code, the methods, and the assumptions behind every tool are open to inspection. Anything that affects the public should be something the public is able to examine.</p>
+      </div>
+      <div class="principle">
+        <div class="principle-rule" aria-hidden="true"></div>
+        <h3 class="principle-title">Free, and free to stay that way</h3>
+        <p class="principle-body">No logins, no fees, no data collection, and nothing to lock into. These tools are free to use today, and built so they can stay free to use tomorrow.</p>
       </div>
     </div>
+
+    <p class="ai-note">These tools were built with substantial help from AI. That is stated plainly here, and again on each tool, because work done for the public should be honest about how it was made.</p>
   </div>
 </section>
 
 <section class="tools" id="tools">
   <div class="wrap">
-    <div class="tools-header">
-      <h2 class="tools-title">Tools</h2>
-      <p class="tools-sub">Each tool is purpose-built for a specific audience, free to use, and self-contained — no installation, no backend, no data leaving the browser.</p>
+    <div class="section-head">
+      <div class="eyebrow">The tools</div>
+      <p class="section-head-intro">Two are available now, with more planned. Each one is self-contained, free, and runs entirely in the browser — nothing to install, no data leaving the page.</p>
     </div>
 
     <article class="tool-card" id="exemption-tool">
@@ -484,13 +534,17 @@
       </ul>
       <a href="v3/" class="card-cta">
         Try the screening tool
-        <span class="card-cta-arrow" aria-hidden="true">→</span>
+        <span class="card-cta-arrow" aria-hidden="true">&rarr;</span>
       </a>
       <div class="card-foot">
-        <span class="card-foot-label">Older versions</span>
-        <a href="v2/">v2</a>
-        <span class="card-foot-sep">·</span>
-        <a href="v1/">v1</a>
+        <div class="card-foot-item">
+          <span class="card-foot-label">Build</span>
+          <span>Built with substantial help from AI</span>
+        </div>
+        <div class="card-foot-item">
+          <span class="card-foot-label">Older versions</span>
+          <span><a href="v2/">v2</a> <span class="card-foot-sep">&middot;</span> <a href="v1/">v1</a></span>
+        </div>
       </div>
     </article>
 
@@ -507,9 +561,27 @@
       </ul>
       <a href="sales-ratio/" class="card-cta">
         Open the sales tool
-        <span class="card-cta-arrow" aria-hidden="true">→</span>
+        <span class="card-cta-arrow" aria-hidden="true">&rarr;</span>
       </a>
+      <div class="card-foot">
+        <div class="card-foot-item">
+          <span class="card-foot-label">Build</span>
+          <span>Built with substantial help from AI</span>
+        </div>
+      </div>
     </article>
+  </div>
+</section>
+
+<section class="invitation">
+  <div class="wrap">
+    <div class="eyebrow">Open and shared</div>
+    <h2 class="invitation-title">Built for Washington. Free for anyone.</h2>
+    <p class="invitation-body">Every tool here was made for Washington's county assessor offices, but nothing about the approach is specific to Washington. The code is open source. Any assessor's office, any state association, anyone doing public work is welcome to <strong>take these tools, adapt them, host them, and make them their own</strong>. If the model is useful, use it.</p>
+    <a href="https://github.com/Mav2clu50/WSACA" class="ghost-cta" target="_blank" rel="noopener">
+      View the source on GitHub
+      <span class="card-cta-arrow" aria-hidden="true">&rarr;</span>
+    </a>
   </div>
 </section>
 
