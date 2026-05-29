@@ -175,7 +175,7 @@
   .threshold-panel-title:focus { outline: none; }
   .threshold-panel-county {
     font-style: italic;
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     font-weight: 500;
   }
   .threshold-panel-intro {
@@ -255,7 +255,7 @@
   .continue-arrow {
     display: inline-block;
     margin-left: 4px;
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     font-size: 18px;
     font-style: normal;
     animation: continue-bounce 2s ease-in-out infinite;
@@ -267,6 +267,7 @@
   /* Respect motion-reduction preferences for users with vestibular disorders */
   @media (prefers-reduced-motion: reduce) {
     .continue-arrow { animation: none; }
+    [data-reveal] { animation: none; }
   }
 
   /* ===== BOTTOM DISCLAIMER (red, prominent) ===== */
@@ -365,6 +366,31 @@
     outline: none;
     border-color: var(--wsaca-green);
     box-shadow: var(--focus-ring);
+  }
+
+  /* Keyboard focus indicators. :focus-visible means these show for keyboard navigation
+     but not mouse clicks, so the demo looks clean while staying fully keyboard-accessible.
+     The radio gets its own ring (robust everywhere); modern browsers also highlight the
+     whole card via :has(). Buttons, tabs, links, and toggles get a matching brand ring. */
+  .option-card input:focus-visible {
+    outline: 3px solid var(--wsaca-green);
+    outline-offset: 2px;
+  }
+  .option-card:has(input:focus-visible) {
+    border-color: var(--wsaca-green);
+    box-shadow: var(--focus-ring);
+  }
+  .calc-tab:focus-visible,
+  .cta-btn:focus-visible,
+  .reset-btn:focus-visible,
+  .authority-toggle:focus-visible,
+  .compare-toggle:focus-visible,
+  .skip-link:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline: 3px solid var(--wsaca-green);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   .options-group {
@@ -591,14 +617,15 @@
     margin: 0 0 6px;
   }
 
-  /* Section header between hero and the screening tool steps — quiet but semantically present */
+  /* Section header between hero and the screening tool steps — quiet but semantically present.
+     Uses cedar-deep (not cedar) for WCAG AA contrast on small uppercase text. */
   h2.section-header {
     font-family: var(--sans);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     margin: 32px 0 14px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--rule-soft);
@@ -1213,7 +1240,7 @@
     margin: 14pt 0;
   }
   .print-documents h3 {
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     border-bottom: 0.5pt solid var(--wsaca-cedar);
     margin-top: 0;
   }
@@ -1222,6 +1249,33 @@
     margin: 4pt 0 8pt;
     color: var(--ink);
   }
+  /* Practical "start here" tips at the top of the documents section. Highlights the
+     common shortcuts (one ID covers several requirements, county usually has property
+     records on file) so applicants don't over-prepare or bring redundant documents. */
+  .print-doc-tips {
+    background: #f4f0e6;
+    border-left: 2.5pt solid var(--wsaca-cedar);
+    padding: 7pt 10pt;
+    margin: 0 0 10pt;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+  .print-doc-tips .tips-head {
+    font-weight: 700;
+    color: var(--wsaca-cedar-deep);
+    margin: 0 0 4pt;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .print-doc-tips ul {
+    margin: 0;
+    padding-left: 13pt;
+  }
+  .print-doc-tips li {
+    margin: 0 0 3pt;
+  }
+  .print-doc-tips li:last-child { margin-bottom: 0; }
   .print-documents-table {
     margin-top: 4pt;
   }
@@ -1249,7 +1303,7 @@
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     margin: 0 0 4pt;
   }
   /* First group header — no extra top padding (sits right after intro text) */
@@ -1325,7 +1379,7 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     font-weight: 700;
-    color: var(--wsaca-cedar);
+    color: var(--wsaca-cedar-deep);
     margin-bottom: 8px;
   }
   .dor-panel h2, .dor-panel h3 {
@@ -1512,7 +1566,7 @@
     font-size: 15px;
     line-height: 1.6;
   }
-  footer.page-foot h4 {
+  footer.page-foot h3 {
     font-family: var(--serif);
     color: white;
     font-size: 18px;
@@ -1798,16 +1852,19 @@
         <h4 class="calc-section-heading with-top">Deductions</h4>
         <p style="font-size: 15px; color: var(--ink-mute); margin: 0 0 14px;">Beginning in 2027, you have two options. Take the standard deduction, or itemize your non-reimbursed medical and care expenses (which can also include up to $6,000 of rental income from your principal residence). The tool automatically applies whichever gives you the larger deduction, so you can't accidentally pick the worse one.</p>
 
-        <div class="options-group" style="max-width: 100%; margin-bottom: 20px;">
-          <label class="option-card">
-            <input type="radio" name="dedMode" value="standard" checked>
-            <span class="option-label" id="std-ded-label">Use the standard deduction ($7,500)<small>Simplest option — a flat amount with no itemization</small></span>
-          </label>
-          <label class="option-card">
-            <input type="radio" name="dedMode" value="itemized">
-            <span class="option-label">Itemize my deductions<small>May give a larger deduction for significant medical and care costs</small></span>
-          </label>
-        </div>
+        <fieldset>
+          <legend class="visually-hidden">Deduction method</legend>
+          <div class="options-group" style="max-width: 100%; margin-bottom: 20px;">
+            <label class="option-card">
+              <input type="radio" name="dedMode" value="standard" checked>
+              <span class="option-label" id="std-ded-label">Use the standard deduction ($7,500)<small>Simplest option — a flat amount with no itemization</small></span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="dedMode" value="itemized">
+              <span class="option-label">Itemize my deductions<small>May give a larger deduction for significant medical and care costs</small></span>
+            </label>
+          </div>
+        </fieldset>
 
         <div id="itemized-lines" class="hidden">
           <div id="deduction-lines"></div>
@@ -1929,12 +1986,12 @@
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <h4>About this tool</h4>
+        <h3>About this tool</h3>
         <p>This screening tool was developed collaboratively by the Washington State Association of County Assessors (WSACA) to help homeowners statewide gauge whether they may qualify for the expanded 2027 exemption program before contacting their county assessor. It reflects Engrossed Substitute Senate Bill 6162 (2026) and Engrossed House Bill 1106 (2025), and the TY 2027–2029 income thresholds.</p>
         <p class="ai-disclosure">This tool was built with AI assistance and refined through feedback from member counties. Source available on <a href="https://github.com/Mav2clu50/WSACA" target="_blank" rel="noopener">GitHub</a>.</p>
       </div>
       <div>
-        <h4>Learn more</h4>
+        <h3>Learn more</h3>
         <p>
           <a href="https://dor.wa.gov/taxes-rates/property-tax/property-tax-exemption-seniors-people-retired-due-disability-and-veterans-disabilities">DOR program overview</a><br>
           <a href="https://dor.wa.gov/taxes-rates/property-tax/senior-citizens-and-people-disabilities-exemption-and-deferred-income-thresholds">DOR income thresholds</a><br>
@@ -3281,8 +3338,26 @@ function buildPrintView() {
   // Phrasing is intentionally non-prescriptive — county requirements vary, and many counties already
   // have ownership and occupancy records on file (Pierce County feedback).
   const docIntro = state.mode === 'guided'
-    ? 'Below are documents that may be requested to verify the information you provided. This list is tailored to the eligibility basis and income or deduction lines you entered. Requirements vary by county — some counties already have ownership and occupancy records on file and won\'t need those documents from you.'
-    : 'Below are documents that may be requested to verify your application. Requirements vary by county — some counties already have ownership and occupancy records on file and won\'t need those documents from you. Contact your county assessor\'s office to confirm what they actually need.';
+    ? 'Below are documents that may be requested to verify the information you provided. This list is tailored to the eligibility basis and income or deduction lines you entered. Requirements vary by county, and some counties already have ownership and occupancy records on file and won\'t need those documents from you.'
+    : 'Below are documents that may be requested to verify your application. Requirements vary by county, and some counties already have ownership and occupancy records on file and won\'t need those documents from you. Contact your county assessor\'s office to confirm what they actually need.';
+
+  // Practical "start here" tips. These highlight the common shortcuts so applicants
+  // don't over-prepare: one ID document covers several requirements, the county usually
+  // has property records on file, and the income records are typically the real task.
+  const docTips = [];
+  docTips.push('A current Washington driver\'s license or state ID is the most useful single document. It can serve as proof of age, proof of identity, and proof of occupancy all at once, as long as the address on it is current.');
+  docTips.push('Your county likely already has your ownership records, and often your occupancy records too. You usually won\'t need to bring deeds, titles, or utility bills unless the office specifically asks.');
+  // Only mention income records as the main task if there are income lines to document.
+  const hasIncomeDocs = docGroups[3].items.length > 0;
+  if (hasIncomeDocs) {
+    docTips.push('For most applicants, the income records listed below are the main thing to gather, since the county usually has the property records already.');
+  }
+  const tipsBox = `
+    <div class="print-doc-tips">
+      <p class="tips-head">Start here: a few helpful tips</p>
+      <ul>${docTips.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>
+  `;
 
   // Render docGroups with sub-headings. Filter out empty groups (e.g., "Eligibility basis" is empty
   // for users 61+ who don't need disability/veteran/surviving-spouse documentation).
@@ -3302,6 +3377,7 @@ function buildPrintView() {
     <section class="print-section print-documents">
       <h3>Documents that may be needed for your application</h3>
       <p class="print-documents-intro">${docIntro}</p>
+      ${tipsBox}
       <table class="print-line-table print-documents-table">
         <tbody>${renderedGroups}</tbody>
       </table>
