@@ -7090,6 +7090,9 @@
     // Compute current monthly median ratios — pre-adjustment, or post-adjustment if applied.
     const data = computeMonthlyMedianRatios(applied);
     if (data.length === 0) return;
+    // When the adjustment is applied, also keep the pre-adjustment series so
+    // the chart can show before AND after together.
+    const preData = applied ? computeMonthlyMedianRatios(false) : null;
 
     const W = 920, H = 260;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -7098,6 +7101,7 @@
     const plotH = H - pad.top - pad.bottom;
 
     const ys = data.map(d => d.median);
+    if (preData) ys.push(...preData.map(d => d.median));
     const xMin = 0, xMax = data.length - 1;
     const yMin = Math.min(...ys), yMax = Math.max(...ys);
     const yRange = Math.max(yMax - yMin, 0.005);
@@ -7138,6 +7142,34 @@
         html += `<text class="trend-axis-text" x="${x}" y="${pad.top + plotH + 28}" text-anchor="middle" style="opacity: 0.7;">n=${d.n}</text>`;
       }
     });
+
+    // BEFORE/AFTER OVERLAY: when the adjustment is applied, keep the
+    // pre-adjustment picture visible as a ghost layer — gray dots and a thin
+    // dashed fit line — so the chart tells the whole story in one frame: the
+    // sloped dashed line is what the market did to the ratios; the flat solid
+    // line is what the adjustment achieved. Without the ghost, the
+    // post-adjustment chart reads as "the tool drew a straight line" instead
+    // of "the trend was removed."
+    if (preData && preData.length >= 2) {
+      const tArrP = preData.map(d => d.t);
+      const yLogP = preData.map(d => Math.log(d.median));
+      const wP = preData.map(d => d.n);
+      const fitP = wlsRegression(tArrP, yLogP, wP);
+      const trendYP = (t) => Math.exp(fitP.intercept + fitP.slope * t);
+      const tp0 = preData[0].t, tp1 = preData[preData.length - 1].t;
+      html += `<line x1="${xOf(tp0)}" y1="${yOf(trendYP(tp0))}" x2="${xOf(tp1)}" y2="${yOf(trendYP(tp1))}" stroke="var(--ink-mute)" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.65" />`;
+      const maxNP = Math.max(...preData.map(d => d.n));
+      preData.forEach(d => {
+        const rp = 3 + 5 * (d.n / maxNP);
+        html += `<circle cx="${xOf(d.t)}" cy="${yOf(d.median)}" r="${rp}" fill="var(--ink-mute)" opacity="0.30"><title>${d.ym} before adjustment: ${(d.median * 100).toFixed(2)}%, n=${d.n}</title></circle>`;
+      });
+      // Inline legend, top-right of the plot
+      const lgx = pad.left + plotW - 160;
+      html += `<line x1="${lgx}" x2="${lgx + 26}" y1="${pad.top + 2}" y2="${pad.top + 2}" stroke="var(--ink-mute)" stroke-dasharray="5 4" stroke-width="1.5" opacity="0.65"/>`;
+      html += `<text x="${lgx + 32}" y="${pad.top + 6}" style="font-size: 10.5px; fill: var(--ink-soft);">before adjustment</text>`;
+      html += `<line x1="${lgx}" x2="${lgx + 26}" y1="${pad.top + 17}" y2="${pad.top + 17}" stroke="var(--wsaca-green)" stroke-width="2.5"/>`;
+      html += `<text x="${lgx + 32}" y="${pad.top + 21}" style="font-size: 10.5px; fill: var(--ink-soft);">after adjustment</text>`;
+    }
 
     // Trend line — piecewise gets one segment per fit; linear gets a single line
     // refit on the currently-displayed (possibly post-adjustment) data, so the
