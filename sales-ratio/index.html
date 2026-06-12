@@ -1034,6 +1034,13 @@
     margin-bottom: 6px;
   }
   .diag-synopsis strong { color: var(--ink); }
+  .mod-summary-plain {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 10px 2px 0;
+    max-width: 100ch;
+  }
   .diag-synopsis.has-failures { border-left-color: var(--alert-red); }
 
   /* IAAO reference (collapsible) */
@@ -5310,7 +5317,30 @@
         }
       }
     }
-    warns.innerHTML = warnHtml;
+    // Plain-language synopsis of the dataset, shown above any notices.
+    let dsSynopsis = '';
+    if (cleanRows.length) {
+      let dLo = null, dHi = null;
+      const dsNbrs = new Set();
+      for (const r of cleanRows) {
+        if (r.sale_date instanceof Date && !isNaN(r.sale_date)) {
+          if (!dLo || r.sale_date < dLo) dLo = r.sale_date;
+          if (!dHi || r.sale_date > dHi) dHi = r.sale_date;
+        }
+        if (mapping.neighborhood) {
+          const k = String(r.neighborhood ?? '').trim();
+          if (k) dsNbrs.add(k);
+        }
+      }
+      const dsFmt = (d) => d ? d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+      const sizeRead = cleanRows.length >= 300
+        ? 'A healthy base for a full ratio study.'
+        : cleanRows.length >= 100
+          ? 'Enough for reliable county-level statistics; expect wide margins of error at the neighborhood level.'
+          : 'A small sample: county-level statistics will be usable, but neighborhood-level results will be noisy.';
+      dsSynopsis = `<div class="diag-synopsis"><div class="diag-synopsis-title">Synopsis</div><p>${cleanRows.length.toLocaleString()} usable sales${dsNbrs.size ? ` across ${dsNbrs.size} neighborhood${dsNbrs.size === 1 ? '' : 's'}` : ''}${dLo && dHi ? `, spanning ${dsFmt(dLo)} through ${dsFmt(dHi)}` : ''}. ${sizeRead}${warnHtml ? ' Review the notices below before relying on the results.' : ''}</p></div>`;
+    }
+    warns.innerHTML = dsSynopsis + warnHtml;
 
     // Outlier detection (Tukey fences, IAAO §6.3 — extreme outliers >3*IQR from quartiles)
     renderOutlierPanel();
@@ -6490,7 +6520,32 @@
       `;
     }
 
+    // Plain-language synopsis pulling the three tests into one verdict.
+    const sigPrb = !!(prb && (prb.beta < -0.05 || prb.beta > 0.05) && prb.pValue < 0.05);
+    const sigSp  = !!(sp && !sp.acceptable && sp.pValue < 0.05);
+    const sigVei = !!(vei && !vei.withinRange && vei.sigOverlap === false);
+    const veFlagCount = [sigPrb, sigSp, sigVei].filter(Boolean).length;
+    const veTestCount = [prb, sp, vei].filter(Boolean).length;
+    const veBeta = prb ? prb.beta : (sp ? sp.rho : 0);
+    const veDirPlain = veBeta < 0
+      ? 'lower-priced homes carrying relatively <strong>higher</strong> assessment levels than higher-priced homes (regressive)'
+      : 'higher-priced homes carrying relatively <strong>higher</strong> assessment levels than lower-priced homes (progressive)';
+    let veVerdict;
+    if (veFlagCount === 0) {
+      veVerdict = `None of the ${veTestCount} tests finds statistically significant vertical inequity: homes across the price spectrum are being assessed at consistent rates. Values outside the IAAO ranges without statistical significance can appear below; treat those as noise, not findings.`;
+    } else if (veFlagCount === veTestCount) {
+      veVerdict = `All ${veTestCount} tests agree: there is statistically significant vertical inequity, with ${veDirPlain}. Agreement across independent tests makes this a robust finding. The by-stratum table below shows where it concentrates, and the Recommended Actions in the final step say what to do about it.`;
+    } else {
+      veVerdict = `The tests split: ${veFlagCount} of ${veTestCount} flag statistically significant vertical inequity (direction: ${veDirPlain}), while the rest stay in range. Mixed verdicts usually mean a real but mild pattern, or one concentrated in part of the data; the by-stratum table below is the place to look next.`;
+    }
+    const veSynopsisHtml = `
+      <div class="diag-synopsis">
+        <div class="diag-synopsis-title">Synopsis</div>
+        <p>These tests ask one question three ways: are homes assessed at the same rate regardless of what they are worth? ${veVerdict}</p>
+      </div>`;
+
     container.innerHTML = `
+      ${veSynopsisHtml}
       <div class="ve-stats-grid">
         ${prbCardHtml}
         ${spCardHtml}
@@ -6828,6 +6883,39 @@
 
     const span = dataSpanMonths(trend);
     const eligible = eligibleTrendMethods(span);
+
+    // Plain-language synopsis. The ratio-vs-market inversion is the single
+    // most counterintuitive thing on this step: a ratio line trending UP is
+    // evidence of a SOFTENING market, because assessed values are pinned to a
+    // valuation date while sale prices move underneath them. Say it plainly.
+    const tsApplied = state.applyTimeAdjustment;
+    const tsRate = trend.annualRate;
+    const tsRatePct = Math.abs(tsRate * 100).toFixed(1);
+    const tsMaterial = Math.abs(tsRate) >= 0.03;
+    let tsDir;
+    if (tsRate > 0.005) {
+      tsDir = `Monthly median ratios <strong>drift downward</strong> across the window. That is evidence of an <strong>appreciating market</strong>, about ${tsRatePct}% per year: assessed values are pinned to a valuation date while sale prices keep climbing, so the fixed values become a smaller share of each sale and ratios fall. The inversion runs the other way too: a ratio line trending upward would signal a softening market, not improving assessments.`;
+    } else if (tsRate < -0.005) {
+      tsDir = `Monthly median ratios <strong>drift upward</strong> across the window. Counterintuitive but important: rising ratios are evidence of a <strong>declining market</strong>, about ${tsRatePct}% per year. Assessed values are pinned to a valuation date while sale prices fall underneath them, so the fixed values become a larger share of each sale and ratios climb. An upward ratio line means the market is softening, not that assessments are improving.`;
+    } else {
+      tsDir = `Monthly median ratios hold <strong>roughly level</strong> across the window (about ${tsRatePct}% per year), indicating a flat market over the study period. When the market is flat, ratios do not drift and unadjusted sale prices are already comparable across the window.`;
+    }
+    let tsAction;
+    if (tsApplied) {
+      tsAction = `The adjustment is currently <strong>applied</strong>: every sale price has been moved to the reference date, every statistic downstream of this step uses the adjusted prices, and the chart shows the original months in gray with the adjusted months in green sitting flat. A flat green line is the success state; it means the trend has been removed, not that the adjustment was a constant.`;
+    } else if (tsMaterial) {
+      tsAction = `A trend of this size is material: neighborhoods whose sales cluster early in the window will read differently from ones that sold late, for reasons that have nothing to do with assessment quality. Applying the adjustment before reading neighborhood-level results is recommended.`;
+    } else {
+      tsAction = `A trend this small does not meaningfully distort the study; applying the adjustment is optional.`;
+    }
+    const tsMethod = (rules.trendMethod && rules.trendMethod !== 'linear')
+      ? ` The stepwise method is active: each segment gets one multiplier sized to shift its median onto the target, so the chart shows flat per-segment median lines rather than a continuous slope. That is the method working as designed.`
+      : '';
+    const timeSynopsisHtml = `
+      <div class="diag-synopsis">
+        <div class="diag-synopsis-title">Synopsis</div>
+        <p>${tsDir} ${tsAction}${tsMethod}</p>
+      </div>`;
     const recommended = recommendedTrendMethod(span);
     // If user's saved method isn't eligible for this dataset, silently fall
     // back to linear (or what's eligible). Don't overwrite the saved preference.
@@ -6957,6 +7045,7 @@
       <div class="trend-summary">${summaryTiles}</div>
 
       <div class="trend-chart-wrap">
+        ${timeSynopsisHtml}
         <svg class="trend-chart" id="trend-chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Monthly median assessment ratios over the study period with fitted time trend. The fitted rate is described in the text below this chart."></svg>
         <p class="trend-legend" id="trend-legend"></p>
       </div>
@@ -9481,6 +9570,25 @@
     const medDelta = postMed - preMed;
     const codDelta = postCod - preCod;
     const exceeded = result.overallCeilingExceeded;
+
+    // Plain-language reading of the whole table, appended after the stat row
+    // renders (setTimeout lets the innerHTML assignment below land first).
+    {
+      const c = result.counts || {};
+      const moving = (c['Adjusted'] || 0) + (c['Capped'] || 0) + (c['Floored'] || 0);
+      const stay = c['No change'] || 0;
+      const lowN = c['Low-n conservative'] || 0;
+      const codWord = codDelta < -0.005
+        ? `tightening consistency (COD ${preCod.toFixed(1)} to ${postCod.toFixed(1)})`
+        : codDelta > 0.005
+          ? `loosening consistency slightly (COD ${preCod.toFixed(1)} to ${postCod.toFixed(1)})`
+          : `leaving consistency essentially unchanged`;
+      const plainLine = `<p class="mod-summary-plain">In plain terms: ${moving} neighborhood${moving === 1 ? '' : 's'} carry an adjustment recommendation, ${stay} ${stay === 1 ? 'is' : 'are'} already where the rules want ${stay === 1 ? 'it' : 'them'}${lowN ? `, and ${lowN} ${lowN === 1 ? 'has' : 'have'} too few sales to act on confidently` : ''}. Applying everything shown moves the overall median from ${(preMed * 100).toFixed(1)}% to ${(postMed * 100).toFixed(1)}% while ${codWord}.</p>`;
+      setTimeout(() => {
+        const el = document.getElementById('mod-summary-wrap');
+        if (el && !el.querySelector('.mod-summary-plain')) el.insertAdjacentHTML('beforeend', plainLine);
+      }, 0);
+    }
 
     // delta type: 'pct' for ratio deltas (display as +X.XX%), 'dec' for absolute deltas (e.g. COD change)
     const fmtDelta = (delta, kind, decs = 2, invertColors = false) => {
