@@ -1759,7 +1759,7 @@
     <section class="step hidden" id="step-residence" aria-labelledby="step-residence-heading">
       <div class="step-number" data-num="3" aria-hidden="true">Ownership &amp; occupancy</div>
       <h3 class="step-title" id="step-residence-heading">Is this your principal place of residence?</h3>
-      <p class="step-intro">By statute, your principal place of residence is a residence you own and occupy for more than six months of each calendar year. A property used as a vacation home or second home does not qualify.</p>
+      <p class="step-intro">By statute, your principal place of residence is a residence you own and occupy for more than six months of each calendar year. A property used as a vacation home or second home does not qualify. A detached accessory dwelling unit (ADU) that you own and occupy as your principal residence can also qualify.</p>
       <fieldset>
         <legend class="visually-hidden">Ownership and occupancy</legend>
         <div class="options-group">
@@ -2183,7 +2183,7 @@ const DEDUCTION_LINES = [
   {id: "medicare",      label: "Medicare premiums (A, B, C, D) and Medigap", hint: "Including premiums for Medicare supplemental policies."},
   {id: "ltc",           label: "Long-term care insurance premiums", hint: "Premiums paid for qualified long-term care insurance."},
   {id: "durable",       label: "Durable medical equipment, oxygen, prosthetics", hint: "Durable and mobility-enhancing equipment, medically prescribed oxygen, prosthetic devices."},
-  {id: "other_medical", label: "Other — ostomic items, insulin, cost-sharing", hint: "Includes cost-sharing amounts applied toward your plan's out-of-pocket maximum, naturopath-prescribed medicines, disposable drug-delivery devices."}
+  {id: "other_medical", label: "Other — ostomic items, insulin, dialysis, nebulizers", hint: "Includes kidney dialysis devices, nebulizers, cost-sharing amounts applied toward your plan's out-of-pocket maximum, naturopath-prescribed medicines, and disposable drug-delivery devices."}
 ];
 
 /* ============================================================
@@ -3312,7 +3312,7 @@ function buildPrintView() {
     medicare:      { label: 'Medicare premiums (A, B, C, D) and Medigap',        detail: 'Annual Medicare premium statements (look for "Notice of Medicare Premium Payments"), or your Social Security statement showing premium deductions. Include Medigap insurer billing statements if applicable.' },
     ltc:           { label: 'Long-term care insurance premiums',                 detail: 'Annual premium statement from your long-term care insurance carrier confirming the policy qualifies under federal/state long-term care insurance requirements.' },
     durable:       { label: 'Durable medical equipment, oxygen, prosthetics',    detail: 'Receipts or invoices for durable medical equipment, mobility-enhancing equipment, medically prescribed oxygen, and prosthetic devices, including supporting prescriptions.' },
-    other_medical: { label: 'Other medical (ostomic items, insulin, cost-sharing)', detail: 'Receipts for ostomic items, insulin, naturopath-prescribed medicines, and disposable drug-delivery devices. For cost-sharing, bring insurer statements showing amounts applied toward your plan\'s out-of-pocket maximum.' }
+    other_medical: { label: 'Other medical (ostomic items, insulin, dialysis, nebulizers)', detail: 'Receipts for ostomic items, insulin, kidney dialysis devices, nebulizers, naturopath-prescribed medicines, and disposable drug-delivery devices. For cost-sharing, bring insurer statements showing amounts applied toward your plan\'s out-of-pocket maximum.' }
   };
 
   if (state.mode === 'guided' && state.dedMode === 'itemized') {
