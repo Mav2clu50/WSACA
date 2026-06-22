@@ -2809,6 +2809,7 @@
   .decision-pill.adjusted    { background: var(--success-bg);       color: var(--success); }
   .decision-pill.capped      { background: var(--alert-amber-bg);   color: var(--wsaca-cedar-deep); }
   .decision-pill.floored     { background: #f0e8f8;                 color: #6b3a8a; }
+  .decision-pill.below-cov   { background: #e0eef0;                 color: #1d5a66; }
   .decision-pill.low-n       { background: #fbe8e8;                 color: var(--alert-red); }
   .decision-pill.skipped     { background: #e4e2d8;                 color: #5a5048; }
 
@@ -2844,6 +2845,25 @@
     cursor: default;
     text-decoration: none;
   }
+  .btn-deep-dive {
+    margin-left: 12px;
+    background: var(--wsaca-green-deep, #1b4332);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 12px;
+  }
+  .btn-deep-dive:hover { background: var(--wsaca-green, #2d6a4f); }
+  .btn-deep-dive:disabled {
+    background: #c9d3cd;
+    color: #fff;
+    cursor: default;
+  }
+  .dd-checkbox-cell { text-align: center; width: 64px; }
 
   .conf-badge {
     display: inline-block;
@@ -3725,7 +3745,7 @@
   // Tool version — stamped on the page footer, the printable report cover,
   // and the Excel export so any archived output can be traced to the build
   // that produced it. Bump on every meaningful release.
-  const TOOL_VERSION = '2026.06-preview';
+  const TOOL_VERSION = '2026.07-preview';
   {
     const vEl = document.getElementById('tool-version');
     if (vEl) vEl.textContent = `Version ${TOOL_VERSION}`;
@@ -3761,6 +3781,8 @@
     // - false: user has explicitly unchecked an auto-skip (force adjust even if rule says no-change)
     // - missing: no override; checkbox state follows the rule's decision naturally
     modifierUserSkips: {},
+    deepDiveSelected: new Set(),  // neighborhoods chosen for the deep-dive comparison (max 5)
+    deepDiveStratifier: null,     // stratifier key for the deep-dive "data by stratum" breakdown
     currentPreset: '__default__',
     histogramBinWidth: 0.10,    // 10% bins by default; toggleable to 0.05 (5%)
     printSections: {            // user-selectable sections in the printable report
@@ -3795,6 +3817,13 @@
     // Adjustment limits
     downwardFloor:     0.97,
     maxChangePct:      15,
+    // Minimum change to justify a change-of-value notice. If the final
+    // suggested move is smaller than this (in percentage points of factor),
+    // the neighborhood is held at no change rather than mailing a COV for a
+    // move too small to be worth the mailing and the appeals it can generate.
+    // A 91% neighborhood the curve only pulls to 93% is held; one it pulls to
+    // 95% moves. Expressed as a percent; 0 disables the rule.
+    minChangePct:      3,
     // Post-check
     overallMedianCeiling: 0.95,
     // When ON and both land_av and imps_av are mapped, the tool solves for
@@ -3829,8 +3858,9 @@
     // is enabled.
     optimizeForCOD:     false,
     // Categorization: false = hard (enforced), true = soft (bypassed when optimizing)
-    maxChangeSoft:      false,  // hard by default — defensibility
+    maxChangeSoft:      false,  // hard by default, sample-confidence limit
     downwardFloorSoft:  false,  // hard by default — safety
+    minChangeSoft:      false,  // hard by default, COV cost control
     noChangeZoneSoft:   true,   // soft by default — analyst preference
     ceilingSoft:        true,   // soft by default — informational
     spreadSoft:         true,   // soft by default — split-mode preference
@@ -3880,6 +3910,8 @@
       // Conservative caps — keep changes modest, no surprises in the report.
       downwardFloor:     0.92,
       maxChangePct:      10,
+      // Hold small moves not worth a change-of-value notice.
+      minChangePct:      3,
       overallMedianCeiling: 0.95,
       // Single-modifier mode is the simple/defensible default. Counties that
       // want land/imps split should opt in.
@@ -3892,6 +3924,7 @@
       optimizeForCOD:    false,
       maxChangeSoft:     false,
       downwardFloorSoft: false,
+      minChangeSoft:     false,
       noChangeZoneSoft:  true,
       ceilingSoft:       true,
       spreadSoft:        true,
@@ -6137,10 +6170,11 @@
     const paragraphs = [];
     let hasFailures = false;
     const counts = result.counts || {};
-    const noChange = (counts['No change'] || 0) + (counts['Skipped'] || 0);
+    const noChange = (counts['No change'] || 0) + (counts['Skipped'] || 0) + (counts['Below COV threshold'] || 0);
     const changed = (counts['Adjusted'] || 0) + (counts['Capped'] || 0) + (counts['Floored'] || 0) + (counts['Low-n conservative'] || 0);
     const capped  = counts['Capped'] || 0;
     const floored = counts['Floored'] || 0;
+    const belowCov = counts['Below COV threshold'] || 0;
     const lowN    = counts['Low-n conservative'] || 0;
     const adjusted = result.recs.filter(r => r.suggestedPct != null && Math.abs(r.suggestedPct) > 0.005);
     let biggestUp = null, biggestDown = null;
@@ -6152,7 +6186,7 @@
     const overallShiftSign = overallShift >= 0 ? '+' : '';
 
     // Lead: overall effect
-    paragraphs.push(`<strong>${changed} of ${result.recs.length}</strong> neighborhoods have proposed adjustments; ${noChange} land inside the no-change zone and are left alone. Overall sample median shifts <strong>${overallShiftSign}${overallShift.toFixed(2)} points</strong> (${(result.pre.median * 100).toFixed(2)}% → ${(result.post.median * 100).toFixed(2)}%) after applying these modifiers, with overall COD ${result.post.cod < result.pre.cod ? 'improving' : 'rising'} from ${result.pre.cod.toFixed(2)} to ${result.post.cod.toFixed(2)}.`);
+    paragraphs.push(`<strong>${changed} of ${result.recs.length}</strong> neighborhoods have proposed adjustments; ${noChange} are left unchanged this cycle. Overall sample median shifts <strong>${overallShiftSign}${overallShift.toFixed(2)} points</strong> (${(result.pre.median * 100).toFixed(2)}% → ${(result.post.median * 100).toFixed(2)}%) after applying these modifiers, with overall COD ${result.post.cod < result.pre.cod ? 'improving' : 'rising'} from ${result.pre.cod.toFixed(2)} to ${result.post.cod.toFixed(2)}.`);
 
     // Biggest movers — name the neighborhoods at the extremes so the reader
     // can spot-check them against local knowledge.
@@ -6164,6 +6198,14 @@
       paragraphs.push(parts.join('; ') + '. ' + closer);
     }
 
+    // Held for COV cost: distinct from capped/floored. These rows wanted a
+    // small move the curve suggested, but it fell below the threshold worth a
+    // change-of-value notice, so they are deliberately held. Informational, not
+    // a problem to fix.
+    if (belowCov > 0) {
+      paragraphs.push(`<strong>${belowCov} held below the change-of-value threshold.</strong> The curve suggested a move smaller than the ${result.recs[0] && state.modifierRules ? state.modifierRules.minChangePct : 3}% minimum, so these are left unchanged rather than mailing a notice for a move too small to justify the cost and the appeals it can draw. Each held row shows the move it would have taken; if one matters for your county, uncheck its skip box to force the adjustment.`);
+    }
+
     // Flagged rows
     if (capped + floored + lowN > 0) {
       hasFailures = true;
@@ -6171,7 +6213,7 @@
       if (capped > 0) issues.push(`${capped} hit the max-change cap`);
       if (floored > 0) issues.push(`${floored} hit the downward floor`);
       if (lowN > 0) issues.push(`${lowN} use conservative low-n targets`);
-      paragraphs.push(`<strong>${issues.join(', ')}.</strong> These rows need manual review — the recommended modifier was clipped to satisfy the rules above, so the post-adjustment ratio won't fully land on target. Either relax the binding rule (the "Caps in effect" strip above shows what's binding), apply a smaller manual adjustment, or accept that the stratum won't fully converge this cycle.`);
+      paragraphs.push(`<strong>${issues.join(', ')}.</strong> These rows need manual review. The recommended modifier was clipped to satisfy the rules above, so the post-adjustment ratio won't fully land on target. Either relax the binding rule (the "Caps in effect" strip above shows what's binding; a cap is worth raising when a wider sales window backs the larger move), apply a smaller manual adjustment, or accept that the stratum won't fully converge this cycle.`);
     }
 
     // Ceiling warning
@@ -6719,11 +6761,21 @@
   function renderStratumVE() {
     const wrap = document.getElementById('ve-stratum-wrap');
     if (!wrap) return;
-    const opts = availableStratifiers();
-    if (!opts.length) { wrap.innerHTML = ''; return; }
-    // Default to neighborhood when mapped; otherwise first available.
+    const opts = availableVEStratifiers();
+    if (!opts.length) {
+      // No characteristic stratifier mapped. Vertical equity is not shown by
+      // location alone, since a level modifier cannot correct a within-stratum
+      // tilt. Explain rather than render an empty table.
+      wrap.innerHTML = `
+        <div class="ve-stratum-block">
+          <h3 class="ve-chart-title" style="margin: 0 0 6px;">Vertical equity by stratum</h3>
+          <p class="ve-chart-intro">Vertical equity is reported overall and across the value deciles above. A by-stratum breakdown is offered along property characteristics such as age, quality, condition, or size, where a tilt points at a model component you can adjust (depreciation, grade multipliers, the cost model). None of those characteristic columns is mapped in this dataset, so there is nothing to break down here. Vertical equity is not shown by neighborhood: a neighborhood level modifier shifts every ratio by the same factor and leaves the within-neighborhood tilt unchanged, so a per-neighborhood figure would imply a correction the modifier engine cannot make.</p>
+        </div>`;
+      return;
+    }
+    // Default to a characteristic stratifier (first available), never neighborhood.
     if (!state.stratumVEKey || !opts.find(o => o.key === state.stratumVEKey)) {
-      state.stratumVEKey = opts.find(o => o.key === 'neighborhood') ? 'neighborhood' : opts[0].key;
+      state.stratumVEKey = opts[0].key;
     }
     const sKey = state.stratumVEKey;
     const result = computeStratumVE(sKey);
@@ -6794,7 +6846,7 @@
             <button class="btn-csv" id="btn-export-stratum-ve">Download CSV</button>
           </div>
         </div>
-        <p class="ve-chart-intro">The overall statistics above answer "is there vertical inequity?" This table answers "where?" — PRB and Spearman run within each ${escapeHtml(label.toLowerCase())}. These two are the tests that stay meaningful at stratum sample sizes; VEI needs the large groups of the overall analysis and is deliberately left out here. A stratum flags only when a metric is both outside its IAAO range and statistically significant. <strong>Caution:</strong> testing ${computable.length} strata at α = 0.05 will produce roughly ${Math.max(1, Math.round(computable.length * 0.05))} false flag${Math.round(computable.length * 0.05) === 1 ? '' : 's'} by chance alone — treat flags as triage for review, not proof of a problem.</p>
+        <p class="ve-chart-intro">The overall statistics above answer "is there vertical inequity?" This table answers "where, and is it fixable?" PRB and Spearman run within each ${escapeHtml(label.toLowerCase())}. The stratifier choices here are property characteristics on purpose: a tilt by age points at the depreciation schedule, by quality or condition at grade multipliers, by size at the cost model. Each is a model component you can adjust. Vertical equity is deliberately not offered by neighborhood, because a neighborhood level modifier shifts every ratio by the same factor and leaves the tilt unchanged. These two tests stay meaningful at stratum sample sizes; VEI needs the large groups of the overall analysis and is left out here. A stratum flags only when a metric is both outside its IAAO range and statistically significant. <strong>Caution:</strong> testing ${computable.length} strata at α = 0.05 will produce roughly ${Math.max(1, Math.round(computable.length * 0.05))} false flag${Math.round(computable.length * 0.05) === 1 ? '' : 's'} by chance alone. Treat flags as triage for review, not proof of a problem.</p>
         <div class="ve-stratum-synopsis">${synopsis}</div>
         <div class="mod-table-wrap">
           <table class="ve-group-table ve-stratum-table">
@@ -7483,6 +7535,16 @@
       };
     }
     // Categorical (neighborhood, dor_use, land_table, quality, condition)
+    // Quality and condition have a natural worst-to-best rank, but the exact
+    // vocabulary varies by county. We assign a sort index only on an exact
+    // case-insensitive match to a known scale; anything unrecognized falls back
+    // to alphabetical (sortIdx null), so a county with its own codes is never
+    // mis-ordered, just ordered alphabetically as before.
+    const ORDINAL_SCALES = {
+      condition: ['unsound', 'very poor', 'poor', 'fair', 'average', 'good', 'very good', 'excellent'],
+      quality: ['low', 'fair', 'low cost', 'economy', 'average', 'good', 'very good', 'excellent', 'luxury'],
+    };
+    const scale = ORDINAL_SCALES[sKey];
     return {
       description: null,
       binOf: (r) => {
@@ -7490,7 +7552,16 @@
         if (v == null) return null;
         const s = String(v).trim();
         if (!s) return null;
-        return { label: s, sortIdx: null };
+        let sortIdx = null;
+        if (scale) {
+          // Normalize both sides to lowercase with no spaces, hyphens, or
+          // underscores, so "Very Good", "VeryGood", and "very_good" all match.
+          const norm = (x) => x.toLowerCase().replace(/[\s_-]+/g, '');
+          const key = norm(s);
+          const idx = scale.findIndex(opt => norm(opt) === key);
+          if (idx >= 0) sortIdx = idx;
+        }
+        return { label: s, sortIdx };
       },
     };
   }
@@ -7527,6 +7598,20 @@
       { key: 'condition',    label: 'Condition' },
     ];
     return opts.filter(o => mapping[o.key]);
+  }
+
+  // Stratifiers along which a vertical-equity tilt is both estimable and
+  // actionable: property characteristics that map to a model component. A tilt
+  // by age points at depreciation, by quality or condition at grade multipliers,
+  // by size at the cost model. Neighborhood, DOR use, and land table are
+  // location or category groupings, not value axes. A neighborhood level
+  // modifier shifts every ratio by the same factor and leaves the within-stratum
+  // tilt essentially unchanged, so running PRB and rho there implies a lever the
+  // modifier engine does not have. Vertical equity stays at the overall level,
+  // the value-decile breakdown, and these characteristic strata.
+  const VE_STRATIFIER_EXCLUDE = new Set(['neighborhood', 'dor_use', 'land_table']);
+  function availableVEStratifiers() {
+    return availableStratifiers().filter(o => !VE_STRATIFIER_EXCLUDE.has(o.key));
   }
 
   function renderStratificationControls() {
@@ -8121,7 +8206,7 @@
     }
 
     if (lowN) {
-      notes.push('Low n — treat with caution');
+      notes.push('Low n. Lean on judgment: compare a similar neighborhood, add years of sales, or use local knowledge');
       decisionClass = 'low-n';
       decision = 'Low-n conservative';
     }
@@ -8134,6 +8219,7 @@
     const skipNoChangeZone = optimizing && rules.noChangeZoneSoft;
     const skipMaxChange    = optimizing && rules.maxChangeSoft;
     const skipFloor        = optimizing && rules.downwardFloorSoft;
+    const skipMinChange    = optimizing && rules.minChangeSoft;
 
     // Rule 1: No-change zone (skipped if user is forcing adjustment OR if
     // optimization mode is on and the no-change zone is marked soft)
@@ -8219,6 +8305,29 @@
       }
     }
 
+    // Rule 5: Minimum change to justify a change-of-value notice. A move smaller
+    // than minChangePct is not worth the COV mailing or the appeals it can
+    // generate, so the neighborhood is held at no change even though the curve
+    // wanted a small adjustment. Applied after all sizing rules so it sees the
+    // final move. Skipped for rows already at no change, already floored to the
+    // boundary, or under user override; bypassed only if marked soft while
+    // optimizing. Held rows are surfaced like Capped/Floored, with the would-be
+    // move recorded, so the analyst can see what was suppressed and override.
+    if (!skipMinChange && !isNoChange && !bypassNoChangeZone
+        && rules.minChangePct != null && rules.minChangePct > 0
+        && suggestedPct !== 0 && Math.abs(suggestedPct) < rules.minChangePct
+        && decision !== 'Floored') {
+      const wouldBe = suggestedPct;
+      suggestedPct = 0;
+      notes.push(`Held: ${wouldBe >= 0 ? '+' : ''}${wouldBe.toFixed(1)}% is below the ${rules.minChangePct}% COV threshold`);
+      if (decision !== 'Low-n conservative') {
+        decision = 'Below COV threshold';
+        decisionClass = 'below-cov';
+      }
+      // Record the suppressed move so the table/deep dive can show it.
+      var _heldWouldBePct = wouldBe;
+    }
+
     if (bypassNoChangeZone) {
       notes.push('User overrode no-change rule');
     }
@@ -8237,6 +8346,7 @@
       suggestedPct,
       simulated,
       skip:        isNoChange,  // checkbox should be checked for natural no-change rows
+      heldWouldBePct: (typeof _heldWouldBePct !== 'undefined') ? _heldWouldBePct : null,
       userOverride,
       conf,
       grade:       conf.grade,
@@ -8708,7 +8818,7 @@
     const pre = statsOn(preRatios);
     const post = statsOn(postRatios);
 
-    const counts = { 'No change': 0, 'Adjusted': 0, 'Capped': 0, 'Floored': 0, 'Low-n conservative': 0, 'Skipped': 0 };
+    const counts = { 'No change': 0, 'Adjusted': 0, 'Capped': 0, 'Floored': 0, 'Below COV threshold': 0, 'Low-n conservative': 0, 'Skipped': 0 };
     for (const r of recs) counts[r.decision] = (counts[r.decision] ?? 0) + 1;
 
     return {
@@ -8798,6 +8908,7 @@
     // require a value — typing then deleting the contents waits for valid input.
     const NULLABLE_RULES = new Set([
       'maxChangePct',
+      'minChangePct',
       'maxLandChangePct',
       'maxImpsChangePct',
       'maxLandImpsSpreadPct',
@@ -8806,7 +8917,7 @@
     const input = (key, step = 0.01) => {
       const val = r[key];
       const isBlank = val == null;
-      const placeholder = NULLABLE_RULES.has(key) ? ' placeholder="no cap"' : '';
+      const placeholder = key === 'minChangePct' ? ' placeholder="off"' : (NULLABLE_RULES.has(key) ? ' placeholder="no cap"' : '');
       return `<input type="number" class="rule-input" data-rule="${key}" value="${isBlank ? '' : val}" step="${step}"${placeholder} />`;
     };
 
@@ -8856,7 +8967,7 @@
               ${input('maxLandImpsSpreadPct', 0.5)}
             </div>` : `
             <div class="rule-row">
-              <label>Max change ± %${softPill('maxChangeSoft')}<span class="rule-sub">hard cap on suggested adjustment</span></label>
+              <label>Max change ± %${softPill('maxChangeSoft')}<span class="rule-sub">cap on a single move; one year of sales may not represent the whole neighborhood. Raise it when a wider sales window backs the move.</span></label>
               ${input('maxChangePct', 0.5)}
             </div>`;
 
@@ -8960,6 +9071,10 @@
               ${input('downwardFloor')}
             </div>
             ${capRowsHtml}
+            <div class="rule-row">
+              <label>Min change for COV %${softPill('minChangeSoft')}<span class="rule-sub">hold if the suggested move is smaller than this; too small to justify a value notice</span></label>
+              ${input('minChangePct', 0.5)}
+            </div>
             <div class="rule-row">
               <label>Overall median ceiling${softPill('ceilingSoft')}<span class="rule-sub">warn if simulated overall exceeds this</span></label>
               ${input('overallMedianCeiling')}
@@ -9726,6 +9841,9 @@
           <td class="skip-checkbox-cell">
             <input type="checkbox" class="skip-checkbox" data-stratum="${escapeAttr(r.stratum)}" ${checked ? 'checked' : ''} title="No adjustment this cycle" />
           </td>
+          <td class="dd-checkbox-cell">
+            <input type="checkbox" class="dd-checkbox" data-stratum="${escapeAttr(r.stratum)}" ${state.deepDiveSelected.has(r.stratum) ? 'checked' : ''} title="Add to deep dive (max 5)" />
+          </td>
           <td>${escapeHtml(r.stratum)}</td>
           <td class="num">${r.n}</td>
           <td class="num">${pct(r.median)}</td>
@@ -9750,6 +9868,7 @@
       <thead>
         <tr>
           <th class="skip-checkbox-cell" title="Skip this cycle (auto-checks when the rule says No change)">Skip</th>
+          <th class="dd-checkbox-cell" title="Select up to 5 neighborhoods for a side-by-side deep dive">Deep dive</th>
           ${headerCell('stratum', 'Neighborhood')}
           ${headerCell('n', 'n')}
           ${headerCell('median', 'Current Median')}
@@ -9800,17 +9919,78 @@
       });
     });
 
+    // Deep-dive checkbox handlers. Cap selection at 5; when the cap is reached,
+    // the unchecked boxes disable so the limit is obvious without an alert.
+    const DEEP_DIVE_MAX = 5;
+    function syncDeepDiveUI() {
+      const atCap = state.deepDiveSelected.size >= DEEP_DIVE_MAX;
+      tbl.querySelectorAll('.dd-checkbox').forEach(cb => {
+        cb.disabled = atCap && !cb.checked;
+      });
+      const btn = document.getElementById('btn-deep-dive');
+      if (btn) {
+        const n = state.deepDiveSelected.size;
+        btn.disabled = n < 1;
+        btn.textContent = n < 1
+          ? 'Deep dive on selected'
+          : `Deep dive on ${n} selected`;
+      }
+    }
+    tbl.querySelectorAll('.dd-checkbox').forEach(cb => {
+      cb.addEventListener('change', e => {
+        const stratum = e.target.dataset.stratum;
+        if (e.target.checked) {
+          if (state.deepDiveSelected.size >= DEEP_DIVE_MAX) {
+            e.target.checked = false;
+            return;
+          }
+          state.deepDiveSelected.add(stratum);
+        } else {
+          state.deepDiveSelected.delete(stratum);
+        }
+        syncDeepDiveUI();
+      });
+    });
+    syncDeepDiveUI();
+
     // Reset overrides row
     const meta = document.getElementById('mod-table-meta-text');
     if (meta) {
       const overrideCount = Object.keys(state.modifierUserSkips).length;
-      meta.innerHTML = `${rows.length} neighborhoods${state.applyTimeAdjustment ? ' · time-adjusted' : ''}${overrideCount > 0 ? ` · <strong>${overrideCount} manual override${overrideCount === 1 ? '' : 's'}</strong> <button class="btn-reset-overrides" id="btn-reset-overrides">reset</button>` : ''}`;
+      // Stratifier options for the deep-dive breakdown. Reuses the same
+      // characteristic/categorical stratifiers available elsewhere; the chosen
+      // one drives the per-neighborhood "data by stratum" tables in the window.
+      const ddStratOpts = availableStratifiers().filter(o => o.key !== 'neighborhood');
+      let ddPickerHtml = '';
+      if (ddStratOpts.length) {
+        if (!state.deepDiveStratifier || !ddStratOpts.find(o => o.key === state.deepDiveStratifier)) {
+          state.deepDiveStratifier = ddStratOpts[0].key;
+        }
+        const ddOptsHtml = ddStratOpts.map(o =>
+          `<option value="${escapeAttr(o.key)}"${o.key === state.deepDiveStratifier ? ' selected' : ''}>${escapeHtml(o.label)}</option>`).join('');
+        ddPickerHtml = ` <label for="dd-stratifier-select" style="font-size:12.5px;color:var(--ink-soft);">break down by</label> <select id="dd-stratifier-select" class="preset-select" style="font-size:12.5px;">${ddOptsHtml}</select>`;
+      }
+      meta.innerHTML = `${rows.length} neighborhoods${state.applyTimeAdjustment ? ' · time-adjusted' : ''}${overrideCount > 0 ? ` · <strong>${overrideCount} manual override${overrideCount === 1 ? '' : 's'}</strong> <button class="btn-reset-overrides" id="btn-reset-overrides">reset</button>` : ''}${ddPickerHtml} <button class="btn-deep-dive" id="btn-deep-dive" disabled>Deep dive on selected</button>`;
       const resetBtn = document.getElementById('btn-reset-overrides');
       if (resetBtn) {
         resetBtn.addEventListener('click', () => {
           state.modifierUserSkips = {};
           refreshModifierResults();
         });
+      }
+      const ddSel = document.getElementById('dd-stratifier-select');
+      if (ddSel) {
+        ddSel.addEventListener('change', e => { state.deepDiveStratifier = e.target.value; });
+      }
+      const ddBtn = document.getElementById('btn-deep-dive');
+      if (ddBtn) {
+        ddBtn.addEventListener('click', generateDeepDiveView);
+      }
+      // Re-sync the deep-dive button label/disabled state after meta rebuild.
+      const n = state.deepDiveSelected.size;
+      if (ddBtn) {
+        ddBtn.disabled = n < 1;
+        ddBtn.textContent = n < 1 ? 'Deep dive on selected' : `Deep dive on ${n} selected`;
       }
     }
   }
@@ -10216,32 +10396,31 @@
       });
     }
 
-    // --- Vertical equity: neighborhood-local ---
+    // --- Vertical equity: what neighborhood flags actually mean ---
+    // Neighborhood VE is computed here only as a detector, never as something to
+    // correct neighborhood by neighborhood. A level modifier multiplies every
+    // ratio in a neighborhood by the same factor: it moves the median but leaves
+    // the within-neighborhood tilt essentially unchanged. And much of overall
+    // regressivity lives between neighborhoods, not inside them, so flattening
+    // each one individually need not improve the overall picture. Every branch
+    // below therefore routes to a value-stratum or model-level action.
     if (mapping.neighborhood) {
       const nbrVE = computeStratumVE('neighborhood');
       if (nbrVE) {
         const testable = nbrVE.rows.filter(r => r.n >= STRATUM_VE_MIN_N);
         const flagged = nbrVE.rows.filter(r => r.flags.length > 0);
         if (flagged.length && testable.length) {
-          const share = flagged.length / testable.length;
           if (systemicFindings.length) {
             analyst.push({
-              title: `Hold off on chasing the ${flagged.length} VE-flagged neighborhoods individually — much of it is likely the structural pattern showing through`,
-              body: `The office-wide pattern flagged above leaks into individual neighborhoods, so a neighborhood-by-neighborhood fix would scatter corrections across symptoms while the cause persists. After the structural issue is addressed, re-run this study; the neighborhoods still flagged at that point are the genuinely local ones worth working.`,
+              title: `Do not chase the ${flagged.length} VE-flagged neighborhoods with modifiers: the tilt is inside them, where a level modifier cannot reach`,
+              body: `A neighborhood modifier shifts every ratio in the neighborhood by the same factor, so it moves the median but leaves the within-neighborhood tilt unchanged. These flags echo the structural pattern flagged above. Fix that at its source (the characteristic strata and the cost model), then re-run; vertical equity is corrected at the value-stratum and model level, not by neighborhood.`,
               cites: ['RS'],
-            });
-          } else if (share <= T.localShareMax) {
-            const names = flagged.slice(0, 4).map(r => r.stratum).join(', ');
-            analyst.push({
-              title: `Vertical inequity is localized to ${flagged.length} neighborhood${flagged.length === 1 ? '' : 's'}: ${names}${flagged.length > 4 ? '…' : ''}`,
-              body: `With no structural pattern behind it, this is neighborhood-level work: review the land schedule and land curve in the flagged neighborhoods (land share rises with value, so a stale land table is the most common cause of within-neighborhood vertical drift), and verify the high- and low-end sales there. The per-stratum table in Step 6 has the details and an export.`,
-              cites: ['MA', 'RS'],
             });
           } else {
             manager.push({
-              title: `Vertical-equity flags are widespread (${flagged.length} of ${testable.length} neighborhoods) without one clear structural driver`,
-              body: `When flags are broad but no single age/quality/size pattern explains them, the cause is often a combination — for example a dated land model interacting with depreciation. This calls for a model-level review rather than per-neighborhood correction. Bringing the decile chart and per-stratum exports from this study to that review gives it a concrete starting point.`,
-              cites: ['MA', 'FMA'],
+              title: `Vertical-equity flags appear in ${flagged.length} of ${testable.length} neighborhoods, but neighborhood is the wrong lever`,
+              body: `Two things to keep in mind. A neighborhood level modifier cannot flatten a within-neighborhood tilt; it only moves the level. And a large share of county regressivity usually sits between neighborhoods (low-value areas assessed higher than high-value ones), which per-neighborhood work does not touch. Treat these flags as a signal to examine the value-decile breakdown and the characteristic strata (age, quality, size), and to weigh a model-level review, rather than as a list of neighborhoods to adjust.`,
+              cites: ['MA', 'FMA', 'RS'],
             });
           }
         }
@@ -10257,15 +10436,15 @@
       if (moving > 0) {
         analyst.push({
           title: `${moving} neighborhood${moving === 1 ? '' : 's'} carry an adjustment recommendation — review flagged and low-confidence rows before applying`,
-          body: `Capped, floored, and L/X-confidence rows deserve a manual look: a capped recommendation means the data wanted a bigger move than the rules allow, which is itself information. The target-calibration workflow keeps the overall median on target while the per-row skip boxes let you hold out anything you're not ready to move.`,
+          body: `Capped, floored, and L/X-confidence rows deserve a manual look. A capped recommendation means the data wanted a bigger move than the cap allows. The cap is a sample-confidence limit, not a comfort limit: a single year of sales may not represent the whole neighborhood, since the sold homes can skew small, old, or otherwise unlike the unsold ones, so a large move on one year risks mis-valuing the buckets the sample under-represents. If a wider sales window, two or more years with time adjustment, shows the same direction, you have both a more representative sample and the volume to defend the appeals a big increase will draw. That is the time to raise the cap and let the move through. The target-calibration workflow keeps the overall median on target while the per-row skip boxes let you hold out anything you are not ready to move.`,
           cites: ['RS'],
         });
       }
       if (lowN >= 3) {
         analyst.push({
-          title: `${lowN} neighborhoods have too few sales for a confident recommendation`,
-          body: `Options the standard supports: extend the sales window to multiple years (with time adjustment), or combine adjacent neighborhoods with similar markets for analysis purposes. Either beats adjusting on a handful of sales.`,
-          cites: ['RS'],
+          title: `${lowN} neighborhoods have too few sales for a confident recommendation. This is where your judgment earns its keep`,
+          body: `Thin neighborhoods are not a place to lean on the tool; they are where an experienced analyst adds the most value. The conservative target the engine applies is a placeholder, not an answer. Three ways to get to a real one: compare the neighborhood to a similar market neighborhood with more sales and borrow its level as a sanity check; extend the sales window across more years, with time adjustment, to build a usable sample; or apply your own knowledge of the area, recent construction, sales you know personally, and field experience, that no statistic on a handful of sales can capture. Any of these beats adjusting on four or five sales. Hold the row with its skip box until you have done one of them.`,
+          cites: ['RS', 'MA'],
         });
       }
     }
@@ -10444,6 +10623,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             Open presentation view
           </button>
+          <button class="btn-export btn-export-secondary" id="btn-boe-view" title="A formal evidence packet for the Board of Equalization: IAAO compliance, methodology, provenance, and equalization summary. Opens in its own window and prints cleanly.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>
+            Open BOE evidence packet
+          </button>
         </div>
         <div class="export-config-row" style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule-soft); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <span style="font-size: 12.5px; color: var(--ink-soft);"><strong>Study configuration</strong> — save your mapping, rules, and report settings to a small JSON file; load it next session (or in another county) to pick up where you left off. Sales data is never included.</span>
@@ -10488,6 +10671,7 @@
     document.getElementById('btn-print-report').addEventListener('click', generatePrintReport);
     document.getElementById('btn-excel-report').addEventListener('click', generateExcelReport);
     document.getElementById('btn-presentation-view').addEventListener('click', generatePresentationView);
+    document.getElementById('btn-boe-view').addEventListener('click', generateBOEView);
     document.getElementById('btn-save-config').addEventListener('click', downloadStudyConfig);
     wireConfigLoad('btn-load-config-export', 'config-feedback-export');
 
@@ -11052,6 +11236,617 @@ ${hasProposal ? `<scr` + `ipt>
     win.document.close();
   }
 
+  // ============================================================
+  // BOE EVIDENCE PACKET — a formal, defensibility-forward view for the
+  // Board of Equalization. Where the presentation view strips jargon for the
+  // public, this leads with the technical evidence (IAAO compliance,
+  // methodology, provenance, equalization summary) and pairs each finding
+  // with one plain-language line so a non-appraiser board member can follow.
+  // Opens in its own window and prints cleanly (same pattern as the report).
+  // ============================================================
+  function buildBOEData() {
+    const eff = effectiveRows();
+    if (!eff || eff.length < 10) return null;
+    // Reuse the full report computation so every statistic here is identical
+    // to what the analyst sees in the tool. No independent recomputation.
+    const d = gatherReportData();
+
+    // Sales window: the actual span of sale dates in the study, for the
+    // provenance header. The board needs the real date range, not a vague note.
+    let saleWindow = null;
+    if (mapping.sale_date) {
+      let lo = null, hi = null;
+      for (const r of eff) {
+        const dt = r.sale_date instanceof Date ? r.sale_date : (r.sale_date ? new Date(r.sale_date) : null);
+        if (!dt || isNaN(dt)) continue;
+        if (lo == null || dt < lo) lo = dt;
+        if (hi == null || dt > hi) hi = dt;
+      }
+      if (lo && hi) saleWindow = { lo, hi };
+    }
+
+    // Per-neighborhood level table for the equalization picture.
+    let neighborhoods = null;
+    if (mapping.neighborhood && d.modifier && d.modifier.recs) {
+      neighborhoods = d.modifier.recs
+        .slice()
+        .sort((a, b) => (a.median ?? 1) - (b.median ?? 1));
+    }
+    return { d, neighborhoods, saleWindow };
+  }
+
+  function boePassFail(ok) {
+    return ok
+      ? `<span class="boe-pass">Within IAAO range</span>`
+      : `<span class="boe-fail">Outside IAAO range</span>`;
+  }
+
+  function buildBOEHtml(data) {
+    const d = data.d;
+    const dateFmt = (dt) => dt ? dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+    const cr = d.codRange;
+
+    const medPass = d.med >= 0.90 && d.med <= 1.10;
+    const codPass = cr ? (d.cod >= cr.min && d.cod <= cr.max) : null;
+    const prdPass = d.prd >= 0.98 && d.prd <= 1.03;
+    const prbVal = d.prb ? d.prb.beta : null;
+    const prbPass = prbVal != null ? Math.abs(prbVal) <= 0.05 : null;
+    const rhoPass = d.spearman ? d.spearman.acceptable : null;
+
+    const droppedTotal = (d.droppedMultiParcel || 0) + (d.droppedMissingRequired || 0) + (d.droppedBadValues || 0);
+
+    // Equalization (per-neighborhood level) rows.
+    let nbrRows = '';
+    if (data.neighborhoods) {
+      nbrRows = data.neighborhoods.map(r => {
+        const lvlOk = r.median != null && r.median >= 0.90 && r.median <= 1.10;
+        return `<tr>
+          <td>${escapeHtml(r.stratum)}</td>
+          <td class="num">${r.n}</td>
+          <td class="num">${pct(r.median)}</td>
+          <td class="num">${dec(r.cod, 1)}</td>
+          <td>${lvlOk ? '<span class="boe-pass-sm">in range</span>' : '<span class="boe-fail-sm">review</span>'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    const trendLine = d.timeAdjusted && d.trend
+      ? `A time adjustment was applied to bring every sale to a common date of ${dateFmt(d.referenceDate)} before analysis, removing market movement over the sales window.`
+      : `No time adjustment was applied; sales were analyzed as of their sale dates.`;
+
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board of Equalization Evidence Packet</title>
+<style>
+  @page { size: letter; margin: 0.6in; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #1b1d1b; background: #fff; line-height: 1.5; }
+  .page { max-width: 7.5in; margin: 0 auto; padding: 24px 18px; }
+  .head { border-bottom: 3px solid #1b4332; padding-bottom: 12px; margin-bottom: 16px; }
+  .head .kicker { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #2d6a4f; font-weight: 700; }
+  .head h1 { font-size: 22px; color: #1b4332; font-weight: 700; margin-top: 3px; }
+  .head .sub { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11.5px; color: #6b6f67; margin-top: 5px; }
+  .prov { background: #f4f8f6; border: 1px solid #d8e8e0; border-radius: 4px; padding: 12px 14px; margin-bottom: 18px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11.5px; }
+  .prov dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; }
+  .prov dt { color: #4a4e48; }
+  .prov dd { color: #1b1d1b; font-weight: 600; }
+  .sect { margin-bottom: 22px; page-break-inside: avoid; }
+  .sect h2 { font-size: 16px; color: #1b4332; margin-bottom: 8px; border-bottom: 1px solid #d8e8e0; padding-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11.5px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e6e9e6; }
+  th { background: #2d6a4f; color: #fff; font-weight: 600; }
+  td.num, th.num { text-align: right; }
+  tr:nth-child(even) td { background: #f7faf8; }
+  .boe-pass, .boe-fail { font-weight: 700; font-size: 11px; }
+  .boe-pass { color: #1b6e3c; }
+  .boe-fail { color: #a3341f; }
+  .boe-pass-sm { color: #1b6e3c; font-weight: 600; }
+  .boe-fail-sm { color: #a3341f; font-weight: 600; }
+  .plain { font-size: 12.5px; color: #3a3e38; margin-top: 6px; font-style: italic; }
+  .method p { font-size: 12.5px; color: #1b1d1b; margin-bottom: 8px; }
+  .note { font-size: 11.5px; color: #4a4e48; }
+  .foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid #d8e8e0; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10px; color: #8a8f88; }
+  .printbar { position: fixed; top: 0; left: 0; right: 0; background: #1b4332; color: #fff; padding: 8px 16px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .printbar button { background: #fff; color: #1b4332; border: none; border-radius: 4px; padding: 6px 14px; font-weight: 600; cursor: pointer; font-size: 13px; }
+  @media print { .printbar { display: none; } .page { padding-top: 0; } }
+  @media screen { .page { padding-top: 56px; } }
+</style></head>
+<body>
+  <div class="printbar">
+    <span>Board of Equalization evidence packet</span>
+    <button onclick="window.print()">Print or save as PDF</button>
+  </div>
+  <div class="page">
+    <div class="head">
+      <div class="kicker">Board of Equalization &middot; Evidence Packet</div>
+      <h1>${d.title ? escapeHtml(d.title) : 'Sales Ratio Study'}</h1>
+      <div class="sub">Prepared ${dateFmt(d.generatedAt)} &middot; WSACA Sales Ratio Analysis Tool ${escapeHtml(TOOL_VERSION)}</div>
+    </div>
+
+    <div class="prov">
+      <dl>
+        <dt>Sales studied</dt><dd>${d.n.toLocaleString()} verified sales</dd>
+        <dt>Sales window</dt><dd>${data.saleWindow ? dateFmt(data.saleWindow.lo) + ' to ' + dateFmt(data.saleWindow.hi) : 'as analyzed'}</dd>
+        <dt>Property class</dt><dd>${cr ? escapeHtml(cr.label) : '—'}</dd>
+        <dt>Time adjustment</dt><dd>${d.timeAdjusted ? 'Applied' : 'Not applied'}</dd>
+        <dt>Sales excluded</dt><dd>${droppedTotal.toLocaleString()} (see data integrity)</dd>
+        <dt>Standard</dt><dd>IAAO Standard on Ratio Studies</dd>
+      </dl>
+    </div>
+
+    <div class="sect">
+      <h2>1. IAAO compliance</h2>
+      <table>
+        <thead><tr><th>Measure</th><th>Statistic</th><th class="num">Result</th><th>IAAO range</th><th>Finding</th></tr></thead>
+        <tbody>
+          <tr><td>Appraisal level</td><td>Median ratio</td><td class="num">${pct(d.med)}</td><td>90% to 110%</td><td>${boePassFail(medPass)}</td></tr>
+          <tr><td>Uniformity</td><td>COD</td><td class="num">${dec(d.cod, 1)}</td><td>${cr ? cr.min.toFixed(1) + ' to ' + cr.max.toFixed(1) : '—'}</td><td>${codPass == null ? '—' : boePassFail(codPass)}</td></tr>
+          <tr><td>Vertical equity</td><td>PRD</td><td class="num">${dec(d.prd, 3)}</td><td>0.980 to 1.030</td><td>${boePassFail(prdPass)}</td></tr>
+          <tr><td>Vertical equity</td><td>PRB</td><td class="num">${prbVal == null ? '—' : dec(prbVal, 3)}</td><td>-0.050 to 0.050</td><td>${prbPass == null ? '—' : boePassFail(prbPass)}</td></tr>
+          <tr><td>Vertical equity</td><td>Spearman rho</td><td class="num">${d.spearman ? dec(d.spearman.rho, 3) : '—'}</td><td>weak or none</td><td>${rhoPass == null ? '—' : boePassFail(rhoPass)}</td></tr>
+        </tbody>
+      </table>
+      <div class="plain">In plain terms: the median shows whether assessments sit at the right overall level, the COD shows how consistent they are property to property, and the three vertical equity measures show whether modest and expensive homes are treated the same. Each result is compared against the range the IAAO standard treats as acceptable.</div>
+    </div>
+
+    <div class="sect method">
+      <h2>2. Methodology</h2>
+      <p>This study follows the IAAO Standard on Ratio Studies. The sales ratio for each property is its assessed value divided by its sale price. Appraisal level is measured by the median ratio, which resists distortion from a few extreme sales. Uniformity is measured by the coefficient of dispersion. Vertical equity is measured by the price related differential, the price related bias, and a Spearman rank correlation, reported together because each captures a different facet of the same question.</p>
+      <p>${trendLine}</p>
+      <p>Ratios beyond three times the interquartile range were reviewed as potential data anomalies, consistent with standard outlier screening. Vertical equity statistics for any neighborhood are reported only where that neighborhood has at least 15 sales; below that threshold the estimates are not statistically reliable and are withheld rather than shown.</p>
+    </div>
+
+    ${data.neighborhoods ? `
+    <div class="sect">
+      <h2>3. Equalization summary by neighborhood</h2>
+      <div class="plain" style="margin-bottom:10px;">Equalization asks whether assessment levels are consistent across the roll. The table lists each neighborhood's level (median ratio) and uniformity (COD), sorted from lowest level to highest, so the board can see at a glance whether any area sits outside the acceptable level band.</div>
+      <table>
+        <thead><tr><th>Neighborhood</th><th class="num">Sales</th><th class="num">Median ratio</th><th class="num">COD</th><th>Level</th></tr></thead>
+        <tbody>${nbrRows}</tbody>
+      </table>
+    </div>` : ''}
+
+    <div class="sect">
+      <h2>${data.neighborhoods ? '4' : '3'}. Data integrity</h2>
+      <p class="note">Of the sales considered, ${droppedTotal.toLocaleString()} were excluded before analysis: ${(d.droppedMissingRequired || 0).toLocaleString()} for missing required fields, ${(d.droppedBadValues || 0).toLocaleString()} for invalid values, and ${(d.droppedMultiParcel || 0).toLocaleString()} multi-parcel sales that could not be cleanly attributed to a single property. Exclusions were applied by rule to every sale alike, not selectively, so the study is not built on a hand-picked subset of transactions.</p>
+    </div>
+
+    <div class="foot">
+      Generated by the WSACA Sales Ratio Analysis Tool ${escapeHtml(TOOL_VERSION)}, a free, open-source tool for Washington's county assessor offices. Methods follow the IAAO Standard on Ratio Studies. Statistics on this page are computed directly from the verified sales described above and match the full technical study available from the assessor's office.
+    </div>
+  </div>
+</body></html>`;
+  }
+
+  function generateBOEView() {
+    const data = buildBOEData();
+    if (!data) {
+      alert('Not enough data for the BOE evidence packet. Run the analysis first.');
+      return;
+    }
+    const html = buildBOEHtml(data);
+    const win = window.open('', '_blank');
+    if (!win) {
+      alert('Pop-up blocked. Please allow pop-ups for this site to open the BOE evidence packet.');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }
+
+  // ============================================================
+  // NEIGHBORHOOD DEEP DIVE — up to 5 neighborhoods, side by side. Reuses the
+  // cached modifier result for stats and rationale, and re-derives each
+  // neighborhood's sales from effectiveRows() for the scatter and sales list.
+  // Opens in its own window (same pattern as the other exports).
+  // ============================================================
+  function buildDeepDiveData() {
+    const selected = [...state.deepDiveSelected];
+    if (!selected.length) return null;
+    const eff = effectiveRows();
+    if (!eff || !mapping.neighborhood) return null;
+
+    // Group sales by neighborhood once.
+    const salesByNbr = new Map();
+    for (const r of eff) {
+      const k = String(r.neighborhood ?? '').trim();
+      if (!k) continue;
+      if (!salesByNbr.has(k)) salesByNbr.set(k, []);
+      salesByNbr.get(k).push(r);
+    }
+
+    // Pull the recommendation record for each selected neighborhood from the
+    // cached result so the deep dive matches the modifier table exactly.
+    const recs = state.lastModifierResult?.recs || [];
+    const recByName = new Map(recs.map(r => [r.stratum, r]));
+
+    // County reference stats.
+    const allRatios = eff.map(r => r.effective_ratio);
+    const countyMed = median(allRatios);
+    const county = {
+      n: allRatios.length,
+      median: countyMed,
+      cod: 100 * mean(allRatios.map(x => Math.abs(x - countyMed))) / countyMed,
+    };
+
+    const cols = selected.map(name => {
+      const sales = (salesByNbr.get(name) || []).slice();
+      const ratios = sales.map(r => r.effective_ratio);
+      const rec = recByName.get(name) || null;
+      const med = ratios.length ? median(ratios) : null;
+      const cod = (med && ratios.length) ? 100 * mean(ratios.map(x => Math.abs(x - med))) / med : null;
+      // Vertical-equity statistics are intentionally not computed per neighborhood:
+      // a level modifier cannot correct a within-neighborhood tilt, so reporting
+      // PRB/rho here would imply a lever that does not exist. The scatter still
+      // shows the tilt as a diagnostic clue; correction lives at the value-stratum
+      // and model level.
+      // Sales sorted by price for the scatter and the list.
+      sales.sort((a, b) => a.effective_price - b.effective_price);
+      return { name, sales, rec, n: sales.length, median: med, cod };
+    });
+
+    // Per-neighborhood breakdown by the chosen stratifier. This is descriptive:
+    // sale counts and ratio behavior per bucket, so the reader can see how each
+    // neighborhood's sample is distributed across buckets and whether the level
+    // holds evenly. It is not a vertical-equity test (no PRB or rho, no flags);
+    // it answers "how many sales in these buckets versus those" and "does the
+    // ratio hold up across the buckets."
+    let stratum = null;
+    const sKey = state.deepDiveStratifier;
+    if (sKey) {
+      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+      if (binner) {
+        const label = (typeof STRATIFIER_LABELS !== 'undefined' && STRATIFIER_LABELS[sKey]) ? STRATIFIER_LABELS[sKey] : sKey;
+        // Bucket order: collect labels with their sortIdx across all selected sales.
+        const orderMap = new Map();
+        const perNbr = cols.map(c => {
+          const buckets = new Map();
+          for (const r of c.sales) {
+            const bin = binner.binOf(r);
+            if (!bin) continue;
+            if (!orderMap.has(bin.label)) orderMap.set(bin.label, bin.sortIdx == null ? null : bin.sortIdx);
+            if (!buckets.has(bin.label)) buckets.set(bin.label, []);
+            buckets.get(bin.label).push(r);
+          }
+          const rows = {};
+          for (const [blabel, rs] of buckets) {
+            const rr = rs.map(x => x.effective_ratio);
+            const m = median(rr);
+            rows[blabel] = {
+              n: rs.length,
+              median: m,
+              cod: rs.length >= 2 ? 100 * mean(rr.map(x => Math.abs(x - m))) / m : null,
+              avgPrice: mean(rs.map(x => x.effective_price)),
+            };
+          }
+          // Count of sales that fell into no bucket (missing/invalid characteristic).
+          const placed = [...buckets.values()].reduce((s, a) => s + a.length, 0);
+          const unbinned = c.sales.length - placed;
+          return { name: c.name, rows, unbinned };
+        });
+        // Ordered bucket labels: numeric sortIdx first (ascending), then any
+        // categorical labels alphabetically.
+        const labels = [...orderMap.keys()].sort((a, b) => {
+          const ia = orderMap.get(a), ib = orderMap.get(b);
+          if (ia != null && ib != null) return ia - ib;
+          if (ia != null) return -1;
+          if (ib != null) return 1;
+          return a.localeCompare(b);
+        });
+        stratum = labels.length
+          ? { key: sKey, label, labels, perNbr, anyUnbinned: perNbr.some(p => p.unbinned > 0) }
+          : null;
+      }
+    }
+
+    return { cols, county, stratum };
+  }
+
+  // Inline SVG ratio-vs-value scatter for one neighborhood, drawn on a shared
+  // value/ratio scale so the columns are visually comparable.
+  function deepDiveScatter(col, valLo, valHi, ratLo, ratHi) {
+    const W = 220, H = 150, pad = 28;
+    const xOf = (v) => pad + (W - pad - 6) * (valHi > valLo ? (v - valLo) / (valHi - valLo) : 0.5);
+    const yOf = (r) => (H - pad) - (H - pad - 6) * (ratHi > ratLo ? (r - ratLo) / (ratHi - ratLo) : 0.5);
+    // Acceptable band 0.90 to 1.10 shaded.
+    const bandTop = yOf(Math.min(ratHi, 1.10));
+    const bandBot = yOf(Math.max(ratLo, 0.90));
+    const dots = col.sales.map(r =>
+      `<circle cx="${xOf(r.effective_price).toFixed(1)}" cy="${yOf(r.effective_ratio).toFixed(1)}" r="2.4" fill="#2d6a4f" fill-opacity="0.65"/>`
+    ).join('');
+    // Median line.
+    const medY = col.median != null ? yOf(col.median) : null;
+    const medLine = medY != null
+      ? `<line x1="${pad}" y1="${medY.toFixed(1)}" x2="${W - 6}" y2="${medY.toFixed(1)}" stroke="#1b4332" stroke-width="1.5" stroke-dasharray="4 3"/>`
+      : '';
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:240px;">
+      <rect x="${pad}" y="${bandTop.toFixed(1)}" width="${(W - pad - 6).toFixed(1)}" height="${Math.max(0, bandBot - bandTop).toFixed(1)}" fill="#d8e8e0" fill-opacity="0.5"/>
+      <line x1="${pad}" y1="${H - pad}" x2="${W - 6}" y2="${H - pad}" stroke="#bcbfb8" stroke-width="1"/>
+      <line x1="${pad}" y1="6" x2="${pad}" y2="${H - pad}" stroke="#bcbfb8" stroke-width="1"/>
+      ${dots}${medLine}
+      <text x="${pad}" y="${H - 8}" font-size="8" fill="#8a8f88" font-family="Arial">low value</text>
+      <text x="${W - 6}" y="${H - 8}" font-size="8" fill="#8a8f88" font-family="Arial" text-anchor="end">high value</text>
+    </svg>`;
+  }
+
+  function buildDeepDiveHtml(data) {
+    const cols = data.cols;
+    const county = data.county;
+
+    // Shared scatter scales across all selected neighborhoods.
+    let valLo = Infinity, valHi = -Infinity, ratLo = Infinity, ratHi = -Infinity;
+    for (const c of cols) {
+      for (const r of c.sales) {
+        valLo = Math.min(valLo, r.effective_price); valHi = Math.max(valHi, r.effective_price);
+        ratLo = Math.min(ratLo, r.effective_ratio); ratHi = Math.max(ratHi, r.effective_ratio);
+      }
+    }
+    if (!isFinite(valLo)) { valLo = 0; valHi = 1; }
+    ratLo = Math.min(ratLo, 0.88); ratHi = Math.max(ratHi, 1.12);
+
+    const money = (v) => v == null ? '—' : '$' + Math.round(v).toLocaleString();
+    const fmtDate = (d) => {
+      const dt = d instanceof Date ? d : new Date(d);
+      return isNaN(dt) ? '—' : dt.toLocaleDateString('en-US', { year: '2-digit', month: 'numeric', day: 'numeric' });
+    };
+
+    // Side-by-side stats rows.
+    const statRow = (label, fn, countyVal) => `<tr>
+      <td class="rowlbl">${label}</td>
+      ${cols.map(c => `<td class="num">${fn(c)}</td>`).join('')}
+      <td class="num county">${countyVal}</td>
+    </tr>`;
+
+    const statsTable = `<table class="dd-stats">
+      <thead><tr><th></th>${cols.map(c => `<th>${escapeHtml(c.name)}</th>`).join('')}<th class="county">County</th></tr></thead>
+      <tbody>
+        ${statRow('Sales (n)', c => c.n, county.n.toLocaleString())}
+        ${statRow('Median ratio', c => pct(c.median), pct(county.median))}
+        ${statRow('COD', c => c.cod == null ? '—' : dec(c.cod, 1), dec(county.cod, 1))}
+        ${statRow('Recommended modifier', c => {
+          if (!c.rec) return '—';
+          const p = c.rec.suggestedPct;
+          const cls = p === 0 ? '' : p > 0 ? 'pos' : 'neg';
+          const txt = p === 0 ? '0.00%' : (p > 0 ? '+' : '') + p.toFixed(2) + '%';
+          return `<span class="dd-mod ${cls}">${txt}</span>`;
+        }, '—')}
+        ${statRow('Decision', c => c.rec ? escapeHtml(c.rec.decision) : '—', '—')}
+      </tbody>
+    </table>`;
+
+    // Scatter strip.
+    const scatterStrip = `<div class="dd-scatter-strip">
+      ${cols.map(c => `<div class="dd-scatter-cell">
+        <div class="dd-scatter-name">${escapeHtml(c.name)}</div>
+        ${deepDiveScatter(c, valLo, valHi, ratLo, ratHi)}
+      </div>`).join('')}
+    </div>`;
+
+    // Data-by-stratum section: a counts matrix (buckets as rows, neighborhoods
+    // as columns) plus a per-neighborhood table with count, median, COD, and
+    // average price per bucket. Descriptive only.
+    let stratumSection = '';
+    if (data.stratum && data.stratum.labels.length) {
+      const st = data.stratum;
+      const perByName = new Map(st.perNbr.map(p => [p.name, p]));
+
+      // Counts matrix.
+      const matrixHead = `<tr><th>${escapeHtml(st.label)}</th>${cols.map(c => `<th class="num">${escapeHtml(c.name)}</th>`).join('')}</tr>`;
+      const matrixBody = st.labels.map(blabel => {
+        const cells = cols.map(c => {
+          const p = perByName.get(c.name);
+          const cell = p && p.rows[blabel];
+          const n = cell ? cell.n : 0;
+          const denom = c.n || 1;
+          const share = n > 0 ? Math.round(100 * n / denom) : 0;
+          return `<td class="num">${n === 0 ? '<span class="dd-zero">0</span>' : `${n} <span class="dd-share">(${share}%)</span>`}</td>`;
+        }).join('');
+        return `<tr><td class="rowlbl">${escapeHtml(blabel)}</td>${cells}</tr>`;
+      }).join('');
+      const totalsRow = `<tr class="dd-tot"><td class="rowlbl">All sales</td>${cols.map(c => `<td class="num">${c.n}</td>`).join('')}</tr>`;
+      const unbinnedRow = st.anyUnbinned
+        ? `<tr class="dd-unbinned"><td class="rowlbl">Not classified</td>${cols.map(c => { const p = perByName.get(c.name); const u = p ? p.unbinned : 0; return `<td class="num">${u > 0 ? u : '—'}</td>`; }).join('')}</tr>`
+        : '';
+
+      // Per-neighborhood ratio tables.
+      const ratioTables = cols.map(c => {
+        const p = perByName.get(c.name);
+        const body = st.labels.map(blabel => {
+          const cell = p && p.rows[blabel];
+          if (!cell) return `<tr class="dd-row-empty"><td>${escapeHtml(blabel)}</td><td class="num">0</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>`;
+          return `<tr>
+            <td>${escapeHtml(blabel)}</td>
+            <td class="num">${cell.n}</td>
+            <td class="num">${pct(cell.median)}</td>
+            <td class="num">${cell.cod == null ? '—' : dec(cell.cod, 1)}</td>
+            <td class="num">${money(cell.avgPrice)}</td>
+          </tr>`;
+        }).join('');
+        return `<div class="dd-strat-table-block">
+          <div class="dd-sales-name">${escapeHtml(c.name)}</div>
+          <table class="dd-strat-table">
+            <thead><tr><th>${escapeHtml(st.label)}</th><th class="num">Sales</th><th class="num">Median</th><th class="num">COD</th><th class="num">Avg price</th></tr></thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>`;
+      }).join('');
+
+      stratumSection = `
+    <div class="sect">
+      <h2>Sample by ${escapeHtml(st.label.toLowerCase())}</h2>
+      <div style="font-size:11.5px;color:#4a4e48;margin-bottom:8px;">How each neighborhood's sales distribute across ${escapeHtml(st.label.toLowerCase())} buckets, and how the ratio behaves within each bucket. This is a descriptive composition and level view: it shows where the sales are and whether the level holds across buckets. It is not a vertical-equity test.</div>
+      <div class="dd-strat-matrix-label">Sale counts by bucket</div>
+      <div class="mod-table-wrap">
+        <table class="dd-stats dd-matrix">
+          <thead>${matrixHead}</thead>
+          <tbody>${matrixBody}${unbinnedRow}${totalsRow}</tbody>
+        </table>
+      </div>
+      <div class="dd-strat-tables">${ratioTables}</div>
+    </div>`;
+    }
+
+    // Rationale blocks.
+    const rationale = cols.map(c => {
+      const r = c.rec;
+      let body;
+      if (!r) {
+        body = `No recommendation is available for this neighborhood. Run the modifier step first.`;
+      } else {
+        const parts = [];
+        parts.push(`Current median ${pct(r.median)} against a target of ${pct(r.target)}.`);
+        if (r.decision === 'No change') parts.push(`The neighborhood sits inside the no-change zone, so the cascade left it alone.`);
+        else if (r.decision === 'Capped') parts.push(`The data called for a larger upward move than the maximum-change cap allows, so the recommendation was capped. This is worth a manual look.`);
+        else if (r.decision === 'Floored') parts.push(`The data called for a larger downward move than the floor allows, so the recommendation was floored. This is worth a manual look.`);
+        else if (r.decision === 'Skipped') parts.push(`This neighborhood was held out of the cascade.`);
+        else parts.push(`A modifier of ${r.suggestedPct >= 0 ? '+' : ''}${r.suggestedPct.toFixed(2)}% moves the simulated median to ${pct(r.simulated)}.`);
+        if (r.conf && r.conf.grade) parts.push(`Confidence grade: ${r.conf.grade}.`);
+        if (r.notes) parts.push(escapeHtml(r.notes));
+        body = parts.join(' ');
+      }
+      return `<div class="dd-rat">
+        <div class="dd-rat-name">${escapeHtml(c.name)}</div>
+        <div class="dd-rat-body">${body}</div>
+      </div>`;
+    }).join('');
+
+    // Sales lists: first 15 per neighborhood, with a count and pointer.
+    const salesLists = cols.map(c => {
+      const shown = c.sales.slice(0, 15);
+      const rows = shown.map(s => `<tr>
+        <td>${fmtDate(s.sale_date)}</td>
+        <td class="num">${money(s.effective_price)}</td>
+        <td class="num">${money(s.total_av)}</td>
+        <td class="num">${pct(s.effective_ratio)}</td>
+      </tr>`).join('');
+      const more = c.sales.length > 15
+        ? `<div class="dd-more">Showing first 15 of ${c.sales.length.toLocaleString()} sales. Use Download Excel workbook in the tool for the full list.</div>`
+        : `<div class="dd-more">${c.sales.length.toLocaleString()} sales.</div>`;
+      return `<div class="dd-sales">
+        <div class="dd-sales-name">${escapeHtml(c.name)}</div>
+        <table class="dd-sales-table">
+          <thead><tr><th>Sale date</th><th class="num">Price</th><th class="num">Assessed</th><th class="num">Ratio</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${more}
+      </div>`;
+    }).join('');
+
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neighborhood Deep Dive</title>
+<style>
+  @page { size: letter landscape; margin: 0.5in; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1b1d1b; background: #fff; line-height: 1.45; }
+  .page { max-width: 10in; margin: 0 auto; padding: 20px 16px; }
+  .head { border-bottom: 3px solid #1b4332; padding-bottom: 10px; margin-bottom: 16px; }
+  .head .kicker { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #2d6a4f; font-weight: 700; }
+  .head h1 { font-size: 21px; color: #1b4332; font-weight: 700; margin-top: 3px; font-family: Georgia, serif; }
+  .head .sub { font-size: 11.5px; color: #6b6f67; margin-top: 4px; }
+  .sect { margin-bottom: 22px; page-break-inside: avoid; }
+  .sect h2 { font-size: 15px; color: #1b4332; margin-bottom: 9px; font-family: Georgia, serif; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .dd-stats th, .dd-stats td { padding: 6px 9px; border-bottom: 1px solid #e6e9e6; text-align: right; }
+  .dd-stats th:first-child, .dd-stats td.rowlbl { text-align: left; color: #4a4e48; font-weight: 600; }
+  .dd-stats thead th { background: #2d6a4f; color: #fff; font-weight: 600; text-align: right; }
+  .dd-stats thead th:first-child { background: #2d6a4f; }
+  .dd-stats .county { background: #f0f3f1; color: #4a4e48; }
+  .dd-stats thead th.county { background: #1b4332; color: #fff; }
+  .dd-na { color: #a89a6a; font-style: italic; font-size: 10.5px; }
+  .dd-mod.pos { color: #1b6e3c; font-weight: 700; }
+  .dd-mod.neg { color: #a3341f; font-weight: 700; }
+  .dd-scatter-strip { display: flex; gap: 12px; flex-wrap: wrap; }
+  .dd-scatter-cell { flex: 1; min-width: 180px; border: 1px solid #e6e4d9; border-radius: 4px; padding: 8px; background: #fbfaf5; }
+  .dd-scatter-name { font-size: 11.5px; font-weight: 600; color: #1b4332; margin-bottom: 4px; }
+  .dd-rat { border-left: 3px solid #2d6a4f; background: #f4f8f6; border-radius: 2px; padding: 9px 12px; margin-bottom: 9px; }
+  .dd-rat-name { font-size: 12px; font-weight: 700; color: #1b4332; margin-bottom: 2px; }
+  .dd-rat-body { font-size: 12px; color: #1b1d1b; }
+  .dd-sales { margin-bottom: 16px; page-break-inside: avoid; }
+  .dd-sales-name { font-size: 12.5px; font-weight: 700; color: #1b4332; margin-bottom: 4px; }
+  .dd-sales-table th { background: #eef4f0; color: #1b4332; font-weight: 600; padding: 4px 8px; border-bottom: 1px solid #d8e8e0; }
+  .dd-sales-table td { padding: 4px 8px; border-bottom: 1px solid #eee; }
+  .dd-sales-table th.num, .dd-sales-table td.num { text-align: right; }
+  .dd-more { font-size: 10.5px; color: #8a8f88; margin-top: 4px; }
+  .dd-matrix .rowlbl { text-align: left; font-weight: 600; color: #1b4332; }
+  .dd-matrix .dd-share { color: #8a8f88; font-weight: 400; font-size: 10px; }
+  .dd-matrix .dd-zero { color: #c2c6bf; }
+  .dd-matrix .dd-tot td { border-top: 2px solid #2d6a4f; font-weight: 700; background: #f0f3f1; }
+  .dd-matrix .dd-unbinned td { color: #8a8f88; font-style: italic; background: #faf9f4; }
+  .dd-strat-matrix-label { font-size: 11.5px; font-weight: 600; color: #1b4332; margin: 4px 0 5px; }
+  .dd-strat-tables { display: flex; gap: 16px 20px; flex-wrap: wrap; margin-top: 14px; }
+  .dd-strat-table-block { flex: 0 1 320px; min-width: 300px; }
+  .dd-strat-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .dd-strat-table th { background: #eef4f0; color: #1b4332; font-weight: 600; padding: 4px 7px; border-bottom: 1px solid #d8e8e0; text-align: left; }
+  .dd-strat-table th.num { text-align: right; }
+  .dd-strat-table td { padding: 4px 7px; border-bottom: 1px solid #eee; }
+  .dd-strat-table td.num { text-align: right; }
+  .dd-strat-table .dd-row-empty td { color: #c2c6bf; }
+  .foot { margin-top: 24px; padding-top: 10px; border-top: 1px solid #d8e8e0; font-size: 10px; color: #8a8f88; }
+  .printbar { position: fixed; top: 0; left: 0; right: 0; background: #1b4332; color: #fff; padding: 8px 16px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+  .printbar button { background: #fff; color: #1b4332; border: none; border-radius: 4px; padding: 6px 14px; font-weight: 600; cursor: pointer; font-size: 13px; }
+  @media print { .printbar { display: none; } .page { padding-top: 0; } }
+  @media screen { .page { padding-top: 54px; } }
+</style></head>
+<body>
+  <div class="printbar">
+    <span>Neighborhood deep dive &middot; ${cols.length} selected</span>
+    <button onclick="window.print()">Print or save as PDF</button>
+  </div>
+  <div class="page">
+    <div class="head">
+      <div class="kicker">Sales Ratio Analysis &middot; Neighborhood Deep Dive</div>
+      <h1>${cols.map(c => escapeHtml(c.name)).join(' &middot; ')}</h1>
+      <div class="sub">WSACA Sales Ratio Analysis Tool ${escapeHtml(TOOL_VERSION)}</div>
+    </div>
+
+    <div class="sect">
+      <h2>Side-by-side comparison</h2>
+      ${statsTable}
+    </div>
+
+    <div class="sect">
+      <h2>Ratio versus value</h2>
+      <div style="font-size:11.5px;color:#4a4e48;margin-bottom:8px;">Each dot is a sale. The shaded band is the 90% to 110% acceptable level range; the dashed line is the neighborhood median. A downward tilt left to right means lower-priced homes carry higher ratios. All panels share the same scale. A visible tilt is a diagnostic clue, not something a neighborhood modifier fixes: the modifier moves the median, not the slope. Vertical equity is corrected at the value-stratum and model level, so read these scatters alongside the overall decile breakdown and the characteristic strata.</div>
+      ${scatterStrip}
+    </div>
+${stratumSection}
+    <div class="sect">
+      <h2>Modifier rationale</h2>
+      ${rationale}
+    </div>
+
+    <div class="sect">
+      <h2>Sales</h2>
+      ${salesLists}
+    </div>
+
+    <div class="foot">
+      Generated by the WSACA Sales Ratio Analysis Tool ${escapeHtml(TOOL_VERSION)}. Statistics match the modifier table in the tool. Vertical equity measures are withheld for neighborhoods with fewer than 15 sales.
+    </div>
+  </div>
+</body></html>`;
+  }
+
+  function generateDeepDiveView() {
+    const data = buildDeepDiveData();
+    if (!data) {
+      alert('Select up to 5 neighborhoods in the modifier table first, and run the analysis.');
+      return;
+    }
+    const html = buildDeepDiveHtml(data);
+    const win = window.open('', '_blank');
+    if (!win) {
+      alert('Pop-up blocked. Please allow pop-ups for this site to open the deep dive.');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }
+
+
   function gatherReportData() {
     const eff = effectiveRows();
     const ratios = eff.map(r => r.effective_ratio);
@@ -11167,9 +11962,10 @@ ${hasProposal ? `<scr` + `ipt>
       'Adjusted': 0,
       'Capped': 1,
       'Floored': 2,
-      'Low-n conservative': 3,
-      'No change': 4,
-      'Skipped': 5,
+      'Below COV threshold': 3,
+      'Low-n conservative': 4,
+      'No change': 5,
+      'Skipped': 6,
     };
     const confOrder = { 'H': 0, 'M': 1, 'L': 2, 'X': 3 };
     switch (sortKey) {
@@ -11316,6 +12112,7 @@ ${hasProposal ? `<scr` + `ipt>
       .decision-pill.adjusted  { background: var(--wsaca-green-soft); color: var(--success); }
       .decision-pill.capped    { background: #fbf3dc; color: var(--wsaca-cedar-deep); }
       .decision-pill.floored   { background: #f0e8f8; color: #6b3a8a; }
+      .decision-pill.below-cov { background: #e0eef0; color: #1d5a66; }
       .decision-pill.low-n     { background: #fbe8e8; color: var(--alert-red); }
       .conf-badge { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 8pt; font-weight: 700; font-family: 'Source Sans 3', sans-serif; }
       .conf-badge.H { background: var(--wsaca-green-soft); color: var(--success); }
@@ -12064,7 +12861,7 @@ ${hasProposal ? `<scr` + `ipt>
       body: `
         <p><strong>PRB</strong> regresses ratio against a value proxy and tells you whether ratios drift with value. Inside ±0.05 = no significant bias. <strong>Spearman's ρ</strong> is the non-parametric version — looks at rank correlation instead of magnitude, so it catches monotonic bias even if the slope is curved. Inside ±0.39 = acceptable.</p>
         <p>The decile chart plots median ratio across 10 value bins with 90% confidence intervals on each. The trend line through the medians shows direction and magnitude — slopes <strong>down</strong> means high-value parcels are <strong>under-assessed</strong> (regressive), slopes <strong>up</strong> means over-assessed (progressive). If the trend line is flat or sits inside the shaded IAAO band, you're fine.</p>
-        <p>The <strong>vertical equity by stratum</strong> table runs PRB and Spearman within each neighborhood (or any stratifier you pick). It answers a different question than the overall numbers: not "is there inequity" but "where is it." VEI is deliberately left out at this level — it needs the large value-sorted groups of the overall analysis, and a halves comparison on a 30-sale neighborhood is noise rather than signal. Strata below 15 sales aren't tested at all; PRB and Spearman are computable below that, but not meaningful. A stratum flags only when a metric is both outside its IAAO range and statistically significant. Because testing many strata at once produces some false positives by chance, treat the flags as a prioritized review list — the places to look first — rather than proof. A neighborhood that flags is a candidate for examining its land schedule, depreciation table, or quality grading before you decide on an adjustment.</p>
+        <p>The <strong>vertical equity by stratum</strong> table runs PRB and Spearman within each characteristic stratum you pick: age, quality, condition, or size. It answers a different question than the overall numbers: not "is there inequity" but "where does it come from, and can I fix it." The stratifiers are characteristics on purpose. A tilt by age points at the depreciation schedule, by quality or condition at grade multipliers, by size at the cost model, each a model component you can adjust. Vertical equity is not offered by neighborhood here, for two reasons. A neighborhood level modifier multiplies every ratio in the neighborhood by the same factor, which moves its median but leaves the within-neighborhood tilt essentially unchanged, so the modifier cannot correct it. And much of county-level regressivity lives between neighborhoods, low-value areas assessed higher than high-value ones, not inside them, so flattening every neighborhood individually need not improve the overall picture at all. VEI is left out at this level too; it needs the large value-sorted groups of the overall analysis. Strata below 15 sales are not tested. A stratum flags only when a metric is both outside its IAAO range and statistically significant, and because testing many strata at once produces some false positives by chance, treat the flags as a prioritized review list rather than proof.</p>
       `,
     },
     'step-strat': {
