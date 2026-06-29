@@ -1185,6 +1185,26 @@
     font-style: italic;
   }
 
+  /* How-to-apply note in the printable result. Plain by default; when the county is
+     actively accepting applications, it gets an emphasized green callout so the
+     applicant sees the active call to action. */
+  .print-apply-note {
+    font-size: 10pt;
+    color: var(--ink);
+    margin: 10pt 0 14pt;
+    padding: 8pt 11pt;
+    border-left: 2.5pt solid var(--rule);
+    background: #faf9f4;
+    line-height: 1.45;
+  }
+  .print-apply-note.accepting {
+    border-left-color: var(--success);
+    background: var(--success-bg);
+  }
+  .print-apply-note.accepting strong {
+    color: var(--success);
+  }
+
   .print-section {
     margin-bottom: 12pt;
     page-break-inside: avoid;
@@ -1356,6 +1376,29 @@
   }
 
   /* ===== COUNTY OPEN DATE NOTE ===== */
+  .county-accepting {
+    width: 100%;
+    margin: 12px 0 0;
+    padding: 10px 14px;
+    background: var(--success-bg);
+    border: 1px solid var(--success);
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .county-accepting::before {
+    content: "";
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px var(--wsaca-green-soft);
+  }
   .county-open-date {
     width: 100%;
     margin: 6px 0 0;
@@ -1670,7 +1713,7 @@
   <div class="wrap">
     <div class="agency-line">Property Tax Exemption Program · 2027 Update</div>
     <h1 class="hero-title">Property Tax Exemption for Senior Citizens and People with Disabilities</h1>
-    <p class="hero-lede">In 2026 the state legislature expanded this program by increasing the income thresholds in each county, adding a standard deduction option, and expanding the taxes exempt by the program beginning in tax year 2027. If you are already receiving the exemption, you do <strong>not</strong> need to reapply — your county assessor will automatically review your income and place you at the correct exemption level, with any change reflected on your 2027 property tax statement. Current participants will see additional tax benefits at every level. <strong>Let's see if you may qualify.</strong></p>
+    <p class="hero-lede">In 2026 the state legislature expanded this program by increasing the income thresholds in each county, adding a standard deduction option, and expanding the taxes exempt by the program beginning in tax year 2027. If you are already receiving the exemption, you may not need to reapply. In most cases your county assessor will review your income and place you at the correct exemption level, with any change reflected on your 2027 property tax statement. Counties review and audit current participants periodically, so your assessor may still contact you to verify your income or confirm your eligibility. Current participants will see additional tax benefits at every level. <strong>Let's see if you may qualify.</strong></p>
   </div>
 </header>
 
@@ -1925,6 +1968,7 @@
         <div class="result-actions hidden" id="result-actions">
           <button type="button" class="cta-btn" id="print-btn">Open my result document</button>
           <button type="button" class="cta-btn secondary" id="county-website-btn">Take me to my county's website</button>
+          <p class="county-accepting hidden" id="county-accepting"></p>
           <p class="county-open-date hidden" id="county-open-date"></p>
           <p class="reset-line"><button type="button" class="reset-btn" id="reset-btn">Start over with a new screening</button></p>
         </div>
@@ -2114,51 +2158,53 @@ const WSACA_LOGO_DATA_URI = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/
 
 const FALLBACK_URL = "https://dor.wa.gov/countycontacts";
 const COUNTY_LINKS = {
-  "Adams":        { url: FALLBACK_URL, openDate: null },
-  "Asotin":       { url: FALLBACK_URL, openDate: null },
-  "Benton":       { url: FALLBACK_URL, openDate: null },
-  "Chelan":       { url: FALLBACK_URL, openDate: null },
-  "Clallam":      { url: FALLBACK_URL, openDate: null },
-  "Clark":        { url: FALLBACK_URL, openDate: null },
-  "Columbia":     { url: FALLBACK_URL, openDate: null },
-  "Cowlitz":      { url: FALLBACK_URL, openDate: null },
-  "Douglas":      { url: FALLBACK_URL, openDate: null },
-  "Ferry":        { url: FALLBACK_URL, openDate: null },
-  "Franklin":     { url: FALLBACK_URL, openDate: null },
-  "Garfield":     { url: FALLBACK_URL, openDate: null },
-  "Grant":        { url: FALLBACK_URL, openDate: null },
-  "Grays Harbor": { url: FALLBACK_URL, openDate: null },
-  "Island":       { url: FALLBACK_URL, openDate: null },
-  "Jefferson":    { url: FALLBACK_URL, openDate: null },
-  "King":         { url: FALLBACK_URL, openDate: null },
-  "Kitsap":       { url: FALLBACK_URL, openDate: null },
-  "Kittitas":     { url: FALLBACK_URL, openDate: null },
-  "Klickitat":    { url: FALLBACK_URL, openDate: null },
-  "Lewis":        { url: FALLBACK_URL, openDate: null },
-  "Lincoln":      { url: FALLBACK_URL, openDate: null },
-  "Mason":        { url: FALLBACK_URL, openDate: null },
-  "Okanogan":     { url: FALLBACK_URL, openDate: null },
-  "Pacific":      { url: FALLBACK_URL, openDate: null },
-  "Pend Oreille": { url: FALLBACK_URL, openDate: null },
-  "Pierce":       { url: FALLBACK_URL, openDate: null },
-  "San Juan":     { url: FALLBACK_URL, openDate: null },
-  "Skagit":       { url: "https://www.skagitcounty.net/assessor", openDate: null },
-  "Skamania":     { url: FALLBACK_URL, openDate: null },
-  "Snohomish":    { url: FALLBACK_URL, openDate: null },
-  "Spokane":      { url: FALLBACK_URL, openDate: null },
-  "Stevens":      { url: FALLBACK_URL, openDate: null },
-  "Thurston":     { url: FALLBACK_URL, openDate: null },
-  "Wahkiakum":    { url: FALLBACK_URL, openDate: null },
-  "Walla Walla":  { url: FALLBACK_URL, openDate: null },
-  "Whatcom":      { url: FALLBACK_URL, openDate: null },
-  "Whitman":      { url: FALLBACK_URL, openDate: null },
-  "Yakima":       { url: FALLBACK_URL, openDate: null }
+  "Adams":        { url: "https://www.co.adams.wa.gov/254/Forms-Publications", phone: "509-659-3200", openDate: null },
+  "Asotin":       { url: "https://www.asotincountywa.gov/159/Assessor", phone: "509-243-2016", openDate: null },
+  "Benton":       { url: "https://www.bentoncountywa.gov/government/elected_officials/assessor/tax_relief.php", phone: "509-735-2394", openDate: "January 2027" },
+  "Chelan":       { url: "https://www.co.chelan.wa.us/assessor/pages/seniordisabled-exemptions", phone: null, openDate: null },
+  "Clallam":      { url: "https://www.clallamcountywa.gov/1086/Tax-Forms", phone: "360-417-2505", openDate: null },
+  "Clark":        { url: "https://assessor-property-tax-exemption-program-clarkcountywa.hub.arcgis.com/", phone: "564-397-2391", openDate: "February 2027" },
+  "Columbia":     { url: "https://www.columbiaco.com", phone: "509-382-2131", openDate: "Currently accepting applications for 2027" },
+  "Cowlitz":      { url: "https://www.co.cowlitz.wa.us/1172/Senior-Disabled-Persons-Tax-Exemption", phone: "360-577-3010", openDate: "January 2027" },
+  "Douglas":      { url: "https://www.douglascountywa.gov/162/Assessor", phone: "509-745-8521", openDate: "February 2027" },
+  "Ferry":        { url: "https://dor.wa.gov/sites/default/files/2022-02/64-0002.pdf", phone: "509-775-5225 ext 2502", openDate: "Currently accepting applications for 2027" },
+  "Franklin":     { url: "https://www.franklincountywa.gov/439/Tax-Relief", phone: "509-545-3506", openDate: null },
+  "Garfield":     { url: "https://www.garfieldcountywa.gov/assessor", phone: null, openDate: null },
+  "Grant":        { url: "https://www.grantcountywa.gov/248/Assessor", phone: "509-754-2011 ext 2601", openDate: null },
+  "Grays Harbor": { url: "https://www.graysharbor.us/government/assessor/index.php", phone: "360-249-4121", openDate: null },
+  "Island":       { url: "https://www.islandcountywa.gov/269/Exemptions", phone: "360-678-7853", openDate: "January 2027" },
+  "Jefferson":    { url: "https://co.jefferson.wa.us/", phone: "360-385-9105", openDate: "November 2026" },
+  "King":         { url: "https://kingcounty.gov/en/dept/assessor/buildings-and-property/property-taxes/tax-relief/senior-or-disabled-exemptions", phone: null, openDate: null },
+  "Kitsap":       { url: "https://www.kitsap.gov/assessor/Pages/SeniorDisabledExemptionDeferral.aspx", phone: null, openDate: null },
+  "Kittitas":     { url: "https://www.co.kittitas.wa.us/assessor/exemption/exemptinfo.aspx", phone: "509-962-7635", openDate: null },
+  "Klickitat":    { url: "https://www.klickitatcounty.gov/224/Senior-Disabled-Exemption", phone: "509-773-3715", openDate: null },
+  "Lewis":        { url: "https://lewiscountywa.gov/offices/assessor/senior-disabled-persons-exemption/", phone: "360-740-1392", openDate: "January 2027" },
+  "Lincoln":      { url: "https://www.lincolncountywa.com/262/Senior-Citizen-Disabled-Persons-Exemptio", phone: "509-725-7011", openDate: null },
+  "Mason":        { url: "https://www.masoncountywa.gov/departments/assessor/property_tax_relief_programs.php#collapse1501b0", phone: "360.427.9670 ext. 491", openDate: null },
+  "Okanogan":     { url: "https://www.okanogancounty.gov/320/Property-Tax-Exemption", phone: "509-422-7190", openDate: "January 2, 2027" },
+  "Pacific":      { url: "https://www.co.pacific.wa.us/assessor/Exemption.htm", phone: "360-875-9300 ext. 2207", openDate: "November 2026" },
+  "Pend Oreille": { url: "https://www.pendoreille.gov/assessor/page/property-tax-exemption-senior-citizen-disabled-persons-exemption-program", phone: "509-447-4312", openDate: null },
+  "Pierce":       { url: "https://www.piercecountywa.gov/seniors", phone: "253-798-6111", openDate: "January 2027" },
+  "San Juan":     { url: "https://www.sanjuancountywa.gov/1652/SNR-DSBL-Tax-Relief-Prog", phone: "360-370-7530", openDate: "January 4, 2027" },
+  "Skagit":       { url: "https://skagitcountywa-self.govplatform.com/en/AchieveForms/?mode=fill&consentMessage=yes&form_uri=sandbox-publish://AF-Process-c7858867-550e-447b-bfa7-2a40f1b0656f/AF-Stage81678891-a4ab-4b7d-9a34-8841b8d9ed5c/definition.json&process=1&process_uri=sandbox-processes://AF-Process-c7858867-550e-447b-bfa7-2a40f1b0656f&process_id=AF-Process-c7858867-550e-447b-bfa7-2a40f1b0656f", phone: "360-416-1780", openDate: "Currently accepting applications for 2027" },
+  "Skamania":     { url: "https://www.skamaniacounty.org/departments-offices/assessment-and-gis/available-exemptions", phone: "509-427-3720", openDate: null },
+  "Snohomish":    { url: "https://www.snohomishcountywa.gov/326/Forms-Publications", phone: "425-388-3540", openDate: null },
+  "Spokane":      { url: "https://www.spokanecounty.gov/338/Forms", phone: "509-477-3698", openDate: "February 2027" },
+  "Stevens":      { url: "https://www.stevenscountywa.gov/20869/property-tax-relief-programs", phone: null, openDate: null },
+  "Thurston":     { url: "https://www.thurstoncountywa.gov/departments/assessor/property-tax-relief-programs", phone: "360-867-2200", openDate: null },
+  "Wahkiakum":    { url: "https://www.co.wahkiakum.wa.us/405/Helpful-Info-Forms-and-Links", phone: "360.795.3791", openDate: null },
+  "Walla Walla":  { url: "https://www.wwcowa.gov/government/assessor/senior_exemption.php", phone: "509-524-2560", openDate: null },
+  "Whatcom":      { url: "https://www.whatcomcounty.us/265/Property-Tax-Exemption", phone: "360-778-5050", openDate: null },
+  "Whitman":      { url: "https://www.whitmancounty.gov/614/Forms-and-FAQs", phone: "509-397-5263", openDate: "Currently accepting applications for 2027" },
+  "Yakima":       { url: "https://www.yakimacounty.us/218/Assessors-Office", phone: "509-574-1100", openDate: "Currently accepting applications for 2027" },
 };
 
-function formatOpenDate(iso) {
-  if (!iso) return null;
-  const d = new Date(iso + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+function formatOpenDate(val) {
+  // openDate is now a display-ready string from the county contact list (e.g.
+  // "January 2027", "January 4, 2027", or "Currently accepting applications for 2027").
+  // Year-only and unknown values are stored as null and simply not shown.
+  if (!val) return null;
+  return String(val).trim();
 }
 
 /* ============================================================
@@ -3041,12 +3087,40 @@ function updateCountyButton() {
   const dateEl = document.getElementById('county-open-date');
   if (!btn || !state.county) return;
 
-  btn.textContent = `Take me to ${state.county} County's website`;
-
   const link = COUNTY_LINKS[state.county];
-  const formattedDate = link ? formatOpenDate(link.openDate) : null;
-  if (formattedDate) {
-    dateEl.textContent = `Applications for tax year 2027 open ${formattedDate}.`;
+  const usesFallback = !link || !link.url || link.url === FALLBACK_URL;
+
+  // Button label: name the county's own site when we have it; otherwise say
+  // the button goes to DOR's county-contacts directory.
+  btn.textContent = usesFallback
+    ? `Find ${state.county} County's assessor`
+    : `Take me to ${state.county} County's website`;
+
+  // Build the info line(s). "Currently accepting" gets a noticeable highlighted treatment
+  // (it's an active call to action); a specific future date is shown more quietly.
+  const dateText = link ? formatOpenDate(link.openDate) : null;
+  const isAccepting = dateText && /^currently accepting/i.test(dateText);
+
+  const acceptingEl = document.getElementById('county-accepting');
+  if (acceptingEl) {
+    if (isAccepting) {
+      acceptingEl.textContent = `${state.county} County is currently accepting applications for 2027`;
+      acceptingEl.classList.remove('hidden');
+    } else {
+      acceptingEl.classList.add('hidden');
+    }
+  }
+
+  const parts = [];
+  if (dateText && !isAccepting) {
+    parts.push(`Applications for tax year 2027 open ${dateText}.`);
+  }
+  if (usesFallback && link && link.phone) {
+    parts.push(`You can also call the assessor's office at ${link.phone}.`);
+  }
+
+  if (parts.length) {
+    dateEl.textContent = parts.join(' ');
     dateEl.classList.remove('hidden');
   } else {
     dateEl.classList.add('hidden');
@@ -3121,6 +3195,36 @@ function buildPrintView() {
     'joint': 'Joint filer with spouse or domestic partner ($15,000 standard deduction)'
   };
   const modeLabel = state.mode === 'guided' ? 'Guided calculator' : 'Quick estimate';
+
+  // County application timing + website for the printable result, so the applicant has
+  // the next step in hand. "Currently accepting" gets emphasis; a specific date is plain.
+  const countyLink = state.county ? COUNTY_LINKS[state.county] : null;
+  const printDateText = countyLink ? formatOpenDate(countyLink.openDate) : null;
+  const printIsAccepting = printDateText && /^currently accepting/i.test(printDateText);
+  let applyNote = '';
+  if (state.county) {
+    const bits = [];
+    if (printIsAccepting) {
+      bits.push(`<strong>${state.county} County is currently accepting applications for tax year 2027.</strong>`);
+    } else if (printDateText) {
+      bits.push(`${state.county} County expects to begin accepting applications for tax year 2027 in <strong>${printDateText}</strong>.`);
+    }
+    const hasDirectSite = countyLink && countyLink.url && countyLink.url !== FALLBACK_URL;
+    if (hasDirectSite) {
+      // Show a clean domain rather than a long raw URL (some county portals have very long
+      // session-style links that print poorly). The applicant uses the on-screen button to
+      // actually navigate; the printed sheet just tells them where to go.
+      let domain = countyLink.url;
+      try { domain = new URL(countyLink.url).hostname.replace(/^www\./, ''); } catch (e) {}
+      const phoneBit = countyLink.phone ? ` or call ${countyLink.phone}` : '';
+      bits.push(`To apply or learn more, visit the ${state.county} County Assessor's website (${domain})${phoneBit}.`);
+    } else if (countyLink && countyLink.phone) {
+      bits.push(`To apply or learn more, contact the ${state.county} County Assessor's office at ${countyLink.phone}.`);
+    } else {
+      bits.push(`To apply or learn more, contact the ${state.county} County Assessor's office.`);
+    }
+    applyNote = bits.join(' ');
+  }
   // Honest label: per DOR clarification, rental is part of the itemized basket (not separate).
   // The law guarantees the larger of standard vs. itemized, so we report what was actually
   // applied and how it broke down.
@@ -3408,6 +3512,8 @@ function buildPrintView() {
 
       ${resultBlock}
 
+      ${applyNote ? `<div class="print-apply-note${printIsAccepting ? ' accepting' : ''}">${applyNote}</div>` : ''}
+
       <section class="print-section">
         <h3>Inputs provided</h3>
         <table class="print-inputs">
@@ -3452,7 +3558,7 @@ function buildPrintView() {
       </div>
 
       <footer class="print-footer">
-        Generated by the WSACA screening tool · Tools available at <a href="https://github.com/Mav2clu50/WSACA" target="_blank" rel="noopener">github.com/Mav2clu50/WSACA</a> · For the official program overview, visit <a href="https://dor.wa.gov/taxes-rates/property-tax/property-tax-exemption-seniors-people-retired-due-disability-and-veterans-disabilities" target="_blank" rel="noopener">dor.wa.gov</a>
+        Generated by the WSACA Property Tax Exemption Screening Tool, a free tool from the Washington State Association of County Assessors · For the official program overview, visit <a href="https://dor.wa.gov/taxes-rates/property-tax/property-tax-exemption-seniors-people-retired-due-disability-and-veterans-disabilities" target="_blank" rel="noopener">dor.wa.gov</a>
       </footer>
     </div>
   `;
