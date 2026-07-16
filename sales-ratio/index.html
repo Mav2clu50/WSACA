@@ -41,6 +41,56 @@
     --shadow-panel: 0 1px 3px rgba(30,69,48,0.06), 0 8px 24px rgba(30,69,48,0.06);
     --shadow-card: 0 2px 8px rgba(30,69,48,0.08), 0 12px 36px -10px rgba(30,69,48,0.16);
     --focus-ring: 0 0 0 3px rgba(45,94,64,0.28);
+
+  }
+
+  /* Headline scoreboard — sticky four-up summary of the run. */
+  .scoreboard {
+    position: sticky;
+    top: 0;
+    z-index: 45;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule-soft);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 0 18px;
+    box-shadow: var(--shadow-panel);
+  }
+  .scoreboard.hidden { display: none; }
+  .scoreboard .sb-cell {
+    background: var(--paper);
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-top: 3px solid var(--rule);
+    min-height: 60px;
+    justify-content: center;
+  }
+  .scoreboard .sb-cell.sb-pass { border-top-color: var(--success); }
+  .scoreboard .sb-cell.sb-warn { border-top-color: var(--alert-amber-border); }
+  .scoreboard .sb-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+  }
+  .scoreboard .sb-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    font-family: var(--mono);
+    line-height: 1.1;
+  }
+  .scoreboard .sb-status { font-size: 11px; font-weight: 600; }
+  .scoreboard .sb-cell.sb-pass .sb-status { color: var(--success); }
+  .scoreboard .sb-cell.sb-warn .sb-status { color: var(--wsaca-cedar-deep); }
+  @media (max-width: 640px) {
+    .scoreboard { grid-template-columns: repeat(2, 1fr); }
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -599,6 +649,17 @@
     border-radius: 2px;
     text-align: left;
   }
+  /* Inline error for the mapping step's Run button (replaces a blocking alert). */
+  .mapping-error-panel {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #fde8e8;
+    border-left: 3px solid var(--alert-red);
+    color: var(--alert-red);
+    font-size: 14.5px;
+    border-radius: 2px;
+  }
+  .mapping-error-panel[hidden] { display: none; }
   .file-loaded {
     display: flex;
     align-items: center;
@@ -839,6 +900,42 @@
   .iaao-na { color: var(--ink-mute); }
 
   /* Outlier panel — flagged sales worth manual review */
+  .trim-control {
+    border: 1px solid var(--rule); border-radius: 4px; background: var(--paper-warm);
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  .trim-control-head {
+    font-family: var(--serif); font-size: 14px; font-weight: 600;
+    color: var(--wsaca-green-deep); margin-bottom: 10px;
+  }
+  .trim-opts { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .trim-opt {
+    flex: 1 1 200px; display: flex; flex-direction: column; gap: 2px;
+    border: 1px solid var(--rule-soft); border-radius: 3px; padding: 9px 11px;
+    cursor: pointer; background: white; position: relative;
+  }
+  .trim-opt-active { border-color: var(--wsaca-green); box-shadow: inset 0 0 0 1px var(--wsaca-green); }
+  .trim-opt input { position: absolute; top: 9px; right: 9px; }
+  .trim-opt-label { font-weight: 600; font-size: 13px; color: var(--ink); padding-right: 20px; }
+  .trim-opt-desc { font-size: 11.5px; color: var(--ink-soft); line-height: 1.35; }
+  .trim-compare { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+  .trim-compare-col {
+    flex: 1 1 160px; background: white; border: 1px solid var(--rule-soft);
+    border-radius: 3px; padding: 8px 11px;
+  }
+  .trim-compare-col-active { border-color: var(--wsaca-green-mid); background: var(--wsaca-green-soft); }
+  .trim-compare-h {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--ink-mute); margin-bottom: 4px;
+  }
+  .trim-compare-v { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+  .trim-removed { color: var(--wsaca-cedar-deep); }
+  .trim-delta { color: var(--ink-mute); }
+  .trim-compare-note { font-size: 12.5px; color: var(--ink-soft); font-family: var(--mono); }
+  .trim-caution {
+    font-size: 12px; color: var(--ink-soft); font-style: italic;
+    line-height: 1.45; max-width: 80ch; margin: 6px 0 0;
+  }
   .outlier-panel-empty {
     margin-top: 20px;
     padding: 12px 16px;
@@ -2086,6 +2183,51 @@
     font-family: var(--mono);
   }
 
+  /* Reval-workflow rail release controls. Sits just under the caps strip. */
+  .rails-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    background: var(--paper);
+    border: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--wsaca-slate);
+    border-radius: 3px;
+    font-size: 12.5px;
+  }
+  .rails-label {
+    font-weight: 700;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+  }
+  .rails-btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 4px;
+    border: 1px solid var(--wsaca-slate);
+    background: var(--wsaca-slate);
+    color: #fff;
+    cursor: pointer;
+  }
+  .rails-btn:hover { filter: brightness(0.95); }
+  .rails-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .rails-btn-restore {
+    background: var(--paper);
+    color: var(--wsaca-slate);
+  }
+  .rails-hint {
+    color: var(--ink-mute);
+    font-size: 12px;
+    flex: 1 1 240px;
+    min-width: 200px;
+  }
+
   /* === COD OPTIMIZATION DIAGNOSTIC ===
      Sits below the active-caps strip and above the summary tiles when
      optimization is enabled. Shows baseline-vs-optimized comparison plus
@@ -2784,7 +2926,14 @@
     font-family: var(--mono);
   }
   .mod-table tr.no-change td { background: #f3f6f8; }
+  /* Rail-held rows (capped / floored / below-COV) get a tint AND a left accent
+     so they jump out as the rows a manager should open by hand. */
   .mod-table tr.flagged-cap td { background: #fcf6e8; }
+  .mod-table tr.flagged-cap td:first-child { box-shadow: inset 3px 0 0 0 var(--alert-amber-border); }
+  /* Released rows: slate accent and tint, so a scan of the table shows at a
+     glance which neighborhoods were let through to their full target. */
+  .mod-table tr.flagged-released td { background: #eef2f5; }
+  .mod-table tr.flagged-released td:first-child { box-shadow: inset 3px 0 0 0 var(--wsaca-slate); }
   .mod-table tr.low-n td:first-child {
     font-style: italic;
   }
@@ -2794,6 +2943,191 @@
   .pct-zero { color: var(--ink-mute); }
   /* Split-fallback cells get a subtle italic to signal the same value applies to both sides */
   .mod-table td.split-fallback { font-style: italic; opacity: 0.78; }
+
+  /* ── Secondary levers (land table / plat) ──────────────────────────── */
+  .sec-lever-block { margin-top: 28px; }
+  .sec-lever-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; margin-bottom: 6px; flex-wrap: wrap;
+  }
+  .sec-lever-head h3 {
+    font-family: var(--serif); font-size: 17px; font-weight: 600;
+    color: var(--wsaca-green-deep); margin: 0;
+  }
+  .sec-lever-intro {
+    font-size: 13.5px; color: var(--ink-soft); margin: 0 0 12px;
+    max-width: 70ch; line-height: 1.5;
+  }
+  .sec-lever-controls {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    padding: 10px 12px; margin-bottom: 14px;
+    background: var(--paper-warm); border: 1px solid var(--rule-soft);
+    border-radius: 3px; font-size: 13px;
+  }
+  .sec-lever-controls label { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+  .sec-lever-controls .sec-gap-input {
+    width: 58px; font-family: var(--mono); font-size: 13px;
+    padding: 3px 6px; border: 1px solid var(--rule); border-radius: 3px; text-align: right;
+  }
+  .sec-lever-nbr {
+    border: 1px solid var(--rule); border-radius: 3px; background: white;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .sec-lever-nbr-head {
+    background: var(--wsaca-green-soft); padding: 8px 12px;
+    font-size: 13px; color: var(--wsaca-green-deep);
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .sec-lever-nbr-head strong { font-size: 14px; }
+  .sec-lever-nbr-head .sec-lever-chosen {
+    font-family: var(--sans); font-weight: 600; color: var(--wsaca-green);
+    text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px;
+  }
+  .sec-lever-nbr-head .sec-lever-suppressed {
+    color: var(--ink-mute); font-style: italic; font-size: 12px;
+  }
+  .sec-lever-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sec-lever-table th, .sec-lever-table td {
+    padding: 6px 12px; border-bottom: 1px solid var(--rule-soft); text-align: left; white-space: nowrap;
+  }
+  .sec-lever-table th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-soft); font-weight: 600; background: var(--paper-warm);
+  }
+  .sec-lever-table td.num { font-variant-numeric: tabular-nums; text-align: right; font-family: var(--mono); }
+  .sec-lever-table tr:last-child td { border-bottom: none; }
+  .sec-lever-caveat {
+    font-size: 12px; color: var(--ink-mute); font-style: italic;
+    padding: 7px 12px; background: var(--paper-warm); border-top: 1px solid var(--rule-soft);
+  }
+  .sec-lever-empty {
+    font-size: 13.5px; color: var(--ink-soft); padding: 14px 16px;
+    background: var(--paper-warm); border: 1px solid var(--rule-soft); border-radius: 3px;
+  }
+  .sec-lever-controls-note { font-size: 12px; color: var(--ink-mute); font-style: italic; }
+  .sec-check-cell { width: 1%; text-align: center; }
+  .sec-row-excluded td { opacity: 0.45; }
+  .sec-row-excluded td.sec-check-cell { opacity: 1; }
+
+  /* Study-wide four-state readout */
+  .sec-lever-overall {
+    background: var(--wsaca-green-soft); border: 1px solid var(--wsaca-green-mid);
+    border-radius: 4px; padding: 14px 16px; margin-bottom: 16px;
+  }
+  .sec-lever-overall-title {
+    font-family: var(--serif); font-size: 14.5px; font-weight: 600;
+    color: var(--wsaca-green-deep); margin-bottom: 12px;
+  }
+  .sec-state-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .sec-state-col {
+    flex: 1 1 140px; background: white; border: 1px solid var(--rule-soft);
+    border-radius: 3px; padding: 9px 12px;
+  }
+  .sec-state-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--ink-mute); margin-bottom: 5px;
+  }
+  .sec-state-med { font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft); }
+  .sec-state-cod { font-family: var(--mono); font-size: 13.5px; color: var(--ink); margin-top: 2px; }
+  .sec-state-cod strong { color: var(--wsaca-green-deep); }
+  .sec-lever-overall-note {
+    font-size: 12px; color: var(--ink-soft); font-style: italic; line-height: 1.45; max-width: 78ch;
+  }
+
+  /* Per-neighborhood four-state lines */
+  .sec-nbr-states {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px 18px; padding: 10px 12px; background: var(--paper-warm);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .sec-nbr-state { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; }
+  .sec-nbr-state-label {
+    min-width: 124px; color: var(--ink-mute); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .sec-nbr-state-val { font-family: var(--mono); color: var(--ink); }
+
+  /* Lever cards (global, cross-neighborhood) */
+  .sec-lever-excluded { opacity: 0.55; }
+  .sec-lever-checklabel { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .sec-lever-checklabel strong { font-size: 14px; }
+  .sec-span-tag {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--wsaca-cedar-deep); background: var(--wsaca-cedar-soft);
+    padding: 2px 8px; border-radius: 10px;
+  }
+  .sec-span-tag.sec-span-single { color: var(--ink-mute); background: var(--rule-soft); }
+  .sec-spread {
+    font-size: 11.5px; color: var(--wsaca-slate); font-family: var(--mono);
+  }
+  .sec-lost-tag {
+    font-size: 11px; color: var(--alert-red); font-style: italic;
+  }
+  .sec-lever-factors {
+    display: flex; gap: 18px; flex-wrap: wrap; padding: 9px 12px;
+    background: var(--paper-warm); border-bottom: 1px solid var(--rule-soft);
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft);
+  }
+  .sec-whole-note { font-size: 11px; color: var(--ink-mute); font-style: italic; }
+
+  /* Secondary-levers master enable toggle */
+  .sec-enable-row { margin-top: 18px; }
+  .sec-enable-toggle {
+    display: flex; align-items: baseline; gap: 9px; cursor: pointer;
+    padding: 11px 14px; border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--paper-warm);
+  }
+  .sec-enable-label { font-weight: 600; font-size: 13.5px; color: var(--wsaca-green-deep); }
+  .sec-enable-desc { font-size: 12.5px; color: var(--ink-soft); }
+
+  /* Compact summary table + expandable detail */
+  .sec-table-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 8px;
+  }
+  .sec-expand-all { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; }
+  .sec-table-count { font-size: 12px; color: var(--ink-mute); }
+  .sec-sum-table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; }
+  .sec-sum-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sec-sum-table th, .sec-sum-table td { padding: 7px 11px; border-bottom: 1px solid var(--rule-soft); text-align: left; white-space: nowrap; }
+  .sec-sum-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); font-weight: 600; background: var(--paper-warm); }
+  .sec-sum-table td.num { font-variant-numeric: tabular-nums; text-align: right; font-family: var(--mono); }
+  .sec-sum-row:hover { background: var(--wsaca-green-soft); }
+  .sec-row-excluded td:not(.sec-check-cell):not(.sec-expand-cell) { opacity: 0.45; }
+  .sec-check-cell { width: 1%; text-align: center; }
+  .sec-expand-cell { width: 1%; text-align: center; }
+  .sec-expand-btn {
+    border: none; background: transparent; cursor: pointer; font-size: 12px;
+    color: var(--wsaca-green); padding: 2px 4px; line-height: 1;
+  }
+  .sec-cell-span-multi { color: var(--wsaca-cedar-deep); font-weight: 600; }
+  .sec-cell-span-single { color: var(--ink-mute); }
+  .sec-lost-inline { margin-left: 5px; color: var(--alert-red); font-family: var(--mono); font-size: 11px; }
+  .sec-detail-row > td { background: var(--paper-warm); padding: 0; }
+  .sec-detail-hidden { display: none; }
+  .sec-detail-wrap { padding: 12px 14px; }
+  .sec-detail-meta { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; }
+  .sec-detail-spread { color: var(--wsaca-slate); }
+
+  /* Advisories — spanning land tables that need the neighborhood lever instead */
+  .sec-advisory-block { margin-top: 22px; }
+  .sec-advisory-title {
+    font-family: var(--serif); font-size: 15px; font-weight: 600;
+    color: var(--wsaca-cedar-deep); margin: 0 0 4px;
+  }
+  .sec-advisory-intro {
+    font-size: 13px; color: var(--ink-soft); margin: 0 0 12px; max-width: 76ch; line-height: 1.5;
+  }
+  .sec-advisory {
+    border: 1px solid var(--alert-amber-border); border-radius: 4px;
+    background: var(--alert-amber-bg); padding: 12px 14px; margin-bottom: 12px;
+  }
+  .sec-advisory-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .sec-advisory-head strong { font-size: 14px; color: var(--ink); }
+  .sec-advisory-spread { font-family: var(--mono); font-size: 12px; color: var(--wsaca-cedar-deep); }
+  .sec-advisory-msg { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; line-height: 1.45; max-width: 76ch; }
+  .sec-advisory .sec-lever-table { background: white; border: 1px solid var(--rule-soft); border-radius: 3px; }
 
   .decision-pill {
     display: inline-block;
@@ -2812,6 +3146,17 @@
   .decision-pill.below-cov   { background: #e0eef0;                 color: #1d5a66; }
   .decision-pill.low-n       { background: #fbe8e8;                 color: var(--alert-red); }
   .decision-pill.skipped     { background: #e4e2d8;                 color: #5a5048; }
+  .decision-pill.released    { background: var(--wsaca-slate);      color: #fff; }
+  /* Clickable decision pills (rail release toggle). Look tappable: cursor,
+     subtle outline on hover/focus, and a small caret hint. */
+  button.decision-pill.pill-toggle {
+    border: 1px solid transparent;
+    cursor: pointer;
+    line-height: inherit;
+  }
+  button.decision-pill.pill-toggle::after { content: " ⇅"; opacity: 0.55; font-size: 0.9em; }
+  button.decision-pill.pill-toggle:hover { filter: brightness(0.95); border-color: rgba(0,0,0,0.18); }
+  button.decision-pill.pill-toggle:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
   .skip-checkbox {
     width: 16px;
@@ -3230,6 +3575,12 @@
 <main id="main-content" tabindex="-1" aria-label="Main content">
   <div class="wrap">
 
+    <!-- Headline scoreboard: sticks to the top once analysis has run so the
+         four numbers that matter (level, uniformity, vertical equity, sample)
+         stay in view while the analyst scrolls. Populated by renderScoreboard;
+         hidden until then. -->
+    <div id="scoreboard" class="scoreboard hidden" role="group" aria-label="Headline results"></div>
+
     <p class="phase-note" id="phase-note">
       <strong>Free, open-source sales ratio analysis tool</strong> for Washington county assessors. Distributed under the WSACA umbrella. Single self-contained HTML file — no installation, no backend, no data leaving your browser. Built to IAAO 2025 Standard on Ratio Studies, with editable rules and exportable reports. Created with AI assistance.
       <button type="button" id="help-restore-btn" class="help-restore-link" onclick="window.restoreAllHelp && window.restoreAllHelp()" style="display: none; margin-left: 8px;">Restore help tips</button>
@@ -3305,6 +3656,7 @@
         <button class="btn-secondary" id="btn-load-config-mapping" type="button" title="Load a saved study configuration (.json) — applies column mapping now and all rule settings when the analysis runs">Load configuration</button>
         <input type="file" id="config-file-input" accept=".json,application/json" style="display: none;" aria-label="Study configuration file" />
       </div>
+      <div id="mapping-error" class="mapping-error-panel" role="alert" aria-live="assertive" hidden></div>
       <div id="config-feedback-mapping" style="margin-top: 10px;"></div>
     </section>
 
@@ -3632,14 +3984,35 @@
     },
     {
       key: 'land_table', label: 'Land Table',
-      desc: 'Land table assignment',
+      desc: 'Land table / subset grouping (secondary lever)',
       required: false, group: 'Optional — stratification',
+      // Subset-style names come FIRST: a subset is one value per parcel, which
+      // is what the secondary-lever grouping needs. Raw land-table names follow
+      // as fallbacks. When both a subset field and a raw land-table field
+      // appear, the earlier (subset) alias wins.
       aliases: [
-        'land_table', 'landtable', 'land_tbl', 'landtbl',
-        'lt_code', 'lt',
-        'land_schedule', 'land_sched',
+        'subset_cd', 'subset_code', 'subset',
+        'land_table', 'land_table_cd', 'land_table_code', 'landtable',
+        'land_tbl', 'land_tbl_cd', 'landtbl',
+        'lt_cd', 'lt_code', 'lt',
+        'land_schedule', 'land_sched', 'land_sched_cd',
+        'land_value_table', 'lvt_cd',
         'pricing_schedule', 'price_schedule',
         'land_pricing', 'land_class', 'land_zone',
+      ],
+    },
+    {
+      key: 'plat', label: 'Plat',
+      desc: 'Plat / abstract subdivision code (secondary lever)',
+      required: false, group: 'Optional — stratification',
+      // PACS abstract-subdivision code is the canonical plat grouping. Skagit
+      // pulls it as plat_or_park_cd / abs_subdv_cd; other offices render the
+      // same concept under the names below.
+      aliases: [
+        'plat_or_park_cd', 'plat_cd', 'plat_code', 'plat', 'plat_name', 'plat_id',
+        'abs_subdv_cd', 'abs_subdiv_cd', 'abssubdvcd',
+        'abstract_subdivision', 'abstract_subdivision_code', 'abstract_subdiv',
+        'subdivision_cd', 'subdivision_code', 'subdivision', 'subdiv_cd', 'subdiv',
       ],
     },
 
@@ -3745,10 +4118,10 @@
   // Tool version — stamped on the page footer, the printable report cover,
   // and the Excel export so any archived output can be traced to the build
   // that produced it. Bump on every meaningful release.
-  const TOOL_VERSION = '2026.07-preview';
+  const TOOL_VERSION = 'v1.2';
   {
     const vEl = document.getElementById('tool-version');
-    if (vEl) vEl.textContent = `Version ${TOOL_VERSION}`;
+    if (vEl) vEl.textContent = TOOL_VERSION;
   }
   let rawHeaders = [];      // detected column names from upload
   let rawRows = [];         // array of objects keyed by raw header
@@ -3781,8 +4154,20 @@
     // - false: user has explicitly unchecked an auto-skip (force adjust even if rule says no-change)
     // - missing: no override; checkbox state follows the rule's decision naturally
     modifierUserSkips: {},
+    // Per-neighborhood rail releases for the full-reval workflow. Keys are
+    // stratum names; value true means "lift the cap, floor, and COV-minimum
+    // for this neighborhood and send it to its full computed target." Used in
+    // a reinspected/reval area where change-of-value notices go to every
+    // parcel, so none of those rails apply. Released rows still ride target
+    // calibration and keep their confidence grade (the rail is a policy limit,
+    // the grade is a data-quality flag, and they stay separate).
+    modifierRailReleases: {},
     deepDiveSelected: new Set(),  // neighborhoods chosen for the deep-dive comparison (max 5)
     deepDiveStratifier: null,     // stratifier key for the deep-dive "data by stratum" breakdown
+    secondaryExcludes: new Set(),    // per-lever include/exclude (keys via secBucketKey)
+    secondaryLeversEnabled: false,   // master toggle; whole section gated, off by default
+    secondaryExpandAll: false,       // expand-all detail toggle in the lever table, off by default
+    outlierTrimRule: 'keep',         // 'keep' | 'tukey3' | 'tukey15' (global outlier trim)
     currentPreset: '__default__',
     histogramBinWidth: 0.10,    // 10% bins by default; toggleable to 0.05 (5%)
     printSections: {            // user-selectable sections in the printable report
@@ -3794,6 +4179,7 @@
     printSortStrat:    'n',            // 'n' | 'neighborhood' | 'cod' | 'median-low'
     printSortModifier: 'neighborhood', // 'neighborhood' | 'n' | 'move' | 'decision' | 'confidence' | 'median-low'
     glaBinChoice: 'quartile',          // 'quartile' (default) | 'decile' | 'fixed400' — binning for GLA stratifier
+    acreageBinChoice: 'standard',      // 'standard' (default fixed bands) | 'quartile' | 'decile' — binning for acreage stratifier
   };
 
   // Sample data embedded for the "Try with sample data" demo button.
@@ -3845,6 +4231,28 @@
     //     magnitudes above a small noise threshold.
     maxLandImpsSpreadPct: 10,
     disallowOppositeSplits: false,
+    // === SECONDARY LEVERS (land table / plat) ===
+    // When enabled and a Land Table (subset) or Plat column is mapped, the tool
+    // tests each land table / plat as a GLOBAL object: one factor over its whole
+    // universe of sales, targeting the sale-weighted blend of the neighborhood
+    // medians it touches. Flagged when the pooled median is more than
+    // secondaryLeverGap off that blend.
+    //   secondaryLeverGap — min |pooled median − blended target| / target to
+    //                       flag (default 0.10 = 10%).
+    //   secondaryMinSales — plat floor: a plat is platted at once with similar
+    //                       lots, so a few sales represent it (default 2).
+    //   secondaryMinSalesLandTable — land tables span varied property, so a
+    //                       table-wide factor needs more evidence (default 5).
+    //   secondaryAdvisorySpread — a spanning land table within the flag gap but
+    //                       whose own median varies by at least this across its
+    //                       neighborhoods is surfaced as an advisory: use the
+    //                       neighborhood land modifier, not the table (default
+    //                       0.15 = 15 ratio points). Per-bucket include state
+    //                       lives in state.secondaryExcludes, not here.
+    secondaryLeverGap:    0.10,
+    secondaryMinSales:    2,
+    secondaryMinSalesLandTable: 5,
+    secondaryAdvisorySpread: 0.15,
     // === COD OPTIMIZATION (analyst mode) ===
     // When `optimizeForCOD` is on, the rules engine treats flagged-soft rules
     // as ignored during recommendation. The result is the lowest-COD outcome
@@ -4008,6 +4416,20 @@
 
   function showUploadError(msg) {
     uploadStatus.innerHTML = `<div class="upload-error">${escapeHtml(msg)}</div>`;
+  }
+  // Inline error for the mapping step (Step 2), where the Run button lives.
+  // Replaces a blocking alert() so the message stays on screen next to the
+  // controls the analyst needs to fix, rather than vanishing on dismiss.
+  function showMappingError(msg) {
+    const el = document.getElementById('mapping-error');
+    if (!el) return;
+    el.innerHTML = escapeHtml(msg);
+    el.hidden = false;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearMappingError() {
+    const el = document.getElementById('mapping-error');
+    if (el) { el.hidden = true; el.innerHTML = ''; }
   }
   function showFileLoaded(name, rowCount) {
     state.datasetName = name;
@@ -4325,7 +4747,7 @@
         runAnalysis();
       } catch (err) {
         console.error(err);
-        showUploadError('Analysis failed: ' + err.message);
+        showMappingError('Analysis failed: ' + err.message);
       } finally {
         hideLoading();
       }
@@ -4344,6 +4766,11 @@
     state.modifierRules = null;
     state.modifierSort = { col: 'n', dir: 'desc' };
     state.modifierUserSkips = {};
+    state.modifierRailReleases = {};
+    state.secondaryExcludes = new Set();
+    state.secondaryLeversEnabled = false;
+    state.secondaryExpandAll = false;
+    state.outlierTrimRule = 'keep';
     state.currentPreset = '__default__';
     state.histogramBinWidth = 0.10;
     state.printSections = { diagnostics: true, verticalEquity: true, stratification: true, modifier: true };
@@ -4364,6 +4791,9 @@
     document.getElementById('step-export').classList.add('hidden');
     const stepNavEl = document.getElementById('step-nav');
     if (stepNavEl) stepNavEl.classList.add('hidden');
+    // Hide the headline scoreboard.
+    const scoreboardEl = document.getElementById('scoreboard');
+    if (scoreboardEl) { scoreboardEl.classList.add('hidden'); scoreboardEl.innerHTML = ''; }
     if (stepNavObserver) { stepNavObserver.disconnect(); stepNavObserver = null; }
     // Hide the header-level "Start over" button — nothing to reset until a
     // file is loaded again.
@@ -4390,6 +4820,7 @@
   // PARSING & ANALYSIS PIPELINE
   // ============================================================
   function runAnalysis() {
+    clearMappingError();
     droppedMultiParcel = 0;
     flaggedMultiParcel = 0;
     droppedMissingRequired = 0;
@@ -4461,7 +4892,7 @@
     }
 
     if (!cleanRows.length) {
-      alert('No usable rows after filtering. Check that Sale Price, Sale Date, and Total AV columns are mapped correctly and contain valid data.');
+      showMappingError('No usable rows after filtering. Check that Sale Price, Sale Date, and Total AV columns are mapped correctly and contain valid data.');
       return;
     }
 
@@ -5130,7 +5561,27 @@
     };
   }
   // Returns each row with .effective_price and .effective_ratio, applied or not based on state.
-  function effectiveRows() {
+  //
+  // The active outlier trim rule (state.outlierTrimRule) is GLOBAL: fences are
+  // computed once on the whole dataset's effective ratios (per IAAO §6.3 Tukey
+  // fences) and the trim flows through every downstream statistic — ratio study,
+  // vertical equity, stratification, modifier engine, secondary levers, and the
+  // three audience views — because they all draw rows from effectiveRows(). Pass
+  // includeTrimmed=true to get the full untrimmed set (used by the outlier panel
+  // and its trimmed-vs-untrimmed comparison).
+  function computeTrimFences(effRows, rule) {
+    if (rule !== 'tukey3' && rule !== 'tukey15') return null;
+    if (effRows.length < 4) return null;
+    const ratios = effRows.map(r => r.effective_ratio).slice().sort((a, b) => a - b);
+    const q1 = percentile(ratios, 0.25);
+    const q3 = percentile(ratios, 0.75);
+    const iqr = q3 - q1;
+    const k = rule === 'tukey15' ? 1.5 : 3;
+    return { q1, q3, iqr, k, lowFence: q1 - k * iqr, highFence: q3 + k * iqr };
+  }
+
+  // Full (untrimmed) effective rows — the time-adjustment logic lives here.
+  function effectiveRowsFull() {
     if (!state.applyTimeAdjustment || !state.timeTrend) {
       return cleanRows.map(r => ({ ...r, effective_price: r.sale_price, effective_ratio: r.ratio }));
     }
@@ -5188,6 +5639,27 @@
     });
   }
 
+  // Returns trimmed rows by default (active rule applied); pass true for full.
+  function effectiveRows(includeTrimmed) {
+    const full = effectiveRowsFull();
+    if (includeTrimmed) return full;
+    const rule = state.outlierTrimRule || 'keep';
+    if (rule === 'keep') return full;
+    const fences = computeTrimFences(full, rule);
+    if (!fences) return full;
+    return full.filter(r => r.effective_ratio >= fences.lowFence && r.effective_ratio <= fences.highFence);
+  }
+
+  // Count of rows the active rule trims (for badges, summaries, disclosures).
+  function trimmedCount() {
+    const rule = state.outlierTrimRule || 'keep';
+    if (rule === 'keep') return 0;
+    const full = effectiveRowsFull();
+    const fences = computeTrimFences(full, rule);
+    if (!fences) return 0;
+    return full.filter(r => r.effective_ratio < fences.lowFence || r.effective_ratio > fences.highFence).length;
+  }
+
   // Recompute monthly median ratios using the effective (possibly time-adjusted) ratios.
   // Used by the trend chart so it can show "before vs after" when the user toggles
   // the apply switch — adjusted ratios should sit roughly flat around the sample median.
@@ -5229,18 +5701,22 @@
   }
   function parseDate(v) {
     if (v === null || v === undefined || v === '') return null;
+    // A Date instance is assumed already normalized (our own code builds dates
+    // with Date.UTC), so pass it through unchanged rather than re-reading it
+    // through local getters and risking a one-day shift on a UTC-midnight value.
     if (v instanceof Date) return isNaN(v) ? null : v;
 
-    // Excel serial date: integers in plausible Excel range
+    // Excel serial date: integers in plausible Excel range. Excel epoch is
+    // 1899-12-30; the 25569 offset also absorbs the 1900 leap-year bug for
+    // dates after 1900-03-01. Result is UTC midnight.
     if (typeof v === 'number' && isFinite(v) && v > 1000 && v < 200000) {
-      // Excel epoch is 1899-12-30 (handles the leap year bug for dates after 1900-03-01)
       return new Date(Math.round((v - 25569) * 86400 * 1000));
     }
 
     const s = String(v).trim();
     if (!s) return null;
 
-    // Try as numeric Excel serial in string form
+    // Numeric Excel serial in string form → UTC midnight.
     if (/^\d+(\.\d+)?$/.test(s)) {
       const n = Number(s);
       if (n > 1000 && n < 200000) {
@@ -5248,17 +5724,34 @@
       }
     }
 
-    // Try native Date.parse (handles ISO 8601, RFC 2822, and most US formats)
-    const native = new Date(s);
-    if (!isNaN(native)) return native;
+    // Every remaining path builds a UTC-midnight date so the whole tool can
+    // read dates with getUTC* methods consistently. The native Date constructor
+    // parses a bare slash date at LOCAL midnight, which then reads back one day
+    // early for anyone west of UTC, so the explicit formats are handled first
+    // and the native fallback is re-anchored to UTC.
 
-    // Try MM/DD/YYYY explicitly (constructed in UTC for consistency with other parse paths)
-    const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    // ISO-ish: YYYY-MM-DD, ignoring any trailing time on a sale date.
+    let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) {
+      const d = new Date(Date.UTC(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10)));
+      return isNaN(d) ? null : d;
+    }
+
+    // US format: M/D/Y or M/D/YY.
+    m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
     if (m) {
       let yr = parseInt(m[3], 10);
       if (yr < 100) yr += yr < 50 ? 2000 : 1900;
       const d = new Date(Date.UTC(yr, parseInt(m[1], 10) - 1, parseInt(m[2], 10)));
-      if (!isNaN(d)) return d;
+      return isNaN(d) ? null : d;
+    }
+
+    // Fallback for less common formats ("Jan 2 2024", "2024/01/02",
+    // "2-Jan-2024"): parse natively, then re-anchor to UTC midnight using the
+    // parsed calendar date so it matches every other path.
+    const native = new Date(s);
+    if (!isNaN(native)) {
+      return new Date(Date.UTC(native.getFullYear(), native.getMonth(), native.getDate()));
     }
     return null;
   }
@@ -5406,15 +5899,93 @@
     return { q1, q3, iqr, lowFence, highFence, sales: flagged };
   }
 
+  function buildTrimControl() {
+    const rule = state.outlierTrimRule || 'keep';
+    const full = effectiveRows(true);   // untrimmed effective rows
+    const statsOn = (rows) => {
+      if (!rows.length) return { n: 0, median: null, cod: null };
+      const rs = rows.map(r => r.effective_ratio);
+      const m = median(rs);
+      const cod = m > 0 ? 100 * mean(rs.map(x => Math.abs(x - m))) / m : null;
+      return { n: rows.length, median: m, cod };
+    };
+    const untrimmed = statsOn(full);
+    const ruleRows = (r) => {
+      if (r === 'keep') return full;
+      const fences = computeTrimFences(full, r);
+      if (!fences) return full;
+      return full.filter(x => x.effective_ratio >= fences.lowFence && x.effective_ratio <= fences.highFence);
+    };
+    const trimmed = statsOn(ruleRows(rule));
+    const removed = untrimmed.n - trimmed.n;
+
+    const opt = (val, label, desc) => `
+      <label class="trim-opt ${rule === val ? 'trim-opt-active' : ''}">
+        <input type="radio" name="outlier-trim-rule" value="${val}" ${rule === val ? 'checked' : ''} />
+        <span class="trim-opt-label">${label}</span>
+        <span class="trim-opt-desc">${desc}</span>
+      </label>`;
+
+    const medTxt = (v) => v == null ? '—' : pct(v);
+    const codTxt = (v) => v == null ? '—' : v.toFixed(2);
+    const dMed = (untrimmed.median != null && trimmed.median != null) ? (trimmed.median - untrimmed.median) : null;
+    const dCod = (untrimmed.cod != null && trimmed.cod != null) ? (trimmed.cod - untrimmed.cod) : null;
+    const comparison = rule === 'keep'
+      ? `<div class="trim-compare-note">No trim applied. All ${untrimmed.n.toLocaleString()} sales feed every statistic. Median ${medTxt(untrimmed.median)} · COD ${codTxt(untrimmed.cod)}.</div>`
+      : `
+        <div class="trim-compare">
+          <div class="trim-compare-col">
+            <div class="trim-compare-h">Untrimmed</div>
+            <div class="trim-compare-v">n ${untrimmed.n.toLocaleString()}</div>
+            <div class="trim-compare-v">median ${medTxt(untrimmed.median)}</div>
+            <div class="trim-compare-v">COD ${codTxt(untrimmed.cod)}</div>
+          </div>
+          <div class="trim-compare-col trim-compare-col-active">
+            <div class="trim-compare-h">Trimmed (active)</div>
+            <div class="trim-compare-v">n ${trimmed.n.toLocaleString()} <span class="trim-removed">(−${removed.toLocaleString()})</span></div>
+            <div class="trim-compare-v">median ${medTxt(trimmed.median)}${dMed != null ? ` <span class="trim-delta">(${dMed >= 0 ? '+' : ''}${(dMed * 100).toFixed(2)})</span>` : ''}</div>
+            <div class="trim-compare-v">COD ${codTxt(trimmed.cod)}${dCod != null ? ` <span class="trim-delta ${dCod < 0 ? 'pct-positive' : dCod > 0 ? 'pct-negative' : ''}">(${dCod >= 0 ? '+' : ''}${dCod.toFixed(2)})</span>` : ''}</div>
+          </div>
+        </div>
+        <p class="trim-caution">Trimming by ratio removes the sales that contribute most to dispersion, so a lower trimmed COD partly reflects the removal itself, not just better uniformity. IAAO treats outlier removal as identifying invalid sales, not as a way to improve COD. Both columns are shown so the effect is visible. The active rule flows through the ratio study, vertical equity, stratification, the modifier engine, and the secondary levers.</p>
+      `;
+
+    return `
+      <div class="trim-control">
+        <div class="trim-control-head">Outlier handling (IAAO §6.3)</div>
+        <div class="trim-opts">
+          ${opt('keep', 'Keep all sales', 'Flag but never remove. Review and decide. IAAO-preferred default.')}
+          ${opt('tukey3', 'Trim extreme outliers', 'Remove sales beyond 3 × IQR (Tukey extreme fence).')}
+          ${opt('tukey15', 'Trim mild + extreme', 'Remove sales beyond 1.5 × IQR (Tukey standard fence). Trims harder.')}
+        </div>
+        ${comparison}
+      </div>
+    `;
+  }
+
+  function wireTrimControl() {
+    document.querySelectorAll('input[name="outlier-trim-rule"]').forEach(radio => {
+      radio.addEventListener('change', e => {
+        state.outlierTrimRule = e.target.value;
+        // Re-run the whole analysis so every statistic reflects the new rule.
+        if (typeof window.rerunAllAnalysis === 'function') window.rerunAllAnalysis();
+        else renderOutlierPanel();
+      });
+    });
+  }
+
   function renderOutlierPanel() {
     const panel = document.getElementById('outlier-panel');
     if (!panel) return;
     const result = computeExtremeOutliers(cleanRows);
+    const trimControl = buildTrimControl();
     if (!result.sales || result.sales.length === 0) {
       panel.innerHTML = `
+        ${trimControl}
         <div class="outlier-panel-empty">
           <strong>✓ No extreme outliers detected.</strong> Every sale's ratio falls within 3 × IQR of the quartiles (Tukey fences, IAAO §6.3 methodology).
         </div>`;
+      wireTrimControl();
       return;
     }
     const totalFlagged = result.sales.length;
@@ -5444,6 +6015,7 @@
       : '';
 
     panel.innerHTML = `
+      ${trimControl}
       <details class="outlier-panel" id="outlier-panel-details">
         <summary>
           <span class="outlier-summary-icon">⚠</span>
@@ -5479,7 +6051,22 @@
     `;
 
     document.getElementById('btn-outlier-csv').addEventListener('click', () => exportOutliersCSV(result.sales));
+    wireTrimControl();
   }
+
+  // Re-runs every dependent render after a change to the analysis population
+  // (the outlier trim rule). Mirrors the time-adjustment refresh sequence so all
+  // sections — diagnostics, vertical equity, stratification, modifier, secondary
+  // levers, and the audience views' source data — stay consistent.
+  window.rerunAllAnalysis = function rerunAllAnalysis() {
+    renderOutlierPanel();
+    if (typeof renderDiagnostics === 'function') renderDiagnostics();
+    if (typeof renderVerticalEquity === 'function') renderVerticalEquity();
+    if (typeof renderStratificationTables === 'function') renderStratificationTables();
+    if (typeof refreshModifierResults === 'function' && state.modifierRules) refreshModifierResults();
+    if (typeof renderExportStep === 'function') renderExportStep();
+    if (typeof window.refreshStepSummaries === 'function') window.refreshStepSummaries();
+  };
 
   function exportOutliersCSV(sales) {
     const header = ['parcel_id', 'neighborhood', 'sale_date', 'sale_price', 'total_av', 'ratio', 'side', 'distance_from_fence', 'multi_parcel'];
@@ -5642,11 +6229,20 @@
     for (let g = 0; g < k; g++) {
       const sz = base + (g < extra ? 1 : 0);
       if (sz < 10) return null; // IAAO requires ≥10 per group
-      groups.push(tagged.slice(i, i + sz).map(x => x.ratio));
+      groups.push(tagged.slice(i, i + sz));
       i += sz;
     }
-    // Per-group median and 90% CI
-    const groupStats = groups.map(g => medianCI90(g));
+    // Per-group median and 90% CI, plus the actual group count and the value
+    // range the group spans. Sales are sorted by the market value proxy, so the
+    // first sale in a slice carries the group's minimum proxy and the last its
+    // maximum.
+    const groupStats = groups.map(slice => {
+      const stat = medianCI90(slice.map(x => x.ratio));
+      stat.n = slice.length;
+      stat.proxyMin = slice[0].proxy;
+      stat.proxyMax = slice[slice.length - 1].proxy;
+      return stat;
+    });
     const firstMed = groupStats[0].median;
     const lastMed = groupStats[groupStats.length - 1].median;
     // VEI point estimate
@@ -5731,6 +6327,26 @@
     if (!g) return escapeHtml(text);
     const tipHtml = `<strong>${escapeHtml(g.full)}</strong><br/>${escapeHtml(g.def)}`;
     return `${escapeHtml(text)}<span class="glossary-tip" tabindex="0" role="img" aria-label="Definition of ${escapeAttr(g.full)}">ⓘ<span class="glossary-tip-body">${tipHtml}</span></span>`;
+  }
+
+  // Headline scoreboard. Pure renderer: it receives already-decided pass/warn
+  // states so the four cells always agree with the diagnostics table they
+  // summarize. Pinned to the top of the page once shown.
+  function renderScoreboard(d) {
+    const el = document.getElementById('scoreboard');
+    if (!el) return;
+    const cell = (label, value, pass, passTxt, warnTxt) => `
+      <div class="sb-cell ${pass ? 'sb-pass' : 'sb-warn'}">
+        <div class="sb-label">${label}</div>
+        <div class="sb-value">${escapeHtml(value)}</div>
+        <div class="sb-status">${pass ? '✓ ' + passTxt : '⚠ ' + warnTxt}</div>
+      </div>`;
+    el.innerHTML =
+      cell('Level', d.levelValue, d.levelPass, 'in IAAO range', 'outside range') +
+      cell('Uniformity', 'COD ' + d.codValue, d.codPass, 'in IAAO range', 'outside range') +
+      cell('Vertical equity', d.veLabel + ' ' + d.veValue, d.vePass, 'acceptable', 'review') +
+      cell('Sample', d.n.toLocaleString() + ' sales', d.samplePass, 'meets n ≥ 30', 'below 30');
+    el.classList.remove('hidden');
   }
 
   function renderDiagnostics() {
@@ -5877,6 +6493,25 @@
 
     renderDiagnosticsSynopsis({ n, med, cod, prd, codRange, vei: veiResult });
     renderHistogram(ratios, med);
+
+    // Headline scoreboard. Pass/warn states mirror the diagnostics table: level
+    // uses the IAAO 0.90–1.10 band, uniformity uses the property-class COD
+    // range, vertical equity uses VEI (with its significance escape hatches)
+    // and falls back to PRD when VEI can't be computed, and sample uses n ≥ 30.
+    const vePass = veiResult
+      ? (veiResult.withinRange || veiResult.sigOverlap === true || (veiResult.veiSig != null && veiResult.veiSig <= 10))
+      : (prd >= 0.98 && prd <= 1.03);
+    renderScoreboard({
+      n,
+      levelValue: pct(med),
+      levelPass: (med >= 0.90 && med <= 1.10),
+      codValue: cod.toFixed(2),
+      codPass: codInRange,
+      veLabel: veiResult ? 'VEI' : 'PRD',
+      veValue: veiResult ? ((veiResult.vei >= 0 ? '+' : '') + veiResult.vei.toFixed(2) + '%') : prd.toFixed(3),
+      vePass,
+      samplePass: n >= 30,
+    });
   }
 
   // Plain-English narrative synthesis of the ratio study. Deliberately *not* a
@@ -6538,6 +7173,7 @@
           <thead>
             <tr>
               <th>${groupLabel}</th>
+              <th>Value range (proxy)</th>
               <th>n</th>
               <th>Median Ratio</th>
               <th>90% CI Low</th>
@@ -6550,7 +7186,8 @@
               const delta = g.median - vei.sampleMedian;
               return `<tr>
                 <td>${groupLabel} ${i + 1}</td>
-                <td class="num">${(eff.length / vei.k).toFixed(0)}</td>
+                <td class="num">${presFmtMoney(g.proxyMin)}&nbsp;&ndash;&nbsp;${presFmtMoney(g.proxyMax)}</td>
+                <td class="num">${g.n}</td>
                 <td class="num">${pct(g.median)}</td>
                 <td class="num">${g.lower != null ? pct(g.lower) : '—'}</td>
                 <td class="num">${g.upper != null ? pct(g.upper) : '—'}</td>
@@ -6670,7 +7307,7 @@
         html += `<line class="ve-errcap" x1="${cx - capHalf}" x2="${cx + capHalf}" y1="${yOf(hi)}" y2="${yOf(hi)}" />`;
       }
       // Dot
-      html += `<circle class="ve-dot" cx="${cx}" cy="${yOf(med)}" r="5"><title>${groupLabel}${i+1}: median ${pct(med)} (90% CI ${pct(lo)} – ${pct(hi)})</title></circle>`;
+      html += `<circle class="ve-dot" cx="${cx}" cy="${yOf(med)}" r="5"><title>${groupLabel}${i+1}: ${presFmtMoney(vei.groups[i].proxyMin)} – ${presFmtMoney(vei.groups[i].proxyMax)} (proxy) · median ${pct(med)} (90% CI ${pct(lo)} – ${pct(hi)})</title></circle>`;
       // X label
       html += `<text class="ve-axis-text" x="${cx}" y="${pad.top + plotH + 16}" text-anchor="middle">${groupLabel}${i + 1}</text>`;
     }
@@ -6723,7 +7360,7 @@
   const STRATUM_VE_MIN_N = 15;
   function computeStratumVE(sKey) {
     const eff = effectiveRows();
-    const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+    const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice, acreageBin: state.acreageBinChoice });
     if (!binner) return null;
     const groups = new Map();
     const sortIdxMap = new Map();
@@ -7141,6 +7778,7 @@
       state.modifierRules.trendMethod = e.target.value;
       state.timeTrend = computeTimeTrend(cleanRows);
       renderTimeAdjustment();
+      renderOutlierPanel();
       renderDiagnostics();
       renderVerticalEquity();
       renderStratificationTables();
@@ -7153,6 +7791,7 @@
         state.modifierRules.trendAnchoring = e.target.value;
         state.timeTrend = computeTimeTrend(cleanRows);
         renderTimeAdjustment();
+        renderOutlierPanel();
         renderDiagnostics();
         renderVerticalEquity();
         renderStratificationTables();
@@ -7166,6 +7805,7 @@
         state.modifierRules.trendTarget = e.target.value;
         state.timeTrend = computeTimeTrend(cleanRows);
         renderTimeAdjustment();
+        renderOutlierPanel();
         renderDiagnostics();
         renderVerticalEquity();
         renderStratificationTables();
@@ -7180,6 +7820,7 @@
       updateTrendLegend();
       // Synopsis content depends on applied state; refresh it inline.
       renderSectionSynopsis('time-synopsis', buildTimeAdjustmentSynopsis(), 'Interpretation');
+      renderOutlierPanel();
       renderDiagnostics();
       renderVerticalEquity();
       renderStratificationTables();
@@ -7195,6 +7836,7 @@
         // anchoring) or change the reference target segment, so recompute.
         state.timeTrend = computeTimeTrend(cleanRows);
         renderTimeAdjustment();
+        renderOutlierPanel();
         renderDiagnostics();
         renderVerticalEquity();
         renderStratificationTables();
@@ -7496,6 +8138,53 @@
       };
     }
     if (sKey === 'acreage') {
+      const choice = options.acreageBin || 'standard';
+      // Compact acre formatter: up to 2 decimals, trailing zeros trimmed
+      // (0.50 -> "0.5", 1.00 -> "1", 0.25 -> "0.25").
+      const fmtAc = (v) => {
+        const r = Math.round(v * 100) / 100;
+        return Number.isInteger(r) ? String(r) : r.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+      };
+      if (choice === 'quartile' || choice === 'decile') {
+        // Data-driven bands: cut points come from the actual acreage
+        // distribution, so a sale base concentrated in small parcels gets
+        // resolution where it lives instead of piling into two fixed buckets.
+        const values = rows.map(r => r.acreage).filter(v => v != null && isFinite(v) && v >= 0);
+        if (values.length === 0) return null;
+        values.sort((a, b) => a - b);
+        const nBins = choice === 'decile' ? 10 : 4;
+        const min = values[0], max = values[values.length - 1];
+        // Quantile cut points, rounded to 0.01 ac and deduped so heavy ties at
+        // round acreages (0.25, 0.5, 1) don't yield empty or identical bands.
+        const cuts = [];
+        for (let i = 1; i < nBins; i++) {
+          const pos = (i / nBins) * (values.length - 1);
+          const lo = Math.floor(pos), hi = Math.ceil(pos);
+          const raw = values[lo] + (pos - lo) * (values[hi] - values[lo]);
+          const rounded = Math.round(raw * 100) / 100;
+          if (rounded > min && rounded < max && (cuts.length === 0 || rounded > cuts[cuts.length - 1])) {
+            cuts.push(rounded);
+          }
+        }
+        const edges = [min, ...cuts, max];
+        const k = edges.length - 1; // effective band count after collapsing ties
+        const labels = [];
+        for (let i = 0; i < k; i++) labels.push(`${fmtAc(edges[i])}\u2013${fmtAc(edges[i + 1])} acres`);
+        const descBase = choice === 'decile' ? 'decile bands (data-driven)' : 'quartile bands (data-driven)';
+        return {
+          description: k < nBins ? `${descBase}, ${k} bands after merging ties` : descBase,
+          binOf: (r) => {
+            const v = r.acreage;
+            if (v == null || !isFinite(v) || v < 0) return null;
+            let idx = k - 1;
+            for (let i = 0; i < cuts.length; i++) {
+              if (v < cuts[i]) { idx = i; break; }
+            }
+            return { label: labels[idx], sortIdx: idx };
+          },
+        };
+      }
+      // Standard fixed bands (default)
       const bands = [
         { lo: -Infinity, hi: 0.25,    label: '< 0.25 acres',   sortIdx: 0 },
         { lo: 0.25,      hi: 0.5,     label: '0.25–0.5 acres', sortIdx: 1 },
@@ -7572,6 +8261,16 @@
     return sKey === 'year_built' || sKey === 'gla' || sKey === 'acreage' || sKey === 'effective_age';
   }
 
+  // Default sort per stratifier. Categorical strata read best largest-sample
+  // first; continuous strata (size, age, acreage bands) have a natural order
+  // and read as shuffled when sorted by n, so they default to ascending band
+  // order. A header click still overrides either way.
+  function defaultStratSort(sKey) {
+    return isContinuousStratifier(sKey)
+      ? { col: 'stratum', dir: 'asc' }
+      : { col: 'n', dir: 'desc' };
+  }
+
   function renderIaaoReference() {
     const tbody = document.getElementById('iaao-ref-body');
     if (!tbody) return;
@@ -7642,11 +8341,23 @@
             <option value="fixed400" ${state.glaBinChoice === 'fixed400' ? 'selected' : ''}>Every 400 sq ft</option>
           </select>
         </label>` : '';
+      // Acreage gets the same control. Quartile/decile redistribute a
+      // small-parcel-heavy sale base across labeled, data-driven bands.
+      const acreageSubControl = current === 'acreage' ? `
+        <label class="strat-sub-control">
+          <span class="strat-sub-label">Bin by:</span>
+          <select data-acreage-bin="${idx}">
+            <option value="standard" ${state.acreageBinChoice === 'standard' ? 'selected' : ''}>Standard bands</option>
+            <option value="quartile" ${state.acreageBinChoice === 'quartile' ? 'selected' : ''}>Quartile (data-driven)</option>
+            <option value="decile"   ${state.acreageBinChoice === 'decile'   ? 'selected' : ''}>Decile (data-driven)</option>
+          </select>
+        </label>` : '';
       return `
         <div class="strat-picker-slot">
           <label>Stratifier ${idx + 1}</label>
           <select data-slot="${idx}">${optionsHtml}</select>
           ${glaSubControl}
+          ${acreageSubControl}
         </div>
       `;
     }).join('');
@@ -7662,6 +8373,12 @@
     row.querySelectorAll('select[data-gla-bin]').forEach(sel => {
       sel.addEventListener('change', e => {
         state.glaBinChoice = e.target.value;
+        renderStratificationTables();
+      });
+    });
+    row.querySelectorAll('select[data-acreage-bin]').forEach(sel => {
+      sel.addEventListener('change', e => {
+        state.acreageBinChoice = e.target.value;
         renderStratificationTables();
       });
     });
@@ -7808,7 +8525,7 @@
     const eff = effectiveRows();
 
     const blocks = state.stratifiers.filter(Boolean).map((sKey, slotIdx) => {
-      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice, acreageBin: state.acreageBinChoice });
       if (!binner) return '';
       const groups = new Map();
       const sortIdxMap = new Map();  // bin label -> sortIdx for natural order on continuous fields
@@ -7824,9 +8541,9 @@
       const rows = [...groups.entries()].map(([key, items]) => stratRow(key, items)).filter(Boolean);
 
       // For continuous-field stratifiers, the natural "alphabetical" sort is
-      // numeric by bin boundary. Default sort is still by n desc; the override
-      // only kicks in if the user picks the stratum column to sort by.
-      const sortKey = state.sortConfig[sKey] || { col: 'n', dir: 'desc' };
+      // numeric by bin boundary, and they default to ascending band order
+      // (see defaultStratSort). Categorical strata still default to n desc.
+      const sortKey = state.sortConfig[sKey] || defaultStratSort(sKey);
       rows.sort((a, b) => {
         if (sortKey.col === 'stratum' && isContinuousStratifier(sKey)) {
           const sa = sortIdxMap.get(a.stratum) ?? Infinity;
@@ -7920,7 +8637,7 @@
       th.addEventListener('click', () => {
         const col = th.dataset.col;
         const sKey = th.dataset.skey;
-        const cur = state.sortConfig[sKey] || { col: 'n', dir: 'desc' };
+        const cur = state.sortConfig[sKey] || defaultStratSort(sKey);
         const dir = (cur.col === col && cur.dir === 'asc') ? 'desc' : 'asc';
         state.sortConfig[sKey] = { col, dir };
         renderStratificationTables();
@@ -7986,7 +8703,7 @@
 
   function exportStratCSV(sKey) {
     const eff = effectiveRows();
-    const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+    const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice, acreageBin: state.acreageBinChoice });
     if (!binner) return;
     const groups = new Map();
     const sortIdxMap = new Map();
@@ -8167,7 +8884,7 @@
   }
 
   // Apply rules to a single per-neighborhood stratum row to produce a recommendation.
-  function recommendFor(stratum, rules, codRange, userOverride) {
+  function recommendFor(stratum, rules, codRange, userOverride, railsReleased) {
     const cur = stratum.median;
     const cod = stratum.cod;
     const target = targetRatioFor(stratum, rules);
@@ -8183,6 +8900,17 @@
     const forceSkip = userOverride === true;
     const bypassNoChangeZone = userOverride === false;
     const skipped = forceSkip;  // Track explicit user skip for labeling
+
+    // Rail release (full-reval workflow). When released, the floor, cap, and
+    // COV-minimum are lifted and the neighborhood goes to its full computed
+    // target. Skip always wins over release. We still run the normal cascade
+    // below (so we know whether a rail WOULD have bound — that is what makes a
+    // row releasable), then override to full target at the end if released.
+    const released = !!railsReleased && !forceSkip;
+    // True once any rail (floor, cap, or COV-minimum) actually changes the
+    // move. Drives both the "releasable" flag and the released override.
+    let railClipped = false;
+    let noCrossingClipped = false;  // no-crossing (optimization mode) trimmed the move
 
     if (forceSkip) {
       return {
@@ -8241,6 +8969,7 @@
         const minPctToFloor = (rules.downwardFloor / cur - 1) * 100;
         if (suggestedPct < minPctToFloor) {
           suggestedPct = minPctToFloor;
+          railClipped = true;
           notes.push(`Floored at ${(rules.downwardFloor * 100).toFixed(0)}%`);
           if (decision !== 'Low-n conservative') {
             decision = 'Floored';
@@ -8254,6 +8983,7 @@
         const cap = Math.abs(rules.maxChangePct);
         if (suggestedPct > cap) {
           suggestedPct = cap;
+          railClipped = true;
           notes.push(`Capped at +${cap.toFixed(0)}%`);
           if (decision !== 'Low-n conservative') {
             decision = 'Capped';
@@ -8261,6 +8991,7 @@
           }
         } else if (suggestedPct < -cap) {
           suggestedPct = -cap;
+          railClipped = true;
           notes.push(`Capped at −${cap.toFixed(0)}%`);
           if (decision !== 'Low-n conservative') {
             decision = 'Capped';
@@ -8276,6 +9007,7 @@
       // not below) target. This stops the optimizer from "trading" overshoot
       // in one neighborhood against undershoot in another to fake a lower
       // COD at the per-sale level while damaging per-neighborhood landing.
+      const preCrossPct = suggestedPct;
       if (optimizing && rules.preventCrossing && rules.overallTarget != null) {
         const overallT = rules.overallTarget;
         if (cur < overallT) {
@@ -8302,6 +9034,7 @@
         } else {
           suggestedPct = 0;
         }
+        if (suggestedPct !== preCrossPct) noCrossingClipped = true;
       }
     }
 
@@ -8319,6 +9052,7 @@
         && decision !== 'Floored') {
       const wouldBe = suggestedPct;
       suggestedPct = 0;
+      railClipped = true;
       notes.push(`Held: ${wouldBe >= 0 ? '+' : ''}${wouldBe.toFixed(1)}% is below the ${rules.minChangePct}% COV threshold`);
       if (decision !== 'Low-n conservative') {
         decision = 'Below COV threshold';
@@ -8330,6 +9064,45 @@
 
     if (bypassNoChangeZone) {
       notes.push('User overrode no-change rule');
+    }
+
+    // Releasable = some rule (the no-change band, a floor, a cap, the COV
+    // minimum, or no-crossing) kept this neighborhood off its full target, so a
+    // release would change its recommendation. Computed for every row, released
+    // or not, which is why the cascade above runs even for released rows.
+    const releasable = railClipped || isNoChange || noCrossingClipped;
+
+    // wouldBeNoChange: the neighborhood satisfies the no-change zone rule on its
+    // own (in the band, COD acceptable, not low-n), regardless of whether the
+    // user has overridden it. Computed without the override gate so the
+    // No-change pill stays a clickable toggle in both the held and the
+    // overridden state. Lets the analyst force the move for a reworked
+    // neighborhood that is mailing value notices anyway.
+    const wouldBeNoChange = !skipNoChangeZone && inNoChangeZone && codOK && !lowN;
+
+    // Release override (reval workflow). One toggle drops EVERY rule at once
+    // (no-change band, min-change, floor, cap, no-crossing) and sends the
+    // neighborhood to its full computed target. Fires for any held or clamped
+    // row, so an in-band no-change neighborhood releases straight to target in a
+    // single click instead of cycling through the floor. The row then reads as
+    // its true result (Adjusted +/-X%); the rule that held it is recorded in the
+    // notes for the audit trail. Low-n note and confidence grade are preserved:
+    // release lifts a policy limit, it does not change sample quality.
+    const heldDecisionLabel = decision;
+    let releasedApplied = false;
+    if (released && releasable) {
+      suggestedPct = (target / cur - 1) * 100;
+      decision = 'Adjusted';
+      decisionClass = 'adjusted';
+      releasedApplied = true;
+      for (let i = notes.length - 1; i >= 0; i--) {
+        if (/^(Capped|Floored|Held:|No-crossing:)/.test(notes[i])) notes.splice(i, 1);
+      }
+      const was = heldDecisionLabel === 'No change' ? 'held at no change'
+                : heldDecisionLabel === 'Below COV threshold' ? 'held below the COV threshold'
+                : heldDecisionLabel === 'Low-n conservative' ? 'low-n conservative'
+                : heldDecisionLabel.toLowerCase();
+      notes.push(`Released to full target ${suggestedPct >= 0 ? '+' : ''}${suggestedPct.toFixed(1)}% (was ${was})`);
     }
 
     const simulated = cur * (1 + suggestedPct / 100);
@@ -8346,7 +9119,10 @@
       suggestedPct,
       simulated,
       skip:        isNoChange,  // checkbox should be checked for natural no-change rows
-      heldWouldBePct: (typeof _heldWouldBePct !== 'undefined') ? _heldWouldBePct : null,
+      heldWouldBePct: releasedApplied ? null : ((typeof _heldWouldBePct !== 'undefined') ? _heldWouldBePct : null),
+      releasable,
+      released:    releasedApplied,
+      wouldBeNoChange,
       userOverride,
       conf,
       grade:       conf.grade,
@@ -8377,12 +9153,18 @@
     const recs = strata.map(s => {
       const items = groups.get(s.stratum);
       const userOverride = state.modifierUserSkips[s.stratum];
-      const baseRec = recommendFor(s, rules, codRange, userOverride);
+      const railsReleased = !!(state.modifierRailReleases && state.modifierRailReleases[s.stratum]);
+      const baseRec = recommendFor(s, rules, codRange, userOverride, railsReleased);
 
       // No-change / skipped / low-n decisions are kept as-is — no need to
       // split adjustments that are zero or under conservative low-n rules.
       // Only attempt the split when a real adjustment is being recommended.
-      const isAdjusting = (baseRec.decision === 'Adjusted' || baseRec.decision === 'Capped' || baseRec.decision === 'Floored');
+      // Released rows are intentionally NOT split-eligible: in split mode a
+      // released neighborhood applies its full-target combined modifier rather
+      // than a land/imps split. Release is a reval-area tool and split mode is
+      // an advanced opt-in; the combination is rare, and the combined full
+      // move still lands the median on target.
+      const isAdjusting = !baseRec.released && (baseRec.decision === 'Adjusted' || baseRec.decision === 'Capped' || baseRec.decision === 'Floored');
       if (!splitActive || !isAdjusting) {
         return baseRec;
       }
@@ -8818,7 +9600,7 @@
     const pre = statsOn(preRatios);
     const post = statsOn(postRatios);
 
-    const counts = { 'No change': 0, 'Adjusted': 0, 'Capped': 0, 'Floored': 0, 'Below COV threshold': 0, 'Low-n conservative': 0, 'Skipped': 0 };
+    const counts = { 'No change': 0, 'Adjusted': 0, 'Capped': 0, 'Floored': 0, 'Below COV threshold': 0, 'Released': 0, 'Low-n conservative': 0, 'Skipped': 0 };
     for (const r of recs) counts[r.decision] = (counts[r.decision] ?? 0) + 1;
 
     return {
@@ -8829,9 +9611,740 @@
     };
   }
 
+
+  // ============================================================
+  // SECONDARY LEVERS (land table / plat)
+  // ============================================================
+
+  const SECONDARY_LEVER_FIELDS = [
+    { key: 'land_table', label: 'Land table' },
+    { key: 'plat',       label: 'Plat' },
+  ];
+
+  function secondaryLeversActive() {
+    return SECONDARY_LEVER_FIELDS.filter(f => !!mapping[f.key]);
+  }
+
+  // Stable key for a lever's include/exclude state. Levers are global, so the
+  // key is field+bucket only (no neighborhood).
+  function secBucketKey(field, bucket) {
+    // Separator must survive an HTML data-attribute round-trip. NUL (\u0000)
+    // does NOT: the HTML parser rewrites it to U+FFFD inside attribute values,
+    // so the key read back from a checkbox's data-key no longer matched the
+    // in-memory key, and the "Use" checkbox could never be unchecked. \u001F
+    // (Unit Separator) round-trips cleanly and never appears in a CAMA land
+    // table or plat code.
+    return `${field}\u001F${bucket}`;
+  }
+
+  function computeSecondaryLevers(effRows, rules, neighborhoodResult) {
+    if (!mapping.neighborhood) return null;
+    const active = secondaryLeversActive();
+    if (!active.length) return null;
+
+    const gap = (rules.secondaryLeverGap != null) ? rules.secondaryLeverGap : 0.10;
+    const minSalesPlat = (rules.secondaryMinSales != null) ? rules.secondaryMinSales : 2;
+    const minSalesLandTable = (rules.secondaryMinSalesLandTable != null) ? rules.secondaryMinSalesLandTable : 5;
+    // Land tables need more sales than plats to trust a table-wide factor; a
+    // plat is homogeneous by construction, a land table is not.
+    const minSalesFor = (field) => field === 'land_table' ? minSalesLandTable : minSalesPlat;
+    const excludes = state.secondaryExcludes || new Set();
+
+    const codOf = (ratios, med) => {
+      if (med == null || med <= 0 || !ratios.length) return null;
+      return 100 * mean(ratios.map(r => Math.abs(r - med))) / med;
+    };
+    const nbrKey = (r) => String(r.neighborhood ?? '').trim();
+
+    // Per-neighborhood modifier scalar (post ÷ pre median), for the nbrOnly /
+    // both states and the post-modifier blended target.
+    const adjScalar = new Map();
+    if (neighborhoodResult && neighborhoodResult.recs) {
+      for (const rec of neighborhoodResult.recs) {
+        let s = 1;
+        if (rec.simulated != null && rec.median != null && rec.median > 0) s = rec.simulated / rec.median;
+        else if (rec.suggestedPct != null) s = 1 + rec.suggestedPct / 100;
+        adjScalar.set(rec.stratum, s);
+      }
+    }
+    const scalarOf = (nbr) => adjScalar.get(nbr) ?? 1;
+
+    // Per-neighborhood medians under raw and post-modifier baselines. The
+    // blended target a lever aims for is the sale-weighted blend of these
+    // medians across the neighborhoods the lever touches.
+    const byNbr = new Map();
+    for (const r of effRows) {
+      const k = nbrKey(r);
+      if (!k) continue;
+      if (!byNbr.has(k)) byNbr.set(k, []);
+      byNbr.get(k).push(r);
+    }
+    const nbrMedRaw = new Map();
+    const nbrMedPost = new Map();
+    for (const [nbr, items] of byNbr.entries()) {
+      nbrMedRaw.set(nbr, median(items.map(r => r.effective_ratio)));
+      nbrMedPost.set(nbr, median(items.map(r => r.effective_ratio * scalarOf(nbr))));
+    }
+
+    // "No plat" sentinel codes mean a parcel has no plat rather than naming a
+    // real plat, so they're excluded from plat-lever analysis (otherwise every
+    // plat-less parcel pools into one giant fake plat). Two kinds are caught.
+    //
+    // 1. Textual nulls — unambiguous "missing" strings, never a real plat code.
+    // 2. Coverage sentinels — a real subdivision is a modest, geographically
+    //    concentrated slice of a county, while a "no plat" sentinel (often coded
+    //    0, 1, or similar) gets stamped on a large share of unplatted parcels
+    //    scattered everywhere. So any single plat code whose share of all coded
+    //    plat sales exceeds the coverage threshold is treated as a sentinel.
+    //    This replaces a hardcoded 0/1 list: a legitimate small plat coded "1"
+    //    now passes, while a sentinel "0" covering 40%+ of sales is still
+    //    caught. Land tables in PACS are real numeric codes with no sentinels,
+    //    so coverage detection runs for the plat field only.
+    const PLAT_TEXT_NULLS = new Set(['', 'null', 'none', 'na', 'n/a', 'nan']);
+    const PLAT_SENTINEL_COVERAGE = 0.40;   // tune here if real sentinels slip through
+    const platSentinels = new Set();
+    if (active.some(f => f.key === 'plat')) {
+      const counts = new Map();
+      let total = 0;
+      for (const r of effRows) {
+        if (!nbrKey(r)) continue;
+        const bk = String(r.plat ?? '').trim();
+        if (!bk || PLAT_TEXT_NULLS.has(bk.toLowerCase())) continue;
+        counts.set(bk, (counts.get(bk) || 0) + 1);
+        total++;
+      }
+      if (total > 0) {
+        for (const [code, c] of counts.entries()) {
+          if (c / total > PLAT_SENTINEL_COVERAGE) platSentinels.add(code);
+        }
+      }
+    }
+    const isPlaceholder = (field, code) => {
+      if (field !== 'plat') return false;
+      const trimmed = String(code).trim();
+      if (PLAT_TEXT_NULLS.has(trimmed.toLowerCase())) return true;
+      return platSentinels.has(trimmed);
+    };
+
+    // Build the global universe for each lever (field + bucket code), gathering
+    // every sale regardless of neighborhood, and the set of neighborhoods it
+    // touches with per-neighborhood sale counts.
+    // leverMap: field -> Map(bucket -> { rows:[], byNbr: Map(nbr->rows) })
+    const leverMap = {};
+    for (const f of active) {
+      const m = new Map();
+      for (const r of effRows) {
+        const nbr = nbrKey(r);
+        if (!nbr) continue;
+        const bk = String(r[f.key] ?? '').trim();
+        if (!bk) continue;
+        if (isPlaceholder(f.key, bk)) continue;
+        if (!m.has(bk)) m.set(bk, { rows: [], byNbr: new Map() });
+        const e = m.get(bk);
+        e.rows.push(r);
+        if (!e.byNbr.has(nbr)) e.byNbr.set(nbr, []);
+        e.byNbr.get(nbr).push(r);
+      }
+      leverMap[f.key] = m;
+    }
+
+    // Compute one lever's factor under a given baseline. baseline: 'raw' uses
+    // r.effective_ratio and nbrMedRaw; 'post' uses r.effective_ratio*scalar and
+    // nbrMedPost. Returns null if the lever can't be evaluated.
+    function evalLever(field, fieldLabel, bucket, entry, baseline) {
+      const useScalar = baseline === 'post';
+      const ratioOf = (r) => useScalar ? r.effective_ratio * scalarOf(nbrKey(r)) : r.effective_ratio;
+      const nbrMedMap = useScalar ? nbrMedPost : nbrMedRaw;
+
+      const rows = entry.rows;
+      if (rows.length < minSalesFor(field)) return null;
+      // A lever that contains every sale in every neighborhood it touches tells
+      // us nothing relative to those neighborhoods — skip only if it equals the
+      // whole of every neighborhood it's in (rare). Per-neighborhood "is whole
+      // neighborhood" is handled in the breakdown.
+      const leverRatios = rows.map(ratioOf);
+      const leverMed = median(leverRatios);
+      if (leverMed == null || leverMed <= 0) return null;
+
+      // Sale-weighted blended target across the neighborhoods this lever touches.
+      // Weight each neighborhood's median by the lever's sale count there.
+      let wsum = 0, num = 0;
+      const perNbr = [];
+      for (const [nbr, nrows] of entry.byNbr.entries()) {
+        const nm = nbrMedMap.get(nbr);
+        if (nm == null || nm <= 0) continue;
+        const w = nrows.length;
+        wsum += w; num += w * nm;
+        const leverHereMed = median(nrows.map(ratioOf));
+        perNbr.push({ nbr, n: w, leverMedian: leverHereMed, nbrMedian: nm, isWholeNbr: nrows.length >= (byNbr.get(nbr)?.length ?? 0) });
+      }
+      if (wsum <= 0) return null;
+      const blendedTarget = num / wsum;
+
+      const gapRel = Math.abs(leverMed - blendedTarget) / blendedTarget;
+      const factorPct = (blendedTarget / leverMed - 1) * 100;
+
+      // COD improvement on the lever's own sales from applying its factor: the
+      // lever's sales pulled toward the blended target should tighten around it.
+      const codBefore = (leverMed > 0) ? 100 * mean(leverRatios.map(x => Math.abs(x - leverMed))) / leverMed : null;
+      const afterRatios = leverRatios.map(x => x * (1 + factorPct / 100));
+      const afterMed = median(afterRatios);
+      const codAfter = (afterMed > 0) ? 100 * mean(afterRatios.map(x => Math.abs(x - afterMed))) / afterMed : null;
+      const codImprove = (codBefore != null && codAfter != null) ? (codBefore - codAfter) : null;
+
+      // Disagreement spread: how much the lever's per-neighborhood median (its
+      // own sales in each neighborhood) varies across neighborhoods. Reported
+      // as max−min of the lever's per-neighborhood medians.
+      const leverNbrMeds = perNbr.map(p => p.leverMedian).filter(v => v != null && v > 0);
+      const spread = leverNbrMeds.length > 1 ? (Math.max(...leverNbrMeds) - Math.min(...leverNbrMeds)) : 0;
+
+      perNbr.sort((a, b) => a.nbr.localeCompare(b.nbr));
+      return { field, fieldLabel, bucket, n: rows.length, leverMedian: leverMed,
+               blendedTarget, gapRel, factorPct, spread, perNbr, codImprove,
+               touches: entry.byNbr.size };
+    }
+
+    // Evaluate all levers under both baselines; keep those that clear the gap in
+    // at least one baseline. Track each flagged lever's set of sales (rows) for
+    // the one-sale-one-lever contest.
+    const leverRecs = new Map(); // key field\0bucket -> rec (with raw/post evals)
+    for (const f of active) {
+      for (const [bucket, entry] of leverMap[f.key].entries()) {
+        const raw = evalLever(f.key, f.label, bucket, entry, 'raw');
+        const post = evalLever(f.key, f.label, bucket, entry, 'post');
+        const flaggedRaw = raw && raw.gapRel >= gap;
+        const flaggedPost = post && post.gapRel >= gap;
+        if (!flaggedRaw && !flaggedPost) continue;
+        leverRecs.set(secBucketKey(f.key, bucket), {
+          field: f.key, fieldLabel: f.label, bucket, entry,
+          raw, post, flaggedRaw, flaggedPost,
+          rowSet: new Set(entry.rows),
+        });
+      }
+    }
+
+    // ONE SALE, ONE LEVER. A sale may belong to a flagged land table AND a
+    // flagged plat. Assign each contested sale to whichever lever yields the
+    // larger COD improvement over the sales the two levers share. We resolve
+    // pairwise per contested sale using the levers' raw-baseline COD-improvement
+    // on the shared sales as the tiebreak (raw baseline chosen because the
+    // contest is about which lever owns the sale, independent of the modifier).
+    // ownerOf: row -> leverKey (only for rows owned by a flagged lever)
+    const ownerOf = new Map();
+    function leverCodImprove(rec, sharedRows, baseline) {
+      // COD improvement on a given set of rows from applying this lever's factor
+      const ev = baseline === 'post' ? rec.post : rec.raw;
+      if (!ev) return -Infinity;
+      const useScalar = baseline === 'post';
+      const ratioOf = (r) => useScalar ? r.effective_ratio * scalarOf(nbrKey(r)) : r.effective_ratio;
+      const before = sharedRows.map(ratioOf);
+      const after = sharedRows.map(r => ratioOf(r) * (1 + ev.factorPct / 100));
+      const cb = codOf(before, median(before));
+      const ca = codOf(after, median(after));
+      if (cb == null || ca == null) return 0;
+      return cb - ca;
+    }
+    // Build, for each row, the list of flagged levers claiming it.
+    const claimsByRow = new Map();
+    for (const [key, rec] of leverRecs.entries()) {
+      for (const r of rec.entry.rows) {
+        if (!claimsByRow.has(r)) claimsByRow.set(r, []);
+        claimsByRow.get(r).push(key);
+      }
+    }
+    for (const [r, keys] of claimsByRow.entries()) {
+      if (keys.length === 1) { ownerOf.set(r, keys[0]); continue; }
+      // Contested. Compare each claiming lever's COD improvement over the set of
+      // rows it shares with the others (here: this row's full lever overlap).
+      let bestKey = keys[0], bestVal = -Infinity;
+      for (const key of keys) {
+        const rec = leverRecs.get(key);
+        // Shared rows = rows of this lever that are also claimed by ≥1 other
+        // contesting lever in this row's claim set.
+        const others = new Set(keys.filter(k => k !== key));
+        const shared = rec.entry.rows.filter(rr => {
+          const rrKeys = claimsByRow.get(rr) || [];
+          return rrKeys.some(k => others.has(k));
+        });
+        const val = leverCodImprove(rec, shared.length ? shared : [r], 'raw');
+        if (val > bestVal) { bestVal = val; bestKey = key; }
+      }
+      ownerOf.set(r, bestKey);
+    }
+
+    // ── Build the four study-wide states and per-lever output ──────────────
+    const pool = { raw: [], nbrOnly: [], secOnly: [], both: [] };
+    // Index rows once for stable study-wide pooling.
+    for (const r of effRows) {
+      const nbr = nbrKey(r);
+      if (!nbr) continue;
+      const sc = scalarOf(nbr);
+      const rawR = r.effective_ratio;
+      const nbrR = r.effective_ratio * sc;
+      pool.raw.push(rawR);
+      pool.nbrOnly.push(nbrR);
+
+      // secOnly / both: apply the owning lever's factor IF that lever is flagged
+      // in the relevant baseline and not excluded and owns this sale.
+      const ownerKey = ownerOf.get(r);
+      let secR = rawR, bothR = nbrR;
+      if (ownerKey && !excludes.has(ownerKey)) {
+        const rec = leverRecs.get(ownerKey);
+        if (rec.raw && rec.flaggedRaw)  secR  = rawR * (1 + rec.raw.factorPct / 100);
+        if (rec.post && rec.flaggedPost) bothR = nbrR * (1 + rec.post.factorPct / 100);
+      }
+      pool.secOnly.push(secR);
+      pool.both.push(bothR);
+    }
+
+    const studyStat = (arr) => { if (!arr.length) return { median: null, cod: null }; const m = median(arr); return { median: m, cod: codOf(arr, m) }; };
+    const overall = {
+      raw:     studyStat(pool.raw),
+      nbrOnly: studyStat(pool.nbrOnly),
+      secOnly: studyStat(pool.secOnly),
+      both:    studyStat(pool.both),
+    };
+
+    // Per-lever display rows. For each flagged lever, surface its factor under
+    // each baseline, its blended target, gap, disagreement spread, how many
+    // neighborhoods it touches, the per-neighborhood breakdown, and how many of
+    // its sales it actually OWNS after the one-sale-one-lever contest (so the
+    // analyst sees when a lever lost sales to an overlapping one).
+    const levers = [];
+    for (const [key, rec] of leverRecs.entries()) {
+      const ev = rec.raw || rec.post;
+      const owned = rec.entry.rows.filter(r => ownerOf.get(r) === key).length;
+      const lostSales = rec.entry.rows.length - owned;
+      levers.push({
+        key, field: rec.field, fieldLabel: rec.fieldLabel, bucket: rec.bucket,
+        n: ev.n, touches: ev.touches,
+        factorRaw:  rec.raw  ? rec.raw.factorPct  : null,
+        factorPost: rec.post ? rec.post.factorPct : null,
+        blendedTargetRaw:  rec.raw  ? rec.raw.blendedTarget  : null,
+        blendedTargetPost: rec.post ? rec.post.blendedTarget : null,
+        leverMedianRaw:  rec.raw  ? rec.raw.leverMedian  : null,
+        leverMedianPost: rec.post ? rec.post.leverMedian : null,
+        gapRelRaw:  rec.raw  ? rec.raw.gapRel  : null,
+        gapRelPost: rec.post ? rec.post.gapRel : null,
+        spreadRaw:  rec.raw  ? rec.raw.spread  : null,
+        codImproveRaw: rec.raw ? rec.raw.codImprove : (rec.post ? rec.post.codImprove : null),
+        flaggedRaw: rec.flaggedRaw, flaggedPost: rec.flaggedPost,
+        perNbr: (rec.raw || rec.post).perNbr,
+        ownedSales: owned, lostSales,
+      });
+    }
+    // Sort: land tables first, then plats; within field by bucket code.
+    levers.sort((a, b) => a.field === b.field ? a.bucket.localeCompare(b.bucket) : (a.field === 'land_table' ? -1 : 1));
+
+    const spanningCount = levers.filter(l => l.touches > 1).length;
+
+    // ── ADVISORIES ────────────────────────────────────────────────────────
+    // Spanning land tables that did NOT earn a global factor but whose own
+    // median varies sharply across the neighborhoods they touch. The single
+    // global factor is correctly withheld (the pooled universe is within gap of
+    // the blend), but that hides a real signal: the table is off in one
+    // neighborhood and fine in another. The right tool there is the
+    // neighborhood land modifier, not the table. We surface these as advisories,
+    // never as a factor (there is no sensible global one).
+    const advisorySpread = (rules.secondaryAdvisorySpread != null) ? rules.secondaryAdvisorySpread : 0.15;
+    const flaggedKeys = new Set(levers.map(l => l.key));
+    const advisories = [];
+    if (mapping.land_table) {
+      for (const [bucket, entry] of leverMap['land_table'].entries()) {
+        const key = secBucketKey('land_table', bucket);
+        if (flaggedKeys.has(key)) continue;       // already has a global factor
+        if (entry.byNbr.size < 2) continue;        // not spanning
+        // Per-neighborhood lever medians. The advisory only diagnoses a split
+        // and never proposes a factor, so it uses the lower plat-level floor —
+        // a 2-sale cell running far off its neighbor is still a real signal
+        // worth surfacing for human judgment.
+        const perNbr = [];
+        for (const [nbr, nrows] of entry.byNbr.entries()) {
+          if (nrows.length < minSalesPlat) continue;
+          const lm = median(nrows.map(r => r.effective_ratio));
+          const nm = nbrMedRaw.get(nbr);
+          if (lm == null || lm <= 0) continue;
+          perNbr.push({ nbr, n: nrows.length, leverMedian: lm, nbrMedian: nm });
+        }
+        if (perNbr.length < 2) continue;
+        const meds = perNbr.map(p => p.leverMedian);
+        const spread = Math.max(...meds) - Math.min(...meds);
+        if (spread < advisorySpread) continue;
+        perNbr.sort((a, b) => a.leverMedian - b.leverMedian);
+        advisories.push({
+          field: 'land_table', fieldLabel: 'Land table', bucket,
+          n: entry.rows.length, touches: entry.byNbr.size,
+          spread, perNbr,
+        });
+      }
+      advisories.sort((a, b) => b.spread - a.spread);
+    }
+
+    return {
+      activeFields: active.map(f => f.key),
+      gap, minSalesPlat, minSalesLandTable, advisorySpread,
+      levers,
+      totalRecs: levers.length,
+      spanningCount,
+      advisories,
+      overall,
+    };
+  }
+
   // ============================================================
   // PHASE 4 RENDERING
   // ============================================================
+
+  function renderSecondaryLevers(secResult) {
+    const wrap = document.getElementById('secondary-levers-wrap');
+    if (!wrap) return;
+
+    // Cleared when disabled (secResult null) or no land table / plat mapped.
+    const active = secondaryLeversActive();
+    if (!secResult || !active.length) { wrap.innerHTML = ''; return; }
+
+    const rules = state.modifierRules;
+    const gapPct = ((rules.secondaryLeverGap != null ? rules.secondaryLeverGap : 0.10) * 100);
+    const activeNames = active.map(f => f.label).join(' and ');
+    const excludes = state.secondaryExcludes || new Set();
+
+    const pctClass = (p) => p == null ? '' : p === 0 ? 'pct-zero' : p > 0 ? 'pct-positive' : 'pct-negative';
+    const pctTxt = (p) => p == null ? '\u2014' : (p > 0 ? '+' : '') + p.toFixed(2) + '%';
+    const codTxt = (v) => v == null ? '\u2014' : v.toFixed(2);
+    const medTxt = (v) => v == null ? '\u2014' : pct(v);
+
+    const controls = `
+      <div class="sec-lever-controls">
+        <label title="A lever is flagged when its pooled median across all its sales is at least this far off the sale-weighted blend of the neighborhood medians it touches.">
+          <span>Flag gap \u2265</span>
+          <input type="number" class="sec-gap-input" id="sec-gap-input" min="1" max="50" step="1" value="${gapPct.toFixed(0)}" />
+          <span>%</span>
+        </label>
+        <span class="sec-lever-controls-note">Uncheck a lever to drop its factor from the "secondary only" and "both" columns.</span>
+      </div>
+    `;
+
+    // Study-wide four-state readout.
+    let overallReadout = '';
+    if (secResult && secResult.overall) {
+      const o = secResult.overall;
+      const baseCod = o.raw.cod;
+      const deltaCell = (cod) => {
+        if (cod == null || baseCod == null) return '';
+        const d = baseCod - cod;
+        const cls = d > 0 ? 'pct-positive' : d < 0 ? 'pct-negative' : 'pct-zero';
+        const txt = d > 0 ? `\u2212${d.toFixed(2)}` : d < 0 ? `+${Math.abs(d).toFixed(2)}` : '0.00';
+        return ` <span class="${cls}">(${txt})</span>`;
+      };
+      const col = (label, st, showDelta) => `
+        <div class="sec-state-col">
+          <div class="sec-state-label">${label}</div>
+          <div class="sec-state-med">median ${medTxt(st.median)}</div>
+          <div class="sec-state-cod">COD <strong>${codTxt(st.cod)}</strong>${showDelta ? deltaCell(st.cod) : ''}</div>
+        </div>
+      `;
+      const spanNote = secResult.spanningCount > 0
+        ? ` ${secResult.spanningCount} of them span more than one neighborhood.`
+        : '';
+      overallReadout = `
+        <div class="sec-lever-overall">
+          <div class="sec-lever-overall-title">Study-wide projected effect \u2014 ${secResult.totalRecs} flagged lever${secResult.totalRecs === 1 ? '' : 's'}.${spanNote}</div>
+          <div class="sec-state-row">
+            ${col('Raw', o.raw, false)}
+            ${col('Nbr modifier only', o.nbrOnly, true)}
+            ${col('Secondary only', o.secOnly, true)}
+            ${col('Both', o.both, true)}
+          </div>
+          <div class="sec-lever-overall-note">COD change in parentheses is versus raw. Each lever gets one factor over its whole universe of sales, targeting the sale-weighted blend of the neighborhood medians it touches. "Secondary only" uses the raw blended target; "both" uses the post-modifier blended target. Simulated on each sale \u2014 nothing is written.</div>
+        </div>
+      `;
+    }
+
+    const expandAll = !!state.secondaryExpandAll;
+    let cards;
+    if (!secResult.levers.length) {
+      cards = `<div class="sec-lever-empty">No land table or plat has a pooled median more than ${gapPct.toFixed(0)}% off the blend of the neighborhoods it touches. Nothing to recommend at the secondary level.</div>`;
+    } else {
+      const expandRow = `
+        <div class="sec-table-toolbar">
+          <label class="sec-expand-all" title="Expand every lever's per-neighborhood breakdown at once.">
+            <input type="checkbox" id="sec-expand-all" ${expandAll ? 'checked' : ''} />
+            <span>Expand all detail</span>
+          </label>
+          <span class="sec-table-count">${secResult.levers.length} flagged lever${secResult.levers.length === 1 ? '' : 's'}</span>
+        </div>`;
+
+      const bodyRows = secResult.levers.map((L, i) => {
+        const key = L.key;
+        const excluded = excludes.has(key);
+        const isPlat = L.field === 'plat';
+        const spanTxt = L.touches > 1 ? `${L.touches} nbrs` : '1 nbr';
+        const spanCls = L.touches > 1 ? 'sec-cell-span-multi' : 'sec-cell-span-single';
+        // Disagreement: range of the lever's own median across its neighborhoods.
+        // Small = uniformly off (clean single factor); large = off in one place,
+        // fine in another (the single factor is a compromise). Only meaningful
+        // for spanning levers.
+        const spreadTxt = (L.spreadRaw != null && L.touches > 1)
+          ? `${(L.spreadRaw * 100).toFixed(1)} pts` : '\u2014';
+        const spreadCls = (L.spreadRaw != null && L.touches > 1 && L.spreadRaw >= 0.10) ? 'pct-negative' : '';
+        const lostTag = L.lostSales > 0
+          ? `<span class="sec-lost-inline" title="One sale, one lever: ${L.lostSales} sale${L.lostSales === 1 ? '' : 's'} owned by an overlapping lever.">\u2296${L.lostSales}</span>`
+          : '';
+
+        // Detail (per-neighborhood breakdown), shown when expanded.
+        const breakdownRows = L.perNbr.map(p => {
+          const f = L.factorRaw;
+          const after = (p.leverMedian != null && f != null) ? p.leverMedian * (1 + f / 100) : null;
+          const gapHere = (p.leverMedian != null && p.nbrMedian != null && p.nbrMedian > 0) ? (p.leverMedian - p.nbrMedian) / p.nbrMedian * 100 : null;
+          const afterGap = (after != null && p.nbrMedian != null && p.nbrMedian > 0) ? (after - p.nbrMedian) / p.nbrMedian * 100 : null;
+          return `<tr>
+            <td>${escapeHtml(p.nbr)}${p.isWholeNbr ? ' <span class="sec-whole-note" title="Lever is the entire neighborhood here.">(whole nbr)</span>' : ''}</td>
+            <td class="num">${p.n}</td>
+            <td class="num">${medTxt(p.leverMedian)}</td>
+            <td class="num">${medTxt(p.nbrMedian)}</td>
+            <td class="num ${pctClass(gapHere)}">${gapHere == null ? '\u2014' : (gapHere > 0 ? '+' : '') + gapHere.toFixed(1) + '%'}</td>
+            <td class="num">${medTxt(after)}</td>
+            <td class="num ${pctClass(afterGap)}">${afterGap == null ? '\u2014' : (afterGap > 0 ? '+' : '') + afterGap.toFixed(1) + '%'}</td>
+          </tr>`;
+        }).join('');
+        const caveat = isPlat
+          ? `Plat factor is the total-value move implied by these sales. Confirm against plat sale coverage before adjusting. Apply through the plat mechanism in CAMA.`
+          : `Land table factor is the total-value move implied by these sales. Apply through the land table mechanism in CAMA, where land-vs-improvement allocation lives.`;
+        const spreadNote = (L.spreadRaw != null && L.touches > 1)
+          ? `<span class="sec-detail-spread">disagreement ${(L.spreadRaw * 100).toFixed(1)} pts across its neighborhoods</span>` : '';
+
+        const detailRow = `
+          <tr class="sec-detail-row ${expandAll ? '' : 'sec-detail-hidden'}" data-detail="${escapeAttr(key)}">
+            <td colspan="8">
+              <div class="sec-detail-wrap">
+                <div class="sec-detail-meta">
+                  <span>pooled median ${medTxt(L.leverMedianRaw)}</span>
+                  <span>blended target ${medTxt(L.blendedTargetRaw)}</span>
+                  ${spreadNote}
+                </div>
+                <table class="sec-lever-table">
+                  <thead><tr><th>Neighborhood</th><th>n</th><th>Lever median here</th><th>Nbr median</th><th>Gap here</th><th>After factor</th><th>Resulting gap</th></tr></thead>
+                  <tbody>${breakdownRows}</tbody>
+                </table>
+                <div class="sec-lever-caveat">${caveat}</div>
+              </div>
+            </td>
+          </tr>`;
+
+        return `
+          <tr class="sec-sum-row ${excluded ? 'sec-row-excluded' : ''}" data-row="${escapeAttr(key)}">
+            <td class="sec-check-cell"><input type="checkbox" class="sec-bucket-check" data-key="${escapeAttr(key)}" ${excluded ? '' : 'checked'} title="Include in the secondary-only and both columns" /></td>
+            <td class="sec-expand-cell"><button class="sec-expand-btn" data-toggle="${escapeAttr(key)}" aria-label="Toggle detail" title="Show per-neighborhood breakdown">${expandAll ? '\u25be' : '\u25b8'}</button></td>
+            <td><strong>${escapeHtml(L.fieldLabel)}: ${escapeHtml(L.bucket)}</strong></td>
+            <td class="${spanCls}">${spanTxt}${lostTag}</td>
+            <td class="num">${L.n}</td>
+            <td class="num ${pctClass(L.factorRaw)}">${pctTxt(L.factorRaw)}</td>
+            <td class="num ${pctClass(L.factorPost)}">${pctTxt(L.factorPost)}</td>
+            <td class="num ${spreadCls}">${spreadTxt}</td>
+          </tr>
+          ${detailRow}`;
+      }).join('');
+
+      cards = `
+        ${expandRow}
+        <div class="sec-sum-table-wrap">
+          <table class="sec-sum-table">
+            <thead>
+              <tr>
+                <th class="sec-check-cell" title="Include in secondary-only and both columns">Use</th>
+                <th class="sec-expand-cell"></th>
+                <th>Lever</th>
+                <th title="Neighborhoods this lever spans">Span</th>
+                <th>n</th>
+                <th title="Factor measured against the raw neighborhood blend (secondary-only column)">Factor vs raw</th>
+                <th title="Factor measured against the post-modifier blend (both column)">Factor vs modifier</th>
+                <th title="Range of this lever's median across the neighborhoods it touches. Large = the single factor is a compromise; consider the neighborhood lever instead.">Disagreement</th>
+              </tr>
+            </thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    // Advisories: spanning land tables off in one neighborhood, fine elsewhere.
+    let advisoryBlock = '';
+    if (secResult && secResult.advisories && secResult.advisories.length) {
+      const advPts = ((secResult.advisorySpread ?? 0.15) * 100).toFixed(0);
+      const items = secResult.advisories.map(a => {
+        const detail = a.perNbr.map(p => {
+          const gapHere = (p.nbrMedian != null && p.nbrMedian > 0)
+            ? (p.leverMedian - p.nbrMedian) / p.nbrMedian * 100 : null;
+          return `<tr>
+            <td>${escapeHtml(p.nbr)}</td>
+            <td class="num">${p.n}</td>
+            <td class="num">${medTxt(p.leverMedian)}</td>
+            <td class="num">${medTxt(p.nbrMedian)}</td>
+            <td class="num ${pctClass(gapHere)}">${gapHere == null ? '\u2014' : (gapHere > 0 ? '+' : '') + gapHere.toFixed(1) + '%'}</td>
+          </tr>`;
+        }).join('');
+        return `
+          <div class="sec-advisory">
+            <div class="sec-advisory-head">
+              <strong>Land table: ${escapeHtml(a.bucket)}</strong>
+              <span class="sec-advisory-spread">${(a.spread * 100).toFixed(1)} pts spread across ${a.touches} neighborhoods</span>
+            </div>
+            <p class="sec-advisory-msg">This land table is off in some neighborhoods and fine in others, so no single table factor fits. Handle the off neighborhoods with the neighborhood land modifier rather than changing the table.</p>
+            <table class="sec-lever-table">
+              <thead><tr><th>Neighborhood</th><th>n</th><th>Table median here</th><th>Nbr median</th><th>Gap here</th></tr></thead>
+              <tbody>${detail}</tbody>
+            </table>
+          </div>
+        `;
+      }).join('');
+      advisoryBlock = `
+        <div class="sec-advisory-block">
+          <h4 class="sec-advisory-title">Advisories \u2014 use the neighborhood land modifier, not the table</h4>
+          <p class="sec-advisory-intro">These land tables span neighborhoods and vary by at least ${advPts} points across them, but their pooled universe is within the flag threshold so no global factor is recommended. The split is the signal: the table is right on average and wrong in places, which is a neighborhood-level fix.</p>
+          ${items}
+        </div>
+      `;
+    }
+
+    const hasExcludes = excludes.size > 0;
+    wrap.innerHTML = `
+      <div class="sec-lever-block">
+        <div class="sec-lever-head">
+          <h3>Secondary levers \u2014 ${escapeHtml(activeNames.toLowerCase())}</h3>
+          <div>
+            ${hasExcludes ? `<button class="btn-reset-overrides" id="btn-sec-reset">reset checkboxes</button>` : ''}
+            <button class="btn-csv" id="btn-export-secondary">Download CSV</button>
+          </div>
+        </div>
+        <p class="sec-lever-intro">A land table or plat is a single object in CAMA and can appear in more than one neighborhood. Each flagged lever gets ONE factor, computed over its whole universe of sales and aimed at the blend of the neighborhoods it touches. The breakdown under each lever shows how that single factor lands in each neighborhood, so you can see whether it fits everywhere or is a compromise. Where a land table and a plat overlap on the same sales, the sale is owned by whichever lever improves COD more on the shared sales.</p>
+        ${controls}
+        ${overallReadout}
+        ${cards}
+        ${advisoryBlock}
+      </div>
+    `;
+
+    const gapInput = document.getElementById('sec-gap-input');
+    if (gapInput) {
+      gapInput.addEventListener('change', e => {
+        let v = parseFloat(e.target.value);
+        if (!isFinite(v)) v = 10;
+        v = Math.max(1, Math.min(50, v));
+        state.modifierRules.secondaryLeverGap = v / 100;
+        refreshModifierResults();
+      });
+    }
+    wrap.querySelectorAll('.sec-bucket-check').forEach(cb => {
+      cb.addEventListener('change', e => {
+        const key = e.target.dataset.key;
+        if (!state.secondaryExcludes) state.secondaryExcludes = new Set();
+        if (e.target.checked) state.secondaryExcludes.delete(key);
+        else state.secondaryExcludes.add(key);
+        refreshModifierResults();
+      });
+    });
+    const resetBtn = document.getElementById('btn-sec-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        state.secondaryExcludes = new Set();
+        refreshModifierResults();
+      });
+    }
+    // Expand-all toggle: opens/closes every detail row at once.
+    const expandAllCb = document.getElementById('sec-expand-all');
+    if (expandAllCb) {
+      expandAllCb.addEventListener('change', e => {
+        state.secondaryExpandAll = e.target.checked;
+        wrap.querySelectorAll('.sec-detail-row').forEach(dr => dr.classList.toggle('sec-detail-hidden', !e.target.checked));
+        wrap.querySelectorAll('.sec-expand-btn').forEach(b => b.textContent = e.target.checked ? '\u25be' : '\u25b8');
+      });
+    }
+    // Per-row expand buttons: toggle just that lever's detail row.
+    wrap.querySelectorAll('.sec-expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.toggle;
+        const dr = wrap.querySelector(`.sec-detail-row[data-detail="${CSS.escape(key)}"]`);
+        if (!dr) return;
+        const nowHidden = dr.classList.toggle('sec-detail-hidden');
+        btn.textContent = nowHidden ? '\u25b8' : '\u25be';
+      });
+    });
+    const expBtn = document.getElementById('btn-export-secondary');
+    if (expBtn) expBtn.addEventListener('click', () => exportSecondaryLeversCSV(secResult));
+  }
+
+  function exportSecondaryLeversCSV(secResult) {
+    if (!secResult || !secResult.levers.length) {
+      alert('No secondary-lever recommendations to export.');
+      return;
+    }
+    const excludes = state.secondaryExcludes || new Set();
+    const fmt = (v, d = 4) => v == null ? '' : v.toFixed(d);
+    const q = (s) => (String(s).includes(',') || String(s).includes('"')) ? `"${String(s).replace(/"/g, '""')}"` : String(s);
+
+    const lines = [];
+    const o = secResult.overall;
+    lines.push(['Study-wide state', 'Median', 'COD'].join(','));
+    lines.push(['Raw', fmt(o.raw.median), fmt(o.raw.cod, 2)].join(','));
+    lines.push(['Neighborhood modifier only', fmt(o.nbrOnly.median), fmt(o.nbrOnly.cod, 2)].join(','));
+    lines.push(['Secondary only', fmt(o.secOnly.median), fmt(o.secOnly.cod, 2)].join(','));
+    lines.push(['Both', fmt(o.both.median), fmt(o.both.cod, 2)].join(','));
+    lines.push('');
+    // Per-lever summary
+    lines.push(['Lever', 'Bucket', 'n', 'Neighborhoods', 'Included', 'Pooled Median (raw)', 'Blended Target (raw)',
+                'Factor vs Raw %', 'Factor vs Modifier %', 'Disagreement (pts)', 'Sales Ceded to Overlap'].join(','));
+    for (const L of secResult.levers) {
+      const included = !excludes.has(L.key);
+      lines.push([
+        q(L.fieldLabel), q(L.bucket), L.n, L.touches, included ? 'yes' : 'no',
+        fmt(L.leverMedianRaw), fmt(L.blendedTargetRaw),
+        L.factorRaw == null ? '' : L.factorRaw.toFixed(2),
+        L.factorPost == null ? '' : L.factorPost.toFixed(2),
+        L.spreadRaw == null ? '' : (L.spreadRaw * 100).toFixed(1),
+        L.lostSales,
+      ].join(','));
+    }
+    lines.push('');
+    // Per-lever, per-neighborhood breakdown
+    lines.push(['Lever', 'Bucket', 'Neighborhood', 'n here', 'Lever Median Here', 'Nbr Median', 'Gap Here %', 'After Factor', 'Resulting Gap %'].join(','));
+    for (const L of secResult.levers) {
+      for (const p of L.perNbr) {
+        const after = (p.leverMedian != null && L.factorRaw != null) ? p.leverMedian * (1 + L.factorRaw / 100) : null;
+        const gapHere = (p.leverMedian != null && p.nbrMedian) ? (p.leverMedian - p.nbrMedian) / p.nbrMedian * 100 : null;
+        const afterGap = (after != null && p.nbrMedian) ? (after - p.nbrMedian) / p.nbrMedian * 100 : null;
+        lines.push([
+          q(L.fieldLabel), q(L.bucket), q(p.nbr), p.n,
+          fmt(p.leverMedian), fmt(p.nbrMedian),
+          gapHere == null ? '' : gapHere.toFixed(1),
+          fmt(after), afterGap == null ? '' : afterGap.toFixed(1),
+        ].join(','));
+      }
+    }
+    // Advisories: spanning land tables that need the neighborhood lever instead
+    if (secResult.advisories && secResult.advisories.length) {
+      lines.push('');
+      lines.push(['Advisory (use neighborhood land modifier, not the table)'].join(','));
+      lines.push(['Land Table', 'Neighborhoods Spanned', 'Spread (pts)', 'Neighborhood', 'n here', 'Table Median Here', 'Nbr Median', 'Gap Here %'].join(','));
+      for (const a of secResult.advisories) {
+        for (const p of a.perNbr) {
+          const gapHere = (p.leverMedian != null && p.nbrMedian) ? (p.leverMedian - p.nbrMedian) / p.nbrMedian * 100 : null;
+          lines.push([
+            q(a.bucket), a.touches, (a.spread * 100).toFixed(1),
+            q(p.nbr), p.n, fmt(p.leverMedian), fmt(p.nbrMedian),
+            gapHere == null ? '' : gapHere.toFixed(1),
+          ].join(','));
+        }
+      }
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `secondary-levers${state.applyTimeAdjustment ? '-time-adjusted' : ''}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   function renderModifierStep() {
     const container = document.getElementById('modifier-content');
@@ -8861,12 +10374,30 @@
         </div>
         <div class="mod-table-wrap"><table class="mod-table" id="mod-table"></table></div>
       </div>
+      <div class="sec-enable-row">
+        <label class="sec-enable-toggle" title="Land table and plat adjustments for splitting within-neighborhood tilt. Advanced — off by default. Only useful if your county adjusts values at the land table or plat level.">
+          <input type="checkbox" id="sec-enable-input" ${state.secondaryLeversEnabled ? 'checked' : ''} />
+          <span class="sec-enable-label">Secondary levers</span>
+          <span class="sec-enable-desc">land table and plat adjustments for within-neighborhood tilt (advanced)</span>
+        </label>
+      </div>
+      <div id="secondary-levers-wrap"></div>
     `;
 
     renderRulesPanel();
     refreshModifierResults();
 
     document.getElementById('btn-export-mod').addEventListener('click', exportModifierCSV);
+
+    // Secondary-levers master enable. Off by default; when toggled, recompute
+    // and re-render the section (or clear it).
+    const secEnable = document.getElementById('sec-enable-input');
+    if (secEnable) {
+      secEnable.addEventListener('change', e => {
+        state.secondaryLeversEnabled = e.target.checked;
+        refreshModifierResults();
+      });
+    }
 
     // Modifier table column-visibility toggle. Default-hides COD, Conf, and
     // Notes columns so the at-a-glance view shows just the actionable
@@ -9568,6 +11099,10 @@
 
     renderModifierSummary(result, baseline);
     renderModifierTable(result);
+    // Secondary levers only compute and render when explicitly enabled. Off by
+    // default so counties that don't use land table / plat adjustments never see
+    // the section.
+    renderSecondaryLevers(state.secondaryLeversEnabled ? computeSecondaryLevers(eff, rules, result) : null);
     // Cache for the recommended-actions guidance so it doesn't have to re-run
     // the cascade (which can include the COD optimizer) on every render.
     state.lastModifierResult = result;
@@ -9742,9 +11277,25 @@
         <span class="active-caps-chips">${capChips.join(' · ')}</span>
       </div>`;
 
+    // Reval-workflow rail controls. "Release all flagged" lifts the cap, floor,
+    // and COV-minimum on every held or clamped neighborhood at once, including
+    // no-change-band neighborhoods (for when the whole study is a reinspection/
+    // reval area where notices go to all parcels); "Restore all rails" clears
+    // every release. Shown only when there is something to act on.
+    const releasableCount = result.recs.filter(rec => rec.releasable && !rec.released).length;
+    const releasedCount = result.recs.filter(rec => rec.released).length;
+    const railsHtml = (releasableCount > 0 || releasedCount > 0) ? `
+      <div class="rails-line">
+        <span class="rails-label">Reval workflow:</span>
+        ${releasableCount > 0 ? `<button type="button" class="rails-btn" id="btn-release-all">Release all flagged (${releasableCount})</button>` : ''}
+        ${releasedCount > 0 ? `<button type="button" class="rails-btn rails-btn-restore" id="btn-restore-rails">Restore all rails (${releasedCount})</button>` : ''}
+        <span class="rails-hint">Lifts the no-change band, floor, cap, and COV-minimum so neighborhoods land on their full target. Use when the whole study is a reinspection or reval area.</span>
+      </div>` : '';
+
     wrap.innerHTML = `
       ${exceeded ? `<div class="mod-summary-warning"><strong>Overall median ceiling exceeded.</strong> Simulated overall median (${pct(postMed)}) is above the set ceiling of ${pct(ceiling)}. Review the rules or roll back the most aggressive adjustments.</div>` : ''}
       ${capsHtml}
+      ${railsHtml}
       ${buildOptimizationDiagnostic(result, baseline, r)}
       <div class="mod-summary-grid">
         <div class="mod-summary-stat ${exceeded ? 'warn' : ''}">
@@ -9760,16 +11311,36 @@
         <div class="mod-summary-stat">
           <div class="mod-summary-label">Neighborhoods</div>
           <div class="mod-summary-value">${result.recs.length}</div>
-          <div class="mod-summary-sub">${(result.counts['No change'] || 0) + (result.counts['Skipped'] || 0)} no change · ${(result.counts['Adjusted'] || 0) + (result.counts['Capped'] || 0) + (result.counts['Floored'] || 0) + (result.counts['Low-n conservative'] || 0)} changed</div>
+          <div class="mod-summary-sub">${(result.counts['No change'] || 0) + (result.counts['Skipped'] || 0)} no change · ${(result.counts['Adjusted'] || 0) + (result.counts['Capped'] || 0) + (result.counts['Floored'] || 0) + (result.counts['Released'] || 0) + (result.counts['Low-n conservative'] || 0)} changed</div>
         </div>
         <div class="mod-summary-stat">
           <div class="mod-summary-label">Flagged</div>
           <div class="mod-summary-value">${(result.counts['Capped'] || 0) + (result.counts['Floored'] || 0) + (result.counts['Low-n conservative'] || 0) + (result.counts['Skipped'] || 0)}</div>
-          <div class="mod-summary-sub">${result.counts['Capped'] || 0} capped · ${result.counts['Floored'] || 0} floored · ${result.counts['Low-n conservative'] || 0} low-n${result.counts['Skipped'] ? ` · ${result.counts['Skipped']} user-skipped` : ''}</div>
+          <div class="mod-summary-sub">${result.counts['Capped'] || 0} capped · ${result.counts['Floored'] || 0} floored · ${result.counts['Low-n conservative'] || 0} low-n${result.counts['Skipped'] ? ` · ${result.counts['Skipped']} user-skipped` : ''}${releasedCount ? ` · ${releasedCount} released` : ''}</div>
         </div>
       </div>
       <div id="mod-synopsis"></div>
     `;
+
+    const releaseAllBtn = document.getElementById('btn-release-all');
+    if (releaseAllBtn) {
+      releaseAllBtn.addEventListener('click', () => {
+        for (const rec of result.recs) {
+          if (rec.releasable) {
+            state.modifierRailReleases[rec.stratum] = true;
+            delete state.modifierUserSkips[rec.stratum];
+          }
+        }
+        refreshModifierResults();
+      });
+    }
+    const restoreRailsBtn = document.getElementById('btn-restore-rails');
+    if (restoreRailsBtn) {
+      restoreRailsBtn.addEventListener('click', () => {
+        state.modifierRailReleases = {};
+        refreshModifierResults();
+      });
+    }
 
     renderSectionSynopsis('mod-synopsis', buildModifierSynopsis(result), 'Interpretation');
   }
@@ -9823,12 +11394,26 @@
     };
 
     const body = rows.map(r => {
-      const rowCls = r.decision === 'No change' || r.decision === 'Skipped' ? 'no-change'
-                   : (r.decision === 'Capped' || r.decision === 'Floored') ? 'flagged-cap'
+      const rowCls = r.released ? 'flagged-released'
+                   : r.decision === 'No change' || r.decision === 'Skipped' ? 'no-change'
+                   : (r.decision === 'Capped' || r.decision === 'Floored' || r.decision === 'Below COV threshold') ? 'flagged-cap'
                    : r.n < state.modifierRules.lowNThreshold ? 'low-n' : '';
       const confTitle = r.conf.factors.map(f => `${f.key}: ${f.label}`).join('\n') + `\nDriver: ${r.conf.driver?.key} ${r.conf.driver?.label}`;
-      // Checkbox is checked if user forced skip OR rule said no-change with no user override
-      const checked = (r.userOverride === true) || (r.userOverride === undefined && r.skip);
+      // Checkbox is checked when the neighborhood is held at no change this cycle:
+      // a forced skip, or a natural no-change with no override. A released row is
+      // moving to target, so its box reads unchecked — the pill and the box never
+      // contradict.
+      const checked = !r.released && ((r.userOverride === true) || (r.userOverride === undefined && r.skip));
+      // The decision pill is a single release toggle. Any held or clamped row
+      // (no-change band, floor, cap, COV-minimum, or no-crossing) is clickable;
+      // one click drops every rule and sends the neighborhood to its full target,
+      // one click restores the rules result. Everything else is a static pill.
+      const pillTitle = r.released
+        ? 'Released to its full target, every rule lifted (no-change band, floor, cap, COV-minimum). Click to restore the rules result for this neighborhood.'
+        : 'Held or limited by the rules. Click to release it to its full target with every rule lifted (reval workflow).';
+      const pillCell = r.releasable
+        ? `<button type="button" class="decision-pill ${r.decisionClass} pill-toggle" data-stratum="${escapeAttr(r.stratum)}" title="${escapeAttr(pillTitle)}">${escapeHtml(r.decision)}</button>`
+        : `<span class="decision-pill ${r.decisionClass}">${escapeHtml(r.decision)}</span>`;
       // Add fallback annotation to notes inline if applicable (one-time, doesn't
       // pollute r.notes since we keep that stored separately)
       let displayNotes = r.notes;
@@ -9849,7 +11434,7 @@
           <td class="num">${pct(r.median)}</td>
           <td class="num col-secondary col-cod">${dec(r.cod, 2)}</td>
           <td class="num">${pct(r.target)}</td>
-          <td><span class="decision-pill ${r.decisionClass}">${escapeHtml(r.decision)}</span></td>
+          <td>${pillCell}</td>
           ${adjustmentCells(r)}
           <td class="num">${pct(r.simulated)}</td>
           <td class="col-secondary col-conf"><span class="conf-badge ${r.conf.grade}" title="${escapeAttr(confTitle)}">${r.conf.grade}</span></td>
@@ -9896,23 +11481,49 @@
       });
     });
 
-    // Skip checkbox handlers
+    // Skip checkbox handlers. The box is the "hold at no change" control, kept
+    // consistent with the release pill: checking holds the neighborhood at no
+    // change, unchecking a held or clamped neighborhood releases it to its full
+    // target. Hold and release are opposite intents, so each clears the other.
     tbl.querySelectorAll('.skip-checkbox').forEach(cb => {
       cb.addEventListener('change', e => {
         const stratum = e.target.dataset.stratum;
-        // Find the row to determine its natural (rule-driven) skip state
         const row = rows.find(r => r.stratum === stratum);
         if (!row) return;
-        const naturallySkipped = row.skip && row.userOverride === undefined;
-        const checked = e.target.checked;
-        if (checked && !naturallySkipped) {
-          // User actively skipping a row the rules wanted to adjust
-          state.modifierUserSkips[stratum] = true;
-        } else if (!checked && naturallySkipped) {
-          // User actively un-skipping a row the rules wanted to no-change
-          state.modifierUserSkips[stratum] = false;
+        if (e.target.checked) {
+          // Hold at no change.
+          delete state.modifierRailReleases[stratum];
+          if (row.wouldBeNoChange) {
+            delete state.modifierUserSkips[stratum];   // natural no-change band hold
+          } else {
+            state.modifierUserSkips[stratum] = true;   // force-hold a row the rules would move
+          }
         } else {
-          // Reverting to natural rule decision
+          // Let it change. A held or clamped row releases to its full target;
+          // a row that was only force-held reverts to the natural rules result.
+          delete state.modifierUserSkips[stratum];
+          if (row.releasable) {
+            state.modifierRailReleases[stratum] = true;
+          } else {
+            delete state.modifierRailReleases[stratum];
+          }
+        }
+        refreshModifierResults();
+      });
+    });
+
+    // Decision-pill release toggle. One click releases a held or clamped
+    // neighborhood to its full target (every rule lifted); one click restores
+    // the rules result. Release and hold are opposite intents, so releasing
+    // clears any forced skip.
+    tbl.querySelectorAll('.pill-toggle').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const stratum = e.currentTarget.dataset.stratum;
+        if (!stratum) return;
+        if (state.modifierRailReleases[stratum]) {
+          delete state.modifierRailReleases[stratum];
+        } else {
+          state.modifierRailReleases[stratum] = true;
           delete state.modifierUserSkips[stratum];
         }
         refreshModifierResults();
@@ -10073,12 +11684,14 @@
       stratifiers: state.stratifiers.slice(),
       stratLimit: state.stratLimit,
       modifierUserSkips: { ...state.modifierUserSkips },
+      modifierRailReleases: { ...state.modifierRailReleases },
       reportTitle: state.reportTitle || '',
       countyName: state.countyName || '',
       printSections: { ...state.printSections },
       printSortStrat: state.printSortStrat,
       printSortModifier: state.printSortModifier,
       glaBinChoice: state.glaBinChoice,
+      acreageBinChoice: state.acreageBinChoice,
       histogramBinWidth: state.histogramBinWidth,
       stratumVEKey: state.stratumVEKey || null,
       currentPreset: state.currentPreset,
@@ -10144,12 +11757,14 @@
     if (Array.isArray(cfg.stratifiers)) state.stratifiers = cfg.stratifiers.slice(0, 3);
     if (cfg.stratLimit != null) state.stratLimit = cfg.stratLimit;
     if (cfg.modifierUserSkips) state.modifierUserSkips = { ...cfg.modifierUserSkips };
+    if (cfg.modifierRailReleases) state.modifierRailReleases = { ...cfg.modifierRailReleases };
     if (typeof cfg.reportTitle === 'string') state.reportTitle = cfg.reportTitle;
     if (typeof cfg.countyName === 'string') state.countyName = cfg.countyName;
     if (cfg.printSections) state.printSections = { ...state.printSections, ...cfg.printSections };
     if (cfg.printSortStrat) state.printSortStrat = cfg.printSortStrat;
     if (cfg.printSortModifier) state.printSortModifier = cfg.printSortModifier;
     if (cfg.glaBinChoice) state.glaBinChoice = cfg.glaBinChoice;
+    if (cfg.acreageBinChoice) state.acreageBinChoice = cfg.acreageBinChoice;
     if (cfg.histogramBinWidth) state.histogramBinWidth = cfg.histogramBinWidth;
     if (cfg.stratumVEKey) state.stratumVEKey = cfg.stratumVEKey;
     state.currentPreset = '__default__';   // loaded config supersedes presets
@@ -10160,6 +11775,7 @@
       // Trend method may have changed inside the rules — recompute first.
       state.timeTrend = computeTimeTrend(cleanRows);
       renderTimeAdjustment();
+      renderOutlierPanel();
       renderDiagnostics();
       renderVerticalEquity();
       renderStratificationControls();
@@ -10612,19 +12228,19 @@
         </div>
         <div class="export-actions">
           <button class="btn-export btn-export-primary" id="btn-print-report">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             Open printable report
           </button>
           <button class="btn-export btn-export-secondary" id="btn-excel-report">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="19"/><line x1="15" y1="13" x2="9" y2="19"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="19"/><line x1="15" y1="13" x2="9" y2="19"/></svg>
             Download Excel workbook
           </button>
           <button class="btn-export btn-export-secondary" id="btn-presentation-view" title="A one-page, plain-language summary with visuals built for commissioners, boards, and the public — no jargon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             Open presentation view
           </button>
           <button class="btn-export btn-export-secondary" id="btn-boe-view" title="A formal evidence packet for the Board of Equalization: IAAO compliance, methodology, provenance, and equalization summary. Opens in its own window and prints cleanly.">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>
             Open BOE evidence packet
           </button>
         </div>
@@ -11295,17 +12911,32 @@ ${hasProposal ? `<scr` + `ipt>
 
     const droppedTotal = (d.droppedMultiParcel || 0) + (d.droppedMissingRequired || 0) + (d.droppedBadValues || 0);
 
-    // Equalization (per-neighborhood level) rows.
+    // Equalization (per-neighborhood level) rows. Each row carries both its
+    // current median/status and the projected median/status after the
+    // recommended modifier, so the packet's toggle can switch states
+    // client-side without recomputing.
     let nbrRows = '';
+    let boeEqTotal = 0, boeEqCurOut = 0;
     if (data.neighborhoods) {
+      const inRange = (m) => m != null && m >= 0.90 && m <= 1.10;
+      boeEqTotal = data.neighborhoods.length;
       nbrRows = data.neighborhoods.map(r => {
-        const lvlOk = r.median != null && r.median >= 0.90 && r.median <= 1.10;
-        return `<tr>
+        const curMed = r.median;
+        const projMed = (r.simulated != null) ? r.simulated : r.median;
+        const curReview = !inRange(curMed);
+        const projReview = !inRange(projMed);
+        if (curReview) boeEqCurOut++;
+        const curText = curMed != null ? pct(curMed) : '—';
+        const projText = projMed != null ? pct(projMed) : '—';
+        const statusHtml = (rev) => rev
+          ? '<span class="boe-fail-sm">review</span>'
+          : '<span class="boe-pass-sm">in range</span>';
+        return `<tr class="boe-eq-row" data-cur-median="${curText}" data-proj-median="${projText}" data-cur-review="${curReview ? '1' : '0'}" data-proj-review="${projReview ? '1' : '0'}">
           <td>${escapeHtml(r.stratum)}</td>
           <td class="num">${r.n}</td>
-          <td class="num">${pct(r.median)}</td>
+          <td class="num boe-eq-median">${curText}</td>
           <td class="num">${dec(r.cod, 1)}</td>
-          <td>${lvlOk ? '<span class="boe-pass-sm">in range</span>' : '<span class="boe-fail-sm">review</span>'}</td>
+          <td class="boe-eq-status">${statusHtml(curReview)}</td>
         </tr>`;
       }).join('');
     }
@@ -11342,6 +12973,12 @@ ${hasProposal ? `<scr` + `ipt>
   .boe-fail { color: #a3341f; }
   .boe-pass-sm { color: #1b6e3c; font-weight: 600; }
   .boe-fail-sm { color: #a3341f; font-weight: 600; }
+  .boe-eq-controls { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11.5px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 8px 0 6px; padding: 8px 10px; background: #f4f8f6; border: 1px solid #d8e8e0; border-radius: 4px; }
+  .boe-eq-controls-label { font-weight: 700; color: #2d6a4f; text-transform: uppercase; letter-spacing: 0.06em; font-size: 10.5px; }
+  .boe-eq-controls label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; color: #1b1d1b; }
+  .boe-eq-reviewonly { margin-left: auto; }
+  .boe-eq-summary { margin-top: 0; }
+  @media print { .boe-eq-controls { display: none; } }
   .plain { font-size: 12.5px; color: #3a3e38; margin-top: 6px; font-style: italic; }
   .method p { font-size: 12.5px; color: #1b1d1b; margin-bottom: 8px; }
   .note { font-size: 11.5px; color: #4a4e48; }
@@ -11393,13 +13030,25 @@ ${hasProposal ? `<scr` + `ipt>
       <h2>2. Methodology</h2>
       <p>This study follows the IAAO Standard on Ratio Studies. The sales ratio for each property is its assessed value divided by its sale price. Appraisal level is measured by the median ratio, which resists distortion from a few extreme sales. Uniformity is measured by the coefficient of dispersion. Vertical equity is measured by the price related differential, the price related bias, and a Spearman rank correlation, reported together because each captures a different facet of the same question.</p>
       <p>${trendLine}</p>
-      <p>Ratios beyond three times the interquartile range were reviewed as potential data anomalies, consistent with standard outlier screening. Vertical equity statistics for any neighborhood are reported only where that neighborhood has at least 15 sales; below that threshold the estimates are not statistically reliable and are withheld rather than shown.</p>
+      <p>${(() => {
+        const rule = d.outlierTrimRule;
+        if (rule === 'tukey3') return `Ratios beyond three times the interquartile range past the quartiles (the Tukey extreme fence) were removed from the analysis as data anomalies; ${(d.outlierTrimmedCount || 0).toLocaleString()} sale${d.outlierTrimmedCount === 1 ? ' was' : 's were'} excluded on this basis, applied uniformly to every sale.`;
+        if (rule === 'tukey15') return `Ratios beyond one and a half times the interquartile range past the quartiles (the Tukey fence) were removed from the analysis as data anomalies; ${(d.outlierTrimmedCount || 0).toLocaleString()} sale${d.outlierTrimmedCount === 1 ? ' was' : 's were'} excluded on this basis, applied uniformly to every sale.`;
+        return 'Ratios beyond three times the interquartile range were reviewed as potential data anomalies, consistent with standard outlier screening; no sales were removed on this basis.';
+      })()} Vertical equity statistics for any neighborhood are reported only where that neighborhood has at least 15 sales; below that threshold the estimates are not statistically reliable and are withheld rather than shown.</p>
     </div>
 
     ${data.neighborhoods ? `
     <div class="sect">
       <h2>3. Equalization summary by neighborhood</h2>
       <div class="plain" style="margin-bottom:10px;">Equalization asks whether assessment levels are consistent across the roll. The table lists each neighborhood's level (median ratio) and uniformity (COD), sorted from lowest level to highest, so the board can see at a glance whether any area sits outside the acceptable level band.</div>
+      <div class="boe-eq-controls">
+        <span class="boe-eq-controls-label">Level shown</span>
+        <label><input type="radio" name="boe-eq-mode" value="current" checked /> Current values</label>
+        <label><input type="radio" name="boe-eq-mode" value="applied" /> After recommended modifiers</label>
+        <label class="boe-eq-reviewonly"><input type="checkbox" id="boe-review-only" /> Show only neighborhoods needing review</label>
+      </div>
+      <div class="plain boe-eq-summary" id="boe-eq-summary">Current values: ${boeEqCurOut} of ${boeEqTotal} neighborhoods outside the IAAO level range (90%&ndash;110%).</div>
       <table>
         <thead><tr><th>Neighborhood</th><th class="num">Sales</th><th class="num">Median ratio</th><th class="num">COD</th><th>Level</th></tr></thead>
         <tbody>${nbrRows}</tbody>
@@ -11415,6 +13064,44 @@ ${hasProposal ? `<scr` + `ipt>
       Generated by the WSACA Sales Ratio Analysis Tool ${escapeHtml(TOOL_VERSION)}, a free, open-source tool for Washington's county assessor offices. Methods follow the IAAO Standard on Ratio Studies. Statistics on this page are computed directly from the verified sales described above and match the full technical study available from the assessor's office.
     </div>
   </div>
+  <script>
+  (function(){
+    var rows = [].slice.call(document.querySelectorAll('.boe-eq-row'));
+    if (!rows.length) return;
+    var modeEls = document.querySelectorAll('input[name="boe-eq-mode"]');
+    var reviewOnly = document.getElementById('boe-review-only');
+    var summary = document.getElementById('boe-eq-summary');
+    function currentMode(){
+      var c = document.querySelector('input[name="boe-eq-mode"]:checked');
+      return c ? c.value : 'current';
+    }
+    function render(){
+      var applied = currentMode() === 'applied';
+      var only = reviewOnly && reviewOnly.checked;
+      var out = 0, total = rows.length;
+      rows.forEach(function(tr){
+        var medText = applied ? tr.getAttribute('data-proj-median') : tr.getAttribute('data-cur-median');
+        var review = (applied ? tr.getAttribute('data-proj-review') : tr.getAttribute('data-cur-review')) === '1';
+        var medCell = tr.querySelector('.boe-eq-median');
+        var statCell = tr.querySelector('.boe-eq-status');
+        if (medCell) medCell.textContent = medText;
+        if (statCell) statCell.innerHTML = review
+          ? '<span class="boe-fail-sm">review</span>'
+          : '<span class="boe-pass-sm">in range</span>';
+        if (review) out++;
+        tr.style.display = (only && !review) ? 'none' : '';
+      });
+      if (summary) {
+        var label = applied ? 'After recommended modifiers (projected)' : 'Current values';
+        summary.innerHTML = label + ': ' + out + ' of ' + total +
+          ' neighborhoods outside the IAAO level range (90%\u2013110%).';
+      }
+    }
+    [].forEach.call(modeEls, function(el){ el.addEventListener('change', render); });
+    if (reviewOnly) reviewOnly.addEventListener('change', render);
+    render();
+  })();
+  <\/script>
 </body></html>`;
   }
 
@@ -11495,7 +13182,7 @@ ${hasProposal ? `<scr` + `ipt>
     let stratum = null;
     const sKey = state.deepDiveStratifier;
     if (sKey) {
-      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice, acreageBin: state.acreageBinChoice });
       if (binner) {
         const label = (typeof STRATIFIER_LABELS !== 'undefined' && STRATIFIER_LABELS[sKey]) ? STRATIFIER_LABELS[sKey] : sKey;
         // Bucket order: collect labels with their sortIdx across all selected sales.
@@ -11696,7 +13383,8 @@ ${hasProposal ? `<scr` + `ipt>
       } else {
         const parts = [];
         parts.push(`Current median ${pct(r.median)} against a target of ${pct(r.target)}.`);
-        if (r.decision === 'No change') parts.push(`The neighborhood sits inside the no-change zone, so the cascade left it alone.`);
+        if (r.released) parts.push(`Released to its full target for a reinspection/reval area: every rule (the no-change band, floor, cap, and COV-minimum) was lifted and the neighborhood moves to ${pct(r.target)} (${r.suggestedPct >= 0 ? '+' : ''}${r.suggestedPct.toFixed(2)}%), simulated median ${pct(r.simulated)}.`);
+        else if (r.decision === 'No change') parts.push(`The neighborhood sits inside the no-change zone, so the cascade left it alone.`);
         else if (r.decision === 'Capped') parts.push(`The data called for a larger upward move than the maximum-change cap allows, so the recommendation was capped. This is worth a manual look.`);
         else if (r.decision === 'Floored') parts.push(`The data called for a larger downward move than the floor allows, so the recommendation was floored. This is worth a manual look.`);
         else if (r.decision === 'Skipped') parts.push(`This neighborhood was held out of the cascade.`);
@@ -11870,7 +13558,7 @@ ${stratumSection}
 
     // Stratification — collect data per active stratifier using the binning helper
     const stratResults = state.stratifiers.filter(Boolean).map(sKey => {
-      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice });
+      const binner = buildStratBinner(sKey, eff, { glaBin: state.glaBinChoice, acreageBin: state.acreageBinChoice });
       if (!binner) return null;
       const groups = new Map();
       const sortIdxMap = new Map();
@@ -11910,6 +13598,15 @@ ${stratumSection}
       stratLimit: state.stratLimit || 0,
       sortStrat: state.printSortStrat || 'n',
       sortModifier: state.printSortModifier || 'neighborhood',
+      // Outlier trim disclosure: the active rule and how many sales it removed,
+      // so the report states it (trimming changes every statistic).
+      outlierTrimRule: state.outlierTrimRule || 'keep',
+      outlierTrimmedCount: (typeof trimmedCount === 'function') ? trimmedCount() : 0,
+      // Secondary-levers state, only when the analyst enabled the feature.
+      secondaryEnabled: !!state.secondaryLeversEnabled,
+      secondary: state.secondaryLeversEnabled && mapping.neighborhood
+        ? computeSecondaryLevers(eff, state.modifierRules || DEFAULT_MODIFIER_RULES, modifier)
+        : null,
     };
   }
 
@@ -12008,6 +13705,7 @@ ${stratumSection}
   ${state.printSections.verticalEquity ? printVerticalEquity(d, chartSvg) : ''}
   ${state.printSections.stratification ? printStratification(d) : ''}
   ${state.printSections.modifier ? printModifier(d) : ''}
+  ${state.printSections.modifier ? printSecondary(d) : ''}
   ${printFooter(d)}
   <script>
     // Auto-open the print dialog when the user hits Cmd/Ctrl+P; provide a friendly button at top of page.
@@ -12114,6 +13812,7 @@ ${stratumSection}
       .decision-pill.floored   { background: #f0e8f8; color: #6b3a8a; }
       .decision-pill.below-cov { background: #e0eef0; color: #1d5a66; }
       .decision-pill.low-n     { background: #fbe8e8; color: var(--alert-red); }
+      .decision-pill.released  { background: var(--wsaca-slate); color: #fff; }
       .conf-badge { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 8pt; font-weight: 700; font-family: 'Source Sans 3', sans-serif; }
       .conf-badge.H { background: var(--wsaca-green-soft); color: var(--success); }
       .conf-badge.M { background: #fbf3dc; color: var(--wsaca-cedar-deep); }
@@ -12190,6 +13889,12 @@ ${stratumSection}
             const targetSrc = d.trend.target === 'reference' ? 'reference-date segment' : 'study-period median';
             const segParts = d.trend.segments.map(s => `${s.label}: ${(s.median*100).toFixed(2)}% × ${s.multiplier.toFixed(4)}`).join(' · ');
             return `Applied · ${methodLabel} (${d.trend.anchoring}) · target ${tgtPct}% from ${targetSrc} · reference ${formatDate(d.referenceDate)}<br><span style="font-size: 10pt; color: var(--ink-mute);">${segParts}</span>`;
+          })()}</div></div>
+          <div class="cover-meta-row"><div class="cover-meta-label">Outlier handling</div><div class="cover-meta-value">${(() => {
+            const rule = d.outlierTrimRule;
+            if (rule === 'keep' || !rule) return 'Keep all sales (flagged, none removed)';
+            const label = rule === 'tukey15' ? 'Trim mild + extreme (Tukey 1.5 × IQR)' : 'Trim extreme outliers (Tukey 3 × IQR)';
+            return `${label} · ${d.outlierTrimmedCount} sale${d.outlierTrimmedCount === 1 ? '' : 's'} removed from all statistics`;
           })()}</div></div>
           <div class="cover-meta-row"><div class="cover-meta-label">Filters dropped</div><div class="cover-meta-value">${d.droppedMultiParcel} multi-parcel (slash in stratifier) · ${d.droppedMissingRequired} missing required · ${d.droppedBadValues} invalid</div></div>
           ${d.flaggedMultiParcel > 0 ? `<div class="cover-meta-row"><div class="cover-meta-label">Multi-parcel included</div><div class="cover-meta-value">${d.flaggedMultiParcel} sales with combined AV / sale price across parcels — flagged in tables, analyzed normally</div></div>` : ''}
@@ -12283,15 +13988,14 @@ ${stratumSection}
     let groupTable = '';
     if (d.vei) {
       const groupLabel = d.vei.k === 10 ? 'Decile' : d.vei.k === 4 ? 'Quartile' : 'Half';
-      const perGroup = Math.floor(d.n / d.vei.k);
       groupTable = `
         <h4>Per-Group Detail</h4>
         <table>
-          <thead><tr><th>${groupLabel}</th><th>n</th><th>Median Ratio</th><th>90% CI Low</th><th>90% CI High</th><th>vs. Sample Median</th></tr></thead>
+          <thead><tr><th>${groupLabel}</th><th>Value range (proxy)</th><th>n</th><th>Median Ratio</th><th>90% CI Low</th><th>90% CI High</th><th>vs. Sample Median</th></tr></thead>
           <tbody>
             ${d.vei.groups.map((g, i) => {
               const delta = g.median - d.vei.sampleMedian;
-              return `<tr><td>${groupLabel} ${i + 1}</td><td class="num">${perGroup}</td><td class="num">${pct(g.median)}</td><td class="num">${g.lower != null ? pct(g.lower) : '—'}</td><td class="num">${g.upper != null ? pct(g.upper) : '—'}</td><td class="num">${pctDelta(delta)}</td></tr>`;
+              return `<tr><td>${groupLabel} ${i + 1}</td><td class="num">${presFmtMoney(g.proxyMin)}&nbsp;&ndash;&nbsp;${presFmtMoney(g.proxyMax)}</td><td class="num">${g.n}</td><td class="num">${pct(g.median)}</td><td class="num">${g.lower != null ? pct(g.lower) : '—'}</td><td class="num">${g.upper != null ? pct(g.upper) : '—'}</td><td class="num">${pctDelta(delta)}</td></tr>`;
             }).join('')}
           </tbody>
         </table>
@@ -12421,7 +14125,7 @@ ${stratumSection}
           <tr><td>Target ratio at low COD (≤ ${r.lowCodThreshold})</td><td class="num">${pct(r.lowCodTarget)}</td><td>Target at high COD (≥ ${r.highCodThreshold})</td><td class="num">${pct(r.highCodTarget)}</td></tr>
           <tr><td>Low-n target (n &lt; ${r.lowNThreshold})</td><td class="num">${pct(r.lowNTarget)}</td><td>No-change zone</td><td class="num">${pct(r.noChangeMin)} – ${pct(r.noChangeMax)} (COD ≤ ${r.noChangeMaxCod})</td></tr>
           ${capRow}
-          <tr><td>Overall median ceiling</td><td class="num">${r.overallMedianCeiling == null ? 'no ceiling' : pct(r.overallMedianCeiling)}</td><td></td><td></td></tr>
+          <tr><td>Min change for COV</td><td class="num">${r.minChangePct == null || r.minChangePct === 0 ? 'off' : '±' + r.minChangePct.toFixed(1) + '%'}</td><td>Overall median ceiling</td><td class="num">${r.overallMedianCeiling == null ? 'no ceiling' : pct(r.overallMedianCeiling)}</td></tr>
         </tbody>
       </table>
       <h4>Pre vs Simulated Overall</h4>
@@ -12436,6 +14140,58 @@ ${stratumSection}
         <thead><tr><th>Neighborhood</th><th>n</th><th>Current Median</th><th>COD</th><th>Target</th><th>Decision</th>${adjHeaderCells}<th>Simulated</th><th>Conf</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
+    `;
+  }
+
+  function printSecondary(d) {
+    if (!d.secondaryEnabled || !d.secondary) return '';
+    const s = d.secondary;
+    const pctTxt = (p) => p == null ? '—' : (p > 0 ? '+' : '') + p.toFixed(2) + '%';
+    const medTxt = (v) => v == null ? '—' : pct(v);
+    const codTxt = (v) => v == null ? '—' : v.toFixed(2);
+
+    const o = s.overall;
+    const stateBox = o ? `
+      <h4>Study-wide Four-State Comparison</h4>
+      <table>
+        <thead><tr><th>State</th><th>Median</th><th>COD</th></tr></thead>
+        <tbody>
+          <tr><td>Raw (no adjustment)</td><td class="num">${medTxt(o.raw.median)}</td><td class="num">${codTxt(o.raw.cod)}</td></tr>
+          <tr><td>Neighborhood modifier only</td><td class="num">${medTxt(o.nbrOnly.median)}</td><td class="num">${codTxt(o.nbrOnly.cod)}</td></tr>
+          <tr><td>Secondary levers only</td><td class="num">${medTxt(o.secOnly.median)}</td><td class="num">${codTxt(o.secOnly.cod)}</td></tr>
+          <tr><td>Both combined</td><td class="num">${medTxt(o.both.median)}</td><td class="num">${codTxt(o.both.cod)}</td></tr>
+        </tbody>
+      </table>` : '';
+
+    const leverRows = s.levers.length ? s.levers.map(L => `
+      <tr>
+        <td>${escapeHtml(L.fieldLabel)}: ${escapeHtml(L.bucket)}</td>
+        <td class="num">${L.n}</td>
+        <td class="num">${L.touches}</td>
+        <td class="num">${pctTxt(L.factorRaw)}</td>
+        <td class="num">${pctTxt(L.factorPost)}</td>
+        <td class="num">${(L.spreadRaw != null && L.touches > 1) ? (L.spreadRaw * 100).toFixed(1) + ' pts' : '—'}</td>
+      </tr>`).join('') : `<tr><td colspan="6" style="color: var(--ink-mute);">No levers flagged at the current threshold.</td></tr>`;
+
+    const advisoryBlock = (s.advisories && s.advisories.length) ? `
+      <h4>Advisories — use the neighborhood land modifier, not the table</h4>
+      <p style="font-size: 10pt; color: var(--ink-mute); margin: 0 0 8px;">These land tables span neighborhoods and vary across them, but their pooled universe is within the flag threshold so no single table factor fits. The off neighborhoods are a neighborhood-level fix.</p>
+      <table>
+        <thead><tr><th>Land Table</th><th>Spans</th><th>Disagreement</th></tr></thead>
+        <tbody>${s.advisories.map(a => `<tr><td>${escapeHtml(a.bucket)}</td><td class="num">${a.touches} nbrs</td><td class="num">${(a.spread * 100).toFixed(1)} pts</td></tr>`).join('')}</tbody>
+      </table>` : '';
+
+    return `
+      <div class="page-break"></div>
+      <h2>Secondary Levers — Land Table / Plat</h2>
+      <p style="font-size: 10pt; color: var(--ink-mute);">Each flagged lever gets one factor over its whole universe of sales, targeting the sale-weighted blend of the neighborhoods it touches. Where a land table and plat overlap on the same sales, the sale is owned by whichever improves COD more. Factors are the total-value move implied by the sales; apply through the land table or plat mechanism in CAMA. Simulation only.</p>
+      ${stateBox}
+      <h4>Flagged Levers (${s.levers.length})</h4>
+      <table>
+        <thead><tr><th>Lever</th><th>n</th><th>Nbrs</th><th>Factor vs Raw</th><th>Factor vs Modifier</th><th>Disagreement</th></tr></thead>
+        <tbody>${leverRows}</tbody>
+      </table>
+      ${advisoryBlock}
     `;
   }
 
@@ -12578,6 +14334,11 @@ ${stratumSection}
     summary.push([lbl('Property class'), txt(d.codRange.label)]);
     summary.push([lbl('COD range'), txt(`${d.codRange.min.toFixed(1)} – ${d.codRange.max.toFixed(1)}`)]);
     summary.push([lbl('Time adjustment'), txt(d.timeAdjusted ? 'Applied' : 'Not applied')]);
+    summary.push([lbl('Outlier handling'), txt((() => {
+      if (d.outlierTrimRule === 'tukey3') return `Trim extreme (Tukey 3×IQR) · ${d.outlierTrimmedCount} removed`;
+      if (d.outlierTrimRule === 'tukey15') return `Trim mild+extreme (Tukey 1.5×IQR) · ${d.outlierTrimmedCount} removed`;
+      return 'Keep all sales (none removed)';
+    })())]);
     if (d.timeAdjusted) {
       const trendIsPiecewise = d.trend.method && d.trend.method !== 'linear' && d.trend.segments && d.trend.segments.length > 1;
       const methodLabel = !trendIsPiecewise ? 'Linear (continuous slope)'
@@ -12656,6 +14417,7 @@ ${stratumSection}
       } else {
         mod.push([lbl('Max change ± %'),          capCell(r.maxChangePct)]);
       }
+      mod.push([lbl('Min change for COV ± %'),    (r.minChangePct == null || r.minChangePct === 0) ? txt('off') : pctC(r.minChangePct / 100)]);
       mod.push([lbl('Overall median ceiling'),    r.overallMedianCeiling == null ? txt('no ceiling') : pctC(r.overallMedianCeiling)]);
       mod.push([]);
       mod.push([sect('OVERALL — PRE vs SIMULATED')]);
@@ -12707,6 +14469,45 @@ ${stratumSection}
       XLSX.utils.book_append_sheet(wb, ws2, 'Modifier Recommendations');
     }
 
+    // ===== SHEET: SECONDARY LEVERS (only when enabled) =====
+    if (d.secondaryEnabled && d.secondary) {
+      const s = d.secondary;
+      const sec = [];
+      sec.push([ttl('Secondary Levers — Land Table / Plat')]);
+      sec.push([]);
+      if (s.overall) {
+        const o = s.overall;
+        sec.push([sect('STUDY-WIDE FOUR-STATE COMPARISON')]);
+        sec.push([hdr('State'), hdr('Median', true), hdr('COD', true)]);
+        sec.push([lbl('Raw (no adjustment)'),         pctC(o.raw.median),     decC(o.raw.cod, 2)]);
+        sec.push([lbl('Neighborhood modifier only'),  pctC(o.nbrOnly.median), decC(o.nbrOnly.cod, 2)]);
+        sec.push([lbl('Secondary levers only'),       pctC(o.secOnly.median), decC(o.secOnly.cod, 2)]);
+        sec.push([lbl('Both combined'),               pctC(o.both.median),    decC(o.both.cod, 2)]);
+        sec.push([]);
+      }
+      sec.push([sect(`FLAGGED LEVERS (${s.levers.length})`)]);
+      sec.push([hdr('Lever'), hdr('Bucket'), hdr('n', true), hdr('Nbrs', true), hdr('Factor vs Raw', true), hdr('Factor vs Modifier', true), hdr('Disagreement (pts)', true)]);
+      for (const L of s.levers) {
+        sec.push([
+          txt(L.fieldLabel), txt(L.bucket), num(L.n), num(L.touches),
+          L.factorRaw == null ? txt('—') : pctC(L.factorRaw / 100),
+          L.factorPost == null ? txt('—') : pctC(L.factorPost / 100),
+          (L.spreadRaw != null && L.touches > 1) ? decC(L.spreadRaw * 100, 1) : txt('—'),
+        ]);
+      }
+      if (s.advisories && s.advisories.length) {
+        sec.push([]);
+        sec.push([sect('ADVISORIES — USE NEIGHBORHOOD LAND MODIFIER, NOT THE TABLE')]);
+        sec.push([hdr('Land Table'), hdr('Neighborhoods'), hdr('Disagreement (pts)', true)]);
+        for (const a of s.advisories) {
+          sec.push([txt(a.bucket), num(a.touches), decC(a.spread * 100, 1)]);
+        }
+      }
+      const wsSec = XLSX.utils.aoa_to_sheet(sec);
+      wsSec['!cols'] = [{ wch: 16 }, { wch: 14 }, { wch: 8 }, { wch: 8 }, { wch: 16 }, { wch: 18 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, wsSec, 'Secondary Levers');
+    }
+
     // ===== SHEET 3: VERTICAL EQUITY =====
     if (d.vei || d.prb || d.spearman) {
       const ve = [];
@@ -12746,16 +14547,15 @@ ${stratumSection}
         ve.push([]);
         const groupLabel = d.vei.k === 10 ? 'Decile' : d.vei.k === 4 ? 'Quartile' : 'Half';
         ve.push([sect('PER-GROUP DETAIL')]);
-        ve.push([hdr(groupLabel), hdr('n', true), hdr('Median Ratio', true), hdr('90% CI Low', true), hdr('90% CI High', true), hdr('vs. Sample Median', true)]);
-        const perGroup = Math.floor(d.n / d.vei.k);
+        ve.push([hdr(groupLabel), hdr('Value range (proxy)'), hdr('n', true), hdr('Median Ratio', true), hdr('90% CI Low', true), hdr('90% CI High', true), hdr('vs. Sample Median', true)]);
         d.vei.groups.forEach((g, i) => {
-          ve.push([lbl(`${groupLabel} ${i + 1}`), num(perGroup), pctC(g.median), pctC(g.lower), pctC(g.upper), pctC(g.median - d.vei.sampleMedian)]);
+          ve.push([lbl(`${groupLabel} ${i + 1}`), txt(`${presFmtMoney(g.proxyMin)} \u2013 ${presFmtMoney(g.proxyMax)}`), num(g.n), pctC(g.median), pctC(g.lower), pctC(g.upper), pctC(g.median - d.vei.sampleMedian)]);
         });
       }
       const ws3 = XLSX.utils.aoa_to_sheet(ve);
-      ws3['!cols'] = [{ wch: 28 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 20 }];
+      ws3['!cols'] = [{ wch: 28 }, { wch: 24 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 20 }];
       ws3['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
       ];
       XLSX.utils.book_append_sheet(wb, ws3, 'Vertical Equity');
     }
