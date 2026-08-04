@@ -296,6 +296,11 @@ function fmtFull(n){return n==null?'\u2014':'$'+Math.round(n).toLocaleString();}
 function val(d,y){var c=d.data[y];var v=c&&c[S.metric]!=null?c[S.metric]:null;
  if(v!=null&&S.real&&S.metric==='taxes'&&CPI[y])v=v*CPI[CPI_LAST]/CPI[y];
  return v;}
+function growTxt(series,y0,yr){
+ if(!series||!series[y0]||!series[yr])return '';
+ var g=(series[yr]/series[y0]-1)*100;
+ return (g>=0?'+':'\u2212')+Math.abs(g).toFixed(1)+'%';}
+function popSeriesFor(d){var pk=POP_KEY[d.id];return pk?POP[pk]:null;}
 function cpiRef(d){
  if(S.metric!=='taxes'||S.real)return null;
  var y0=null,v0=null;
@@ -678,9 +683,17 @@ function renderChart(){
     if(bits.length)chg='<small class="tchg">'+bits.join(' \u00b7 ')+'</small>';
    }
    rows+='<div class="tr"><span><span class="sw" style="background:'+COLORS[si%COLORS.length]+'"></span>'+d.name+'</span><span class="tval"><b>'+(v==null?'\u2014':fmtT(v))+'</b>'+chg+'</span></div>';});
-  if(ref&&ref.series[yr]!=null)rows+='<div class="tr"><span><span class="sw" style="background:#6f7d88"></span><i>Inflation pace since '+ref.y0+'</i></span><b>'+fmtT(ref.series[yr])+'</b></div>';
-  if(refP&&refP.series[yr]!=null)rows+='<div class="tr"><span><span class="sw" style="background:#3f81ad"></span><i>Population pace since '+refP.y0+'</i></span><b>'+fmtT(refP.series[yr])+'</b></div>';
-  if(ref2&&ref2.series[yr]!=null)rows+='<div class="tr"><span><span class="sw" style="background:#34424c"></span><i>Inflation + population pace</i></span><b>'+fmtT(ref2.series[yr])+'</b></div>';
+  if(ref&&ref.series[yr]!=null){
+   var gC=growTxt(CPI,ref.y0,yr);
+   rows+='<div class="tr"><span><span class="sw" style="background:#6f7d88"></span><i>Inflation pace since '+ref.y0+'</i></span><span class="tval"><b>'+fmtT(ref.series[yr])+'</b>'+(gC?'<small class="tchg">prices '+gC+' since '+ref.y0+'</small>':'')+'</span></div>';}
+  if(refP&&refP.series[yr]!=null){
+   var gP=growTxt(popSeriesFor(s[0]),refP.y0,yr);
+   rows+='<div class="tr"><span><span class="sw" style="background:#3f81ad"></span><i>Population pace since '+refP.y0+'</i></span><span class="tval"><b>'+fmtT(refP.series[yr])+'</b>'+(gP?'<small class="tchg">people '+gP+' since '+refP.y0+'</small>':'')+'</span></div>';}
+  if(ref2&&ref2.series[yr]!=null){
+   var g2C=growTxt(CPI,ref2.y0,yr),g2P=growTxt(popSeriesFor(s[0]),ref2.y0,yr),b2=[];
+   if(g2C)b2.push('prices '+g2C);
+   if(g2P)b2.push('people '+g2P);
+   rows+='<div class="tr"><span><span class="sw" style="background:#34424c"></span><i>Inflation + population pace</i></span><span class="tval"><b>'+fmtT(ref2.series[yr])+'</b>'+(b2.length?'<small class="tchg">'+b2.join(' \u00b7 ')+' since '+ref2.y0+'</small>':'')+'</span></div>';}
   var evh='';
   if(single&&evset[String(yr)])evh='<div class="tev">\u25c6 '+evset[String(yr)].t+'<small>Tap for the full explanation below</small></div>';
   tip.innerHTML='<div class="ty">'+yr+(yr===INTERP?' (est.)':'')+'</div>'+rows+evh;
