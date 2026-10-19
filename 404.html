@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | WSACA Tools</title>
+<script>
+(function () {
+  var m = location.pathname.match(/^(\/WSACA\/)(.*)$/i);
+  if (!m) return;
+  var rest = m[2].toLowerCase();
+  if (rest !== m[2]) location.replace('/WSACA/' + rest + location.search + location.hash);
+})();
+</script>
+</head>
+<body style="font-family:sans-serif;max-width:40em;margin:4em auto;padding:0 16px;background:#fdfbf5;color:#2a2a28">
+<h1>Page not found</h1>
+<p><a href="/WSACA/">Go to WSACA Tools</a></p>
+</body>
+</html>
