@@ -173,6 +173,7 @@ body:not(.cw) #county,body:not(.cw) #cwtablewrap{display:none;}
 .headline .row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:4px;}
 .delta.up{color:#c2703d;font-weight:700;font-size:14.5px;}
 .delta.down{color:#006699;font-weight:700;font-size:14.5px;}
+.headline .hsub{font-size:13.5px;color:#5d6b73;line-height:1.5;margin-top:6px;max-width:760px;}
 .chartcard{margin-top:16px;padding:16px 10px 10px;position:relative;}
 #chart{position:relative;width:100%;}
 .cap{font-size:12px;color:#6f7d88;text-align:center;padding-top:6px;line-height:1.55;}
@@ -587,10 +588,20 @@ function renderHeadline(){var e=document.getElementById('headline');var s=sel();
     :'No data reported for this view.')+'</span></div>';return;}
  var a=val(d,String(sp.first)),b=val(d,String(sp.last));
  var pct=(a!=null&&a!==0&&sp.first!==sp.last)?((b-a)/a*100):null;
- var dh='';
- if(pct!=null){var up=pct>=0;dh='<span class="delta '+(up?'up':'down')+'">'+(up?'\u25b2':'\u25bc')+' '+Math.abs(pct).toFixed(1)+'% since '+sp.first+'</span>';}
+ var dh='',sub='';
+ function dl(p,txt){var up=p>=0;return '<span class="delta '+(up?'up':'down')+'">'+(up?'\u25b2':'\u25bc')+' '+Math.abs(p).toFixed(1)+'% '+txt+'</span>';}
+ var c0=d.data[String(sp.first)],c1=d.data[String(sp.last)];
+ if(S.metric==='taxes'&&sp.first!==sp.last&&c0&&c1&&c0.taxes&&c1.taxes&&CPI[sp.first]&&CPI[sp.last]){
+  // Levied Amount: always show the change both in actual dollars and after inflation
+  var ratio=c1.taxes/c0.taxes,cr=CPI[sp.last]/CPI[sp.first];
+  var nom=(ratio-1)*100,real=(ratio/cr-1)*100,yrs=sp.last-sp.first,ann=(Math.pow(cr,1/yrs)-1)*100;
+  dh=S.real?dl(real,'since '+sp.first+' after inflation')+dl(nom,'in actual dollars')
+           :dl(nom,'since '+sp.first)+dl(real,'after inflation');
+  sub='Seattle-area prices rose '+((cr-1)*100).toFixed(1)+'% from '+sp.first+' to '+sp.last+', about '+ann.toFixed(1)+'% a year (BLS CPI-U).';}
+ else if(pct!=null)dh=dl(pct,'since '+sp.first);
  e.innerHTML='<div class="label">'+d.name+' \u00b7 '+mlbl+'</div>'+
-  '<div class="row"><span class="big">'+fmtV(b)+'</span><span style="font-size:13px;color:#5d6b73">in '+sp.last+'</span>'+dh+'</div>';}
+  '<div class="row"><span class="big">'+fmtV(b)+'</span><span style="font-size:13px;color:#5d6b73">in '+sp.last+'</span>'+dh+'</div>'+
+  (sub?'<div class="hsub">'+sub+'</div>':'');}
 
 function renderSummary(){var e=document.getElementById('summary');var s=sel();
  if(s.length!==1){e.style.display='none';e.innerHTML='';return;}
