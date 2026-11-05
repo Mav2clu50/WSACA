@@ -216,7 +216,7 @@ body:not(.cw) #county,body:not(.cw) #cwtablewrap{display:none;}
 .compare .sub{font-size:12.5px;color:#6f7d88;line-height:1.55;margin:5px 0 13px;}
 .cmpwrap{overflow-x:auto;}
 .cmp{width:100%;border-collapse:collapse;font-size:13.5px;}
-.cmp th{text-align:right;font-weight:700;color:#5d6b73;font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:0 8px 7px;border-bottom:1.5px solid #1a2e3a;vertical-align:bottom;line-height:1.3;}
+.cmp th{text-align:right;font-weight:700;color:#5d6b73;background:#ffffff;font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:0 8px 7px;border-bottom:1.5px solid #1a2e3a;vertical-align:bottom;line-height:1.3;}
 .cmp th.dname{text-align:left;}
 .cmp td{padding:9px 8px;text-align:right;font-variant-numeric:tabular-nums;border-bottom:1px solid #edf1f4;color:#1a2e3a;white-space:nowrap;}
 .cmp tr:last-child td{border-bottom:none;}
@@ -245,6 +245,12 @@ footer{margin-top:34px;padding-top:14px;border-top:3px solid #006699;font-size:1
 footer b{color:#5d6b73;}
 button:focus-visible,.chip:focus-visible,.guide summary:focus-visible{outline:2px solid #006699;outline-offset:1px;}
 @media(max-width:560px){table{min-width:680px;}.headline .big{font-size:28px;}.head-meta{margin-left:0;text-align:left;width:100%;}}
+
+/* Pinned so a host website's table styles cannot override these when the tool is embedded in another page */
+.cmp thead th,.cmp th{background:#ffffff !important;color:#5d6b73 !important;border-top:none !important;}
+#table thead th,#cwtable thead th{background:#006699 !important;color:#ffffff !important;}
+#cwtable thead th.sel{background:#004d73 !important;}
+#table tbody td,#cwtable tbody td{color:#1a2e3a;}
 </style>
 </head>
 <body>
