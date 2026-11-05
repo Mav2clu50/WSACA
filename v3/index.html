@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="An interactive screening tool from the Washington State Association of County Assessors for homeowners to check whether they may qualify for the expanded 2027 property tax exemption program for senior citizens and people with disabilities." />
-<title>Property Tax Exemption for Senior Citizens and People with Disabilities — Screening Tool</title>
+<title>Property Tax Exemption for Senior Citizens and People with Disabilities | Screening Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* WSACA palette — evergreen Washington state + warm civic, readable by older eyes */
+    /* WSACA palette: evergreen Washington state + warm civic, readable by older eyes */
     /* Palette refined to match the official WSACA logo:
        evergreen (trees), slate blue (WA silhouette), sienna/cedar (ground), warm cream (snow). */
     --wsaca-green: #2d5e40;
@@ -22,7 +22,7 @@
     --wsaca-cedar: #a86838;
     --wsaca-cedar-deep: #7a4a25;
     --wsaca-cedar-soft: #f3e9dc;
-    /* Lighter cedar tint specifically for text on dark backgrounds — passes WCAG AA contrast
+    /* Lighter cedar tint specifically for text on dark backgrounds: passes WCAG AA contrast
        on the green-deep background (6.4:1). Per San Juan / Megen accessibility feedback that
        the standard cedar was insufficient contrast on green-deep. */
     --wsaca-cedar-light: #f0c896;
@@ -135,6 +135,12 @@
     margin: 0;
     line-height: 1.55;
   }
+  /* Secondary hero paragraph: the "already receiving the exemption" case. Set slightly
+     smaller so the primary message stays dominant for someone scanning the page. */
+  .hero-lede-secondary {
+    font-size: 16.5px;
+    margin-top: 14px;
+  }
   .hero-lede strong { color: var(--ink); }
 
   main { padding: 40px 0 80px; }
@@ -153,7 +159,7 @@
   }
 
   /* ===== THRESHOLD COMPARISON PANEL ===== */
-  /* Threshold panel — nested inside step-county section, so it gets a lighter visual treatment
+  /* Threshold panel: nested inside step-county section, so it gets a lighter visual treatment
      (no shadow, lighter border) to avoid stacking card-within-card visual noise. The cedar top
      border remains as a visual anchor connecting to the comparison table's accent color. */
   .threshold-panel {
@@ -171,7 +177,7 @@
     color: var(--wsaca-green-deep);
     margin: 0 0 6px;
   }
-  /* Programmatic focus for screen-reader announcement — visually no outline since it's not interactive */
+  /* Programmatic focus for screen-reader announcement: visually no outline since it's not interactive */
   .threshold-panel-title:focus { outline: none; }
   .threshold-panel-county {
     font-style: italic;
@@ -182,6 +188,17 @@
     color: var(--ink-soft);
     font-size: 15.5px;
     margin: 0 0 18px;
+  }
+  /* Gross-equivalent callout under the threshold table. Deliberately prominent: it exists
+     because the raw threshold numbers were causing people to self-disqualify. */
+  /* Quiet note under the table. Deliberately not a colored box: the tinted column is the
+     one thing that should carry emphasis here. */
+  .gross-equivalent-note {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 14px 0 0;
+    max-width: 68ch;
   }
   .threshold-table {
     width: 100%;
@@ -205,6 +222,10 @@
     border-bottom: 1px solid var(--rule-soft);
     vertical-align: middle;
   }
+  /* 2026 is historical context, so it is set back from the two 2027 columns. */
+  .threshold-table .col-2026 {
+    color: var(--ink-soft);
+  }
   .threshold-table tr:last-child td { border-bottom: 0; }
   .threshold-table .level-cell {
     font-weight: 600;
@@ -217,16 +238,124 @@
     font-size: 12.5px;
     margin-top: 2px;
   }
+  .threshold-table th small {
+    display: block;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
   .threshold-table .col-2027 {
-    background: var(--success-bg);
     font-weight: 600;
     color: var(--ink);
+  }
+  /* Gross-income column. Grays Harbor feedback (Dan Lindgren, Nov 2026): the CDI thresholds
+     alone read as a gross income test, so people self-disqualified before reaching the
+     calculator. This column puts the number they actually recognize in the table itself. */
+  .threshold-table .col-gross {
+    background: #dcebe1;
+    border-left: 3px solid var(--wsaca-green);
+    white-space: nowrap;
+  }
+  /* Header of the emphasized column: solid green so the eye lands here first. */
+  .threshold-table th.col-gross {
+    background: var(--wsaca-green);
+    color: #ffffff;
+    border-left: 3px solid var(--wsaca-green);
+  }
+  .threshold-table th.col-gross small { color: rgba(255,255,255,0.88); }
+  .gross-line {
+    display: block;
+    font-weight: 700;
+    color: var(--wsaca-green-deep);
+    font-size: 16.5px;
+    line-height: 1.5;
+  }
+  .gross-line + .gross-line { margin-top: 8px; }
+  .gross-who {
+    display: inline-block;
+    min-width: 128px;
+    padding-right: 10px;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  /* Names the amount that creates the difference between the 2027 limit and this figure. */
+  .gross-who em {
+    display: block;
+    font-style: normal;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+    color: var(--ink-soft);
   }
   .threshold-change {
     font-size: 13px;
     color: var(--success);
     font-weight: 600;
     margin-left: 6px;
+  }
+  /* Stacked card layout on narrow screens: four columns will not fit, and seniors on phones
+     are a primary audience. Each row becomes a labeled block instead of scrolling sideways. */
+  @media (max-width: 720px) {
+    .threshold-table thead { display: none; }
+    .threshold-table, .threshold-table tbody, .threshold-table tr, .threshold-table td {
+      display: block;
+      width: 100%;
+    }
+    .threshold-table tr {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .threshold-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    .threshold-table td:last-child { border-bottom: 0; }
+    .threshold-table td::before {
+      content: attr(data-label);
+      flex: 0 1 auto;
+      max-width: 48%;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      color: var(--ink-mute);
+      text-align: left;
+    }
+    .threshold-table .level-cell { display: block; }
+    .threshold-table .level-cell::before { display: none; }
+    .threshold-table .col-gross {
+      display: block;
+      white-space: normal;
+      border-left: 0;
+      border-top: 3px solid var(--wsaca-green);
+    }
+    .threshold-table .col-gross::before {
+      display: block;
+      max-width: none;
+      margin-bottom: 6px;
+    }
+    .gross-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .gross-line:last-child { margin-bottom: 0; }
+    .gross-who { min-width: 0; }
   }
   .universal-benefit {
     margin-top: 22px;
@@ -554,7 +683,7 @@
     .running-total { position: static; }
   }
 
-  /* Rental income deduction block — part of itemized basket per DOR clarification (May 2026).
+  /* Rental income deduction block: part of itemized basket per DOR clarification (May 2026).
      Visible in quick mode always; in guided mode only when "Itemize my deductions" is selected. */
   .rental-ded-block {
     margin: 28px 0 4px;
@@ -608,7 +737,7 @@
   }
   .inline-note p { margin: 0 0 8px; }
   .inline-note p:last-child { margin-bottom: 0; }
-  /* H4 inside inline-note — styled to match what the bold strong tag did before */
+  /* H4 inside inline-note: styled to match what the bold strong tag did before */
   .inline-note-title {
     font-family: var(--sans);
     font-weight: 700;
@@ -617,7 +746,7 @@
     margin: 0 0 6px;
   }
 
-  /* Section header between hero and the screening tool steps — quiet but semantically present.
+  /* Section header between hero and the screening tool steps: quiet but semantically present.
      Uses cedar-deep (not cedar) for WCAG AA contrast on small uppercase text. */
   h2.section-header {
     font-family: var(--sans);
@@ -972,7 +1101,7 @@
     border: 5px solid transparent;
     border-top-color: var(--alert-red);
   }
-  /* Buffer variant: cedar marker for "close to qualifying" — softer than denial red */
+  /* Buffer variant: cedar marker for "close to qualifying": softer than denial red */
   .variant-buffer .income-bar-marker {
     background: var(--wsaca-cedar);
   }
@@ -1311,7 +1440,7 @@
     line-height: 1.45;
     color: var(--ink);
   }
-  /* Document category group headers — visual organization in the printed list */
+  /* Document category group headers: visual organization in the printed list */
   .print-documents-table .doc-group-header td {
     padding-top: 10pt;
     padding-bottom: 2pt;
@@ -1326,7 +1455,7 @@
     color: var(--wsaca-cedar-deep);
     margin: 0 0 4pt;
   }
-  /* First group header — no extra top padding (sits right after intro text) */
+  /* First group header: no extra top padding (sits right after intro text) */
   .print-documents-table tbody tr.doc-group-header:first-child td {
     padding-top: 2pt;
   }
@@ -1533,21 +1662,6 @@
   }
   .levy-block strong { color: white; }
 
-  /* ===== NEXT STEPS ===== */
-  .next-steps {
-    background: var(--paper);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 32px 36px;
-    margin-top: 32px;
-  }
-  .next-steps h3 {
-    font-family: var(--serif);
-    font-weight: 600;
-    font-size: 22px;
-    color: var(--wsaca-green-deep);
-    margin: 0 0 14px;
-  }
   .cta-btn {
     display: inline-block;
     padding: 14px 28px;
@@ -1576,7 +1690,7 @@
     background: var(--wsaca-green-soft);
   }
 
-  /* Reset action — tertiary affordance for users who want to clear and screen a different scenario */
+  /* Reset action: tertiary affordance for users who want to clear and screen a different scenario */
   .reset-line {
     margin: 18px 0 0;
     padding-top: 14px;
@@ -1634,7 +1748,7 @@
     font-size: 13px;
     color: rgba(255,255,255,0.65);
   }
-  /* AI disclosure note in the footer — quieter than the surrounding About paragraph */
+  /* AI disclosure note in the footer: quieter than the surrounding About paragraph */
   .ai-disclosure {
     font-size: 13.5px;
     color: rgba(255,255,255,0.7);
@@ -1677,7 +1791,7 @@
   }
   .skip-link:focus { top: 16px; }
   /* Main content can receive programmatic focus (for skip-link), but we don't want a focus ring
-     drawn around the entire content area — only inside form controls. */
+     drawn around the entire content area, only inside form controls. */
   main#main-content:focus { outline: none; }
 
   @media (max-width: 620px) {
@@ -1713,7 +1827,8 @@
   <div class="wrap">
     <div class="agency-line">Property Tax Exemption Program · 2027 Update</div>
     <h1 class="hero-title">Property Tax Exemption for Senior Citizens and People with Disabilities</h1>
-    <p class="hero-lede">In 2026 the state legislature expanded this program by increasing the income thresholds in each county, adding a standard deduction option, and expanding the taxes exempt by the program beginning in tax year 2027. If you are already receiving the exemption, you may not need to reapply. In most cases your county assessor will review your income and place you at the correct exemption level, with any change reflected on your 2027 property tax statement. Counties review and audit current participants periodically, so your assessor may still contact you to verify your income or confirm your eligibility. Current participants will see additional tax benefits at every level. <strong>Let's see if you may qualify.</strong></p>
+    <p class="hero-lede">Beginning in tax year 2027, the state legislature raised the income limits in every county, added a standard deduction, and expanded the taxes this program exempts. Many homeowners who did not qualify before will qualify now. <strong>Let's see if you may qualify.</strong></p>
+    <p class="hero-lede hero-lede-secondary">Already receiving the exemption? You may not need to reapply. In most cases your county assessor will review your income and place you at the correct level, with any change shown on your 2027 tax statement, and you will see additional benefits at every level. Counties review and audit current participants periodically, so your assessor may still contact you to verify your income or confirm your eligibility.</p>
   </div>
 </header>
 
@@ -1721,7 +1836,7 @@
   <div class="wrap">
 
     <p class="top-note" role="note">
-      This is a screening tool — your county assessor makes the official eligibility determination after reviewing your application.
+      This is a screening tool. Your county assessor makes the official eligibility determination after reviewing your application.
     </p>
 
     <h2 class="section-header" id="screening-tool-heading">Screening Tool</h2>
@@ -1734,7 +1849,7 @@
       <div class="field">
         <label class="field-label" for="county-select">County</label>
         <select id="county-select" aria-describedby="county-hint">
-          <option value="">— Select a county —</option>
+          <option value="">Select a county</option>
         </select>
       </div>
 
@@ -1744,19 +1859,26 @@
            the Q1 H3 heading. -->
       <div class="threshold-panel hidden" id="threshold-panel" aria-live="polite">
         <h4 class="threshold-panel-title">Income thresholds for <span class="threshold-panel-county" id="threshold-panel-county"></span></h4>
-        <p class="threshold-panel-intro">Here's how this county's income thresholds compare between current law (tax years 2024–2026) and the new law taking effect in 2027.</p>
+        <p class="threshold-panel-intro">Here's how this county's income thresholds compare between current law (tax years 2024 to 2026) and the new law taking effect in 2027. These are limits on <strong>combined disposable income</strong>, which is your income after the deductions allowed by the program, not your gross income.</p>
         <table class="threshold-table">
           <thead>
             <tr>
               <th>Level</th>
-              <th>2026 (current)</th>
-              <th class="col-2027">2027 (new law)</th>
+              <th class="col-2026">2026 limit<small>Current law</small></th>
+              <th class="col-2027">2027 limit<small>After deductions</small></th>
+              <th class="col-gross">Your income can be up to<small>In 2027, after the standard deduction</small></th>
             </tr>
           </thead>
           <tbody id="threshold-table-body"></tbody>
         </table>
+        <!-- Gross-equivalent callout. Grays Harbor feedback (Dan Lindgren, Nov 2026): the table alone
+             reads as a gross income test, so people with income above the threshold self-disqualify
+             before reaching the calculator. The new standard deduction comes off before the
+             comparison, so the real gross figure is meaningfully higher. Computed per county. -->
+        <p class="gross-equivalent-note" id="gross-equivalent">Everyone gets the standard deduction, whether or not they have medical costs. If your out-of-pocket medical and care costs come to more than the standard deduction, you deduct those instead and your income can be higher still. The calculator below works this out for you.</p>
+
         <div class="universal-benefit">
-          <strong>New for 2027:</strong> Approved applicants at every level pay <strong>zero school taxes</strong> — both state and local — which are typically the largest portion of a property tax bill.
+          <strong>New for 2027:</strong> Approved applicants at every level pay <strong>zero school taxes</strong>, both state and local, which are typically the largest portion of a property tax bill.
         </div>
         <p class="continue-cue" aria-hidden="true">Continue below to see if you may qualify <span class="continue-arrow">↓</span></p>
       </div>
@@ -1794,7 +1916,7 @@
       </fieldset>
       <p class="authority-link"><button type="button" class="authority-toggle" data-target="auth-age">View statutory authority</button></p>
       <div class="authority-panel hidden" id="auth-age">
-        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(2)–(3)</a> — establishes age, disability, and disabled-veteran qualifications, and the December 31 deadline. The reduction in the combined service-connected evaluation requirement from 80% to 40% reflects amendments enacted by Engrossed House Bill 1106 (2025), effective for taxes levied for collection in 2027 and thereafter.
+        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(2) and (3)</a>: establishes age, disability, and disabled-veteran qualifications, and the December 31 deadline. The reduction in the combined service-connected evaluation requirement from 80% to 40% reflects amendments enacted by Engrossed House Bill 1106 (2025), effective for taxes levied for collection in 2027 and thereafter.
       </div>
     </section>
 
@@ -1808,7 +1930,7 @@
         <div class="options-group">
           <label class="option-card">
             <input type="radio" name="residence" value="yes">
-            <span class="option-label">Yes — I'm a registered owner and the residence is my principal place of residence</span>
+            <span class="option-label">Yes, I'm a registered owner and the residence is my principal place of residence</span>
           </label>
           <label class="option-card">
             <input type="radio" name="residence" value="no">
@@ -1818,7 +1940,7 @@
       </fieldset>
       <p class="authority-link"><button type="button" class="authority-toggle" data-target="auth-residence">View statutory authority</button></p>
       <div class="authority-panel hidden" id="auth-residence">
-        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.383" target="_blank" rel="noopener">RCW 84.36.383</a> — defines "principal place of residence" as a residence occupied for more than six months each calendar year. <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(1)</a> — establishes the ownership and occupancy requirement, including the temporary-displacement exception for confinement to a hospital, nursing home, or adult family home.
+        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.383" target="_blank" rel="noopener">RCW 84.36.383</a>: defines "principal place of residence" as a residence occupied for more than six months each calendar year. <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(1)</a>: establishes the ownership and occupancy requirement, including the temporary-displacement exception for confinement to a hospital, nursing home, or adult family home.
       </div>
     </section>
 
@@ -1841,12 +1963,12 @@
         </div>
       </fieldset>
 
-      <p class="filer-clarify">If you have a co-owner who is <strong>not</strong> your spouse or domestic partner, choose "Just me" here — their income still counts toward combined disposable income (see below), but your standard deduction stays at $7,500.</p>
+      <p class="filer-clarify">If you have a co-owner who is <strong>not</strong> your spouse or domestic partner, choose "Just me" here. Their income still counts toward combined disposable income (see below), but your standard deduction stays at $7,500.</p>
 
       <div class="inline-note">
         <h4 class="inline-note-title">Whose income counts?</h4>
-        <p>Combined disposable income includes the disposable income of you, your spouse or domestic partner, and any <em>co-tenants</em> — defined by DOR as people who have an ownership interest in the residence <em>and</em> live there.</p>
-        <p>Income from a person who lives with you but has no ownership interest (other than a spouse or partner) is excluded — but any money that person contributes toward household expenses is still counted.</p>
+        <p>Combined disposable income includes the disposable income of you, your spouse or domestic partner, and any <em>co-tenants</em>, defined by DOR as people who have an ownership interest in the residence <em>and</em> live there.</p>
+        <p>Income from a person who lives with you but has no ownership interest (other than a spouse or partner) is excluded, but any money that person contributes toward household expenses is still counted.</p>
         <p>If a co-owner does not live in the residence, only your percentage of ownership qualifies for the exemption. Your county assessor can help with partial-interest cases and with any situation involving co-owners who aren't your spouse or domestic partner.</p>
       </div>
     </section>
@@ -1855,35 +1977,35 @@
     <section class="step hidden" id="step-income" aria-labelledby="step-income-heading">
       <div class="step-number" data-num="5" aria-hidden="true">Combined disposable income</div>
       <h3 class="step-title" id="step-income-heading">Let's estimate your combined disposable income</h3>
-      <p class="step-intro">Combined disposable income is defined specifically by this program — it's different from the adjusted gross income on your federal tax return. It includes income from all sources, even sources that aren't taxable federally. Use the <strong>quick estimate</strong> for a ballpark, or the <strong>guided calculator</strong> for an estimated amount based on your individual income sources.</p>
+      <p class="step-intro">Combined disposable income is defined specifically by this program. It's different from the adjusted gross income on your federal tax return. It includes income from all sources, even sources that aren't taxable federally. Use the <strong>quick estimate</strong> for a ballpark, or the <strong>guided calculator</strong> for an estimated amount based on your individual income sources.</p>
 
       <div class="calc-tabs" role="tablist">
-        <button class="calc-tab active" role="tab" aria-selected="true" data-pane="quick" type="button">Quick estimate</button>
-        <button class="calc-tab" role="tab" aria-selected="false" data-pane="guided" type="button">Guided calculator</button>
+        <button class="calc-tab active" role="tab" aria-selected="true" aria-controls="pane-quick" id="tab-quick" data-pane="quick" type="button">Quick estimate</button>
+        <button class="calc-tab" role="tab" aria-selected="false" aria-controls="pane-guided" id="tab-guided" data-pane="guided" type="button" tabindex="-1">Guided calculator</button>
       </div>
 
-      <div class="calc-pane active" id="pane-quick" role="tabpanel">
+      <div class="calc-pane active" id="pane-quick" role="tabpanel" aria-labelledby="tab-quick" tabindex="0">
         <div class="quick-form">
           <div class="field">
-            <label class="field-label" for="quick-income">Your assessment year household income from all sources</label>
+            <label class="field-label" for="quick-income">Your total 2026 household income from all sources</label>
             <div class="line-input">
               <input type="number" id="quick-income" inputmode="numeric" min="0" step="500" placeholder="0">
             </div>
-            <p style="font-size: 14px; color: var(--ink-mute); margin: 8px 0 0;">Include Social Security, pensions, wages, interest, dividends, rental income, and any other income for you, your spouse or domestic partner, and any co-tenants.</p>
+            <p style="font-size: 14px; color: var(--ink-mute); margin: 8px 0 0;">Use your income for calendar year 2026, which is what determines your 2027 taxes. Include Social Security, pensions, wages, interest, dividends, rental income, and any other income for you, your spouse or domestic partner, and any co-tenants.</p>
           </div>
           <div class="field">
-            <label class="field-label" for="quick-medical">Annual non-reimbursed medical &amp; care costs (optional)</label>
+            <label class="field-label" for="quick-medical">Your 2026 non-reimbursed medical &amp; care costs (optional)</label>
             <div class="line-input">
               <input type="number" id="quick-medical" inputmode="numeric" min="0" step="100" placeholder="0">
             </div>
-            <p style="font-size: 14px; color: var(--ink-mute); margin: 8px 0 0;">Medicare premiums, prescriptions, in-home care, nursing home or assisted living costs, and similar expenses. We'll automatically apply whichever is larger: your itemized deductions (medical and care plus any rental income from your principal residence) or the standard deduction. You can't take both. Use the rental income deduction field below to add eligible rental income to your itemized total.</p>
+            <p style="font-size: 14px; color: var(--ink-mute); margin: 8px 0 0;">Medicare premiums, prescriptions, in-home care, nursing home or assisted living costs, and similar expenses paid in 2026. We'll apply whichever is larger, these costs or the standard deduction, since you can't take both.</p>
           </div>
         </div>
       </div>
 
-      <div class="calc-pane" id="pane-guided" role="tabpanel">
+      <div class="calc-pane" id="pane-guided" role="tabpanel" aria-labelledby="tab-guided" tabindex="0">
         <h4 class="calc-section-heading">Income from all sources</h4>
-        <p style="font-size: 15px; color: var(--ink-mute); margin: 0 0 8px;">Enter assessment year totals for you, your spouse or domestic partner, and any co-tenants.</p>
+        <p style="font-size: 15px; color: var(--ink-mute); margin: 0 0 8px;">Enter calendar year 2026 totals for you, your spouse or domestic partner, and any co-tenants. Your 2026 income is what determines your 2027 taxes.</p>
 
         <div id="income-lines"></div>
 
@@ -1893,14 +2015,14 @@
         </div>
 
         <h4 class="calc-section-heading with-top">Deductions</h4>
-        <p style="font-size: 15px; color: var(--ink-mute); margin: 0 0 14px;">Beginning in 2027, you have two options. Take the standard deduction, or itemize your non-reimbursed medical and care expenses (which can also include up to $6,000 of rental income from your principal residence). The tool automatically applies whichever gives you the larger deduction, so you can't accidentally pick the worse one.</p>
+        <p style="font-size: 15px; color: var(--ink-mute); margin: 0 0 14px;">Beginning in 2027, you have two options. Take the standard deduction, or itemize your non-reimbursed medical and care expenses (which can also include up to $6,000 of long-term rental income from living space on your primary residence parcel). The tool automatically applies whichever gives you the larger deduction, so you can't accidentally pick the worse one.</p>
 
         <fieldset>
           <legend class="visually-hidden">Deduction method</legend>
           <div class="options-group" style="max-width: 100%; margin-bottom: 20px;">
             <label class="option-card">
               <input type="radio" name="dedMode" value="standard" checked>
-              <span class="option-label" id="std-ded-label">Use the standard deduction ($7,500)<small>Simplest option — a flat amount with no itemization</small></span>
+              <span class="option-label" id="std-ded-label">Use the standard deduction ($7,500)<small>Simplest option: a flat amount with no itemization</small></span>
             </label>
             <label class="option-card">
               <input type="radio" name="dedMode" value="itemized">
@@ -1911,7 +2033,7 @@
 
         <div id="itemized-lines" class="hidden">
           <div id="deduction-lines"></div>
-          <p style="font-size: 13.5px; color: var(--ink-mute); margin-top: 10px; font-style: italic;">This is an abbreviated version of the DOR Combined Disposable Income Worksheet (Form 63 0036). Additional allowable deductions exist — your county assessor can review the complete list.</p>
+          <p style="font-size: 13.5px; color: var(--ink-mute); margin-top: 10px; font-style: italic;">This is an abbreviated version of the DOR Combined Disposable Income Worksheet (Form 63 0036). Additional allowable deductions exist. Your county assessor can review the complete list.</p>
         </div>
       </div>
 
@@ -1920,18 +2042,18 @@
            estimate via medical+rental) and in guided mode only when "Itemize my deductions" is
            selected. Up to $6,000 of rental income from the applicant's principal residence. -->
       <div class="rental-ded-block" id="rental-ded-block">
-        <h4 class="rental-ded-heading">Rental income deduction <span class="rental-ded-eyebrow">(new for 2027 — part of itemized deductions)</span></h4>
-        <p style="font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px;">If you rent out part of your principal place of residence, you can deduct up to <strong>$6,000</strong> of that rental income. <em>Per the Department of Revenue, the rental deduction is part of the itemized basket. It applies when you itemize, not in addition to the standard deduction.</em></p>
+        <h4 class="rental-ded-heading">Rental income deduction <span class="rental-ded-eyebrow">(new for 2027, part of itemized deductions)</span></h4>
+        <p style="font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px;">If you receive income from renting residential living space on your primary residence parcel (your home or an ADU on the same parcel), you can deduct up to <strong>$6,000</strong> of that rental income. Only long-term rentals of 30 days or more qualify. Short-term rental income, such as Airbnb stays, is not eligible, and neither is rental income from a separate parcel. <em>Per the Department of Revenue, the rental deduction is part of the itemized basket. It applies when you itemize, not in addition to the standard deduction.</em></p>
         <div class="field" style="max-width: 320px;">
-          <label class="field-label" for="rental-deduction">Annual rental income from your principal residence (optional)</label>
+          <label class="field-label" for="rental-deduction">2026 rental income from your primary residence parcel (optional)</label>
           <div class="line-input">
             <input type="number" id="rental-deduction" inputmode="numeric" min="0" max="6000" step="100" placeholder="0">
           </div>
-          <p style="font-size: 13.5px; color: var(--ink-mute); margin: 6px 0 0; font-style: italic;">Capped at $6,000 — anything above will be applied at the maximum.</p>
+          <p style="font-size: 13.5px; color: var(--ink-mute); margin: 6px 0 0; font-style: italic;">Capped at $6,000. Anything above will be applied at the maximum.</p>
         </div>
       </div>
 
-      <!-- Running total: visual cue only — screen reader announcement happens via the debounced
+      <!-- Running total: visual cue only: screen reader announcement happens via the debounced
            announcer below, so we don't read every keystroke aloud (per Megen / San Juan accessibility
            feedback that aria-live="polite" was interrupting users mid-input). -->
       <div class="running-total" aria-hidden="true">
@@ -1948,13 +2070,13 @@
       <div id="cdi-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
       <p class="authority-link"><button type="button" class="authority-toggle" data-target="auth-cdi">View statutory authority</button></p>
       <div class="authority-panel hidden" id="auth-cdi">
-        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.383" target="_blank" rel="noopener">RCW 84.36.383(2)</a> — defines combined disposable income, including which sources count, who is included (claimant, spouse or domestic partner, and co-tenants), and the allowable deductions. The standard deduction option and rental income deduction were added by Engrossed Substitute Senate Bill 6162 (2026).
+        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.383" target="_blank" rel="noopener">RCW 84.36.383(2)</a>: defines combined disposable income, including which sources count, who is included (claimant, spouse or domestic partner, and co-tenants), and the allowable deductions. The standard deduction option and rental income deduction were added by Engrossed Substitute Senate Bill 6162 (2026).
       </div>
     </section>
 
     <!-- BOTTOM DISCLAIMER (appears just above the result for prominence at decision point) -->
     <div class="bottom-disclaimer hidden" id="bottom-disclaimer" role="note">
-      <strong>THIS IS A SCREENING TOOL — NOT AN OFFICIAL DETERMINATION.</strong>
+      <strong>THIS IS A SCREENING TOOL, NOT AN OFFICIAL DETERMINATION.</strong>
       Only your county assessor can officially determine your eligibility after reviewing your completed application and supporting documents. Please contact your county assessor before relying on this result.
     </div>
 
@@ -1978,9 +2100,9 @@
     <!-- SCHOOL LEVY EDUCATOR -->
     <aside class="levy-block" aria-labelledby="levy-block-heading">
       <div class="step-number" data-num="i" aria-hidden="true">Key 2027 change</div>
-      <h2 id="levy-block-heading">No school taxes for approved applicants — at any level</h2>
-      <p>Starting with 2027 taxes, approved applicants at every exemption level are exempt from <strong>all school taxes</strong> — both state and local. School taxes are typically the largest portion of a Washington property tax bill, so this is a substantial benefit.</p>
-      <p>The new law also consolidates Washington's two state school levies (Part 1 and Part 2) into a single <strong>State School Levy</strong> at roughly $2.07 per $1,000 of assessed value. Under prior law, exemption recipients only avoided Part 2 — now they avoid the whole thing, plus all local school levies. To estimate what this will save you, look at your 2026 property tax statement and add up everything labeled "school."</p>
+      <h2 id="levy-block-heading">No school taxes for approved applicants at any level</h2>
+      <p>Starting with 2027 taxes, approved applicants at every exemption level are exempt from <strong>all school taxes</strong>, both state and local. School taxes are typically the largest portion of a Washington property tax bill, so this is a substantial benefit.</p>
+      <p>The new law also consolidates Washington's two state school levies (Part 1 and Part 2) into a single <strong>State School Levy</strong> at $2.075355 per $1,000 of market value for 2027. Under prior law, exemption recipients only avoided Part 2. Now they avoid the whole thing, plus all local school levies. To estimate what this will save you, look at your 2026 property tax statement and add up everything labeled "school."</p>
     </aside>
 
     <!-- DOR RESOURCES PANEL -->
@@ -1995,15 +2117,15 @@
         </a>
         <a class="dor-link" href="https://dor.wa.gov/taxes-rates/property-tax/senior-citizens-and-people-disabilities-exemption-and-deferred-income-thresholds" target="_blank" rel="noopener">
           <span class="dor-link-title">Income thresholds (all 39 counties)</span>
-          <span class="dor-link-sub">Tax years 2027–2029</span>
+          <span class="dor-link-sub">Tax years 2027 to 2029</span>
         </a>
         <a class="dor-link" href="https://dor.wa.gov/sites/default/files/2022-02/64-0002.pdf" target="_blank" rel="noopener">
           <span class="dor-link-title">Application form (Form 64 0002)</span>
-          <span class="dor-link-sub">PDF — submit to your county assessor</span>
+          <span class="dor-link-sub">PDF: submit to your county assessor</span>
         </a>
         <a class="dor-link" href="https://dor.wa.gov/sites/default/files/2022-02/63-0036.pdf" target="_blank" rel="noopener">
           <span class="dor-link-title">Combined Disposable Income Worksheet (Form 63 0036)</span>
-          <span class="dor-link-sub">PDF — accompanies the application</span>
+          <span class="dor-link-sub">PDF: accompanies the application</span>
         </a>
         <a class="dor-link" href="https://dor.wa.gov/countycontacts" target="_blank" rel="noopener">
           <span class="dor-link-title">County assessor contacts</span>
@@ -2017,9 +2139,6 @@
       <p class="dor-panel-note">Note: DOR is expected to update Form 63 0036 to reflect the new rental income deduction, expanded standard deduction, and other 2027 changes. Check the <a href="https://dor.wa.gov/forms-publications/forms-subject/property-tax-forms" target="_blank" rel="noopener">DOR property tax forms page</a> for the current version. Questions about the program: 360-534-1400.</p>
     </section>
 
-    <!-- next-steps element kept hidden but in DOM for legacy code that still toggles its visibility -->
-    <div class="next-steps hidden" id="next-steps" aria-hidden="true"></div>
-
   </div>
 </main>
 
@@ -2031,7 +2150,7 @@
     <div class="foot-grid">
       <div>
         <h3>About this tool</h3>
-        <p>This screening tool was developed collaboratively by the Washington State Association of County Assessors (WSACA) to help homeowners statewide gauge whether they may qualify for the expanded 2027 exemption program before contacting their county assessor. It reflects Engrossed Substitute Senate Bill 6162 (2026) and Engrossed House Bill 1106 (2025), and the TY 2027–2029 income thresholds.</p>
+        <p>This screening tool was developed collaboratively by the Washington State Association of County Assessors (WSACA) to help homeowners statewide gauge whether they may qualify for the expanded 2027 exemption program before contacting their county assessor. It reflects Engrossed Substitute Senate Bill 6162 (2026) and Engrossed House Bill 1106 (2025), and the TY 2027 to 2029 income thresholds.</p>
         <p class="ai-disclosure">This tool was built with AI assistance and refined through feedback from member counties. Source available on <a href="https://github.com/Mav2clu50/WSACA" target="_blank" rel="noopener">GitHub</a>.</p>
       </div>
       <div>
@@ -2052,7 +2171,7 @@
 
 <script>
 /* ============================================================
-   THRESHOLD DATA — TY 2027-2029 per ESSB 6162
+   THRESHOLD DATA: TY 2027-2029 per ESSB 6162
    All 39 counties, post-passage updated figures.
    ============================================================ */
 const THRESHOLDS = {
@@ -2098,7 +2217,7 @@ const THRESHOLDS = {
 };
 
 /* ============================================================
-   2026 THRESHOLD DATA — Tax Years 2024-2026
+   2026 THRESHOLD DATA: Tax Years 2024-2026
    Used for the comparison panel that appears after county selection,
    so users can see exactly how much the program expanded.
    ============================================================ */
@@ -2145,14 +2264,14 @@ const THRESHOLDS_2026 = {
 };
 
 /* ============================================================
-   COUNTY CROSSWALK — assessor website + 2027 application start date.
+   COUNTY CROSSWALK: assessor website + 2027 application start date.
    ============================================================
    TODO: Replace placeholder URLs and dates with real values once
    collected from each county at WSACA Conference. Fallback URL is
    the DOR county contacts page, which has every county's contact info.
    Date format: ISO 'YYYY-MM-DD' or null if not yet known.
    ============================================================ */
-// WSACA logo as data URI — embedded so the print document is self-contained
+// WSACA logo as data URI: embedded so the print document is self-contained
 // (when the print document opens in a new window, relative image paths can fail)
 const WSACA_LOGO_DATA_URI = "data:image/jpeg;base64,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";
 
@@ -2208,15 +2327,15 @@ function formatOpenDate(val) {
 }
 
 /* ============================================================
-   DOR Worksheet lines — abbreviated but correlated to Form 63 0036
+   DOR Worksheet lines: abbreviated but correlated to Form 63 0036
    ============================================================ */
 const INCOME_LINES = [
   {id: "ss_rr",     label: "Social Security and Railroad Retirement benefits", hint: "Total annual benefits, including any non-taxable portion."},
   {id: "military",  label: "Military pay and benefits", hint: "Active and reserve military pay for anyone in the household."},
-  {id: "veterans",  label: "Veterans benefits (only non-excluded portion)", hint: "Enter $0 if all your VA benefits are excluded. EXCLUDED from income (do not enter): service-connected disability compensation, Dependency and Indemnity Compensation (DIC), attendant-care and medical-aid payments, Aid and Attendance allowances, and Combat Related Special Compensation (CRSC). Only enter non-excluded VA benefits, such as non-service-connected pension benefits."},
+  {id: "veterans",  label: "Veterans benefits (only non-excluded portion)", hint: "Enter $0 if all your VA benefits are excluded. EXCLUDED from income (do not enter): service-connected disability compensation, Dependency and Indemnity Compensation (DIC), attendant-care and medical-aid payments, Aid and Attendance allowances, and Combat Related Special Compensation (CRSC). Only enter non-excluded VA benefits, such as non-service-connected pension benefits. Current exemption participants: if CRSC was counted in your income in a prior year, file a status change notice with your county assessor to have it removed. Counties cannot remove it automatically."},
   {id: "pensions",  label: "Pension and retirement distributions", hint: "Pensions, retirement bonds, Keogh plans, and the taxable portion of IRA distributions."},
   {id: "business",  label: "Business or rental income", hint: "Net income from self-employment or rental property. You cannot deduct depreciation."},
-  {id: "capgains",  label: "Capital gains", hint: "Exclude the gain on selling your residence if reinvested in another residence within one year. Add back any losses found on Schedule D or Form 8949 — losses cannot reduce disposable income."},
+  {id: "capgains",  label: "Capital gains", hint: "Exclude the gain on selling your residence if reinvested in another residence within one year. Add back any losses found on Schedule D or Form 8949. Losses cannot reduce disposable income."},
   {id: "annuities", label: "Annuity receipts", hint: "Regular payments from annuity contracts."},
   {id: "interest",  label: "Interest and dividend receipts", hint: "Include both taxable and non-taxable interest and dividends."},
   {id: "other",     label: "Other income", hint: "Wages, contributions from non-owner household members toward expenses, and any other income not listed above."}
@@ -2229,7 +2348,7 @@ const DEDUCTION_LINES = [
   {id: "medicare",      label: "Medicare premiums (A, B, C, D) and Medigap", hint: "Including premiums for Medicare supplemental policies."},
   {id: "ltc",           label: "Long-term care insurance premiums", hint: "Premiums paid for qualified long-term care insurance."},
   {id: "durable",       label: "Durable medical equipment, oxygen, prosthetics", hint: "Durable and mobility-enhancing equipment, medically prescribed oxygen, prosthetic devices."},
-  {id: "other_medical", label: "Other — ostomic items, insulin, dialysis, nebulizers", hint: "Includes kidney dialysis devices, nebulizers, cost-sharing amounts applied toward your plan's out-of-pocket maximum, naturopath-prescribed medicines, and disposable drug-delivery devices."}
+  {id: "other_medical", label: "Other: ostomic items, insulin, dialysis, nebulizers", hint: "Includes kidney dialysis devices, nebulizers, cost-sharing amounts applied toward your plan's out-of-pocket maximum, naturopath-prescribed medicines, and disposable drug-delivery devices."}
 ];
 
 /* ============================================================
@@ -2244,7 +2363,7 @@ const state = {
   dedMode: "standard",
   quick: { income: 0, medical: 0 },
   guided: { income: {}, deductions: {} },
-  // Rental income deduction (up to $6,000) — part of the itemized basket per RCW 84.36.383(2)(b)(n)
+  // Rental income deduction (up to $6,000): part of the itemized basket per RCW 84.36.383(2)(b)(n)
   // and DOR's May 2026 clarification (Laura Osborne, Property Tax Division). It applies when the
   // applicant itemizes, not as a separate adjustment. Visible in quick mode (forms the itemized
   // estimate) and in guided mode only when "Itemize my deductions" is selected.
@@ -2256,7 +2375,7 @@ const state = {
    ============================================================ */
 function init() {
   // Point the masthead logo at the embedded data URI (same image used by the print
-  // document). This removes the tool's only external file dependency — previously the
+  // document). This removes the tool's only external file dependency: previously the
   // masthead used src="../wsaca-logo.png", which would break if the logo file wasn't
   // deployed at the repo root or if the tool were loaded from a different path. The
   // tool is now fully self-contained.
@@ -2343,33 +2462,55 @@ function wireEvents() {
     }
   });
 
-  document.querySelectorAll('.calc-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const pane = tab.dataset.pane;
-      document.querySelectorAll('.calc-tab').forEach(t => {
-        t.classList.toggle('active', t === tab);
-        t.setAttribute('aria-selected', t === tab);
-      });
-      document.querySelectorAll('.calc-pane').forEach(p => {
-        p.classList.toggle('active', p.id === 'pane-' + pane);
-      });
-      state.mode = pane;
-      // Rental block visibility:
-      //   - Quick mode: always visible (forms the itemized estimate via medical + rental)
-      //   - Guided mode: visible only when "Itemize my deductions" is selected
-      const rentalBlock = document.getElementById('rental-ded-block');
-      if (rentalBlock) {
-        if (pane === 'quick') {
-          rentalBlock.classList.remove('hidden');
-        } else {
-          rentalBlock.classList.toggle('hidden', state.dedMode !== 'itemized');
-        }
+  // Activate a calculator tab. Shared by click and keyboard so the two can't drift apart.
+  function activateCalcTab(tab, focusIt) {
+    const pane = tab.dataset.pane;
+    document.querySelectorAll('.calc-tab').forEach(t => {
+      const on = t === tab;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      // Roving tabindex: only the selected tab is in the tab order, so Tab moves
+      // out of the tab strip and into the panel rather than through every tab.
+      t.setAttribute('tabindex', on ? '0' : '-1');
+    });
+    document.querySelectorAll('.calc-pane').forEach(p => {
+      p.classList.toggle('active', p.id === 'pane-' + pane);
+    });
+    state.mode = pane;
+    // Rental block visibility:
+    //   - Quick mode: always visible (forms the itemized estimate via medical + rental)
+    //   - Guided mode: visible only when "Itemize my deductions" is selected
+    const rentalBlock = document.getElementById('rental-ded-block');
+    if (rentalBlock) {
+      if (pane === 'quick') {
+        rentalBlock.classList.remove('hidden');
+      } else {
+        rentalBlock.classList.toggle('hidden', state.dedMode !== 'itemized');
       }
-      tryCompute();
+    }
+    if (focusIt) tab.focus();
+    tryCompute();
+  }
+
+  const calcTabs = [...document.querySelectorAll('.calc-tab')];
+  calcTabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => activateCalcTab(tab, false));
+    // Arrow keys move between tabs, Home/End jump to the ends: the expected
+    // keyboard behavior for a tab widget.
+    tab.addEventListener('keydown', e => {
+      let target = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') target = calcTabs[(i + 1) % calcTabs.length];
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') target = calcTabs[(i - 1 + calcTabs.length) % calcTabs.length];
+      else if (e.key === 'Home') target = calcTabs[0];
+      else if (e.key === 'End') target = calcTabs[calcTabs.length - 1];
+      if (target) {
+        e.preventDefault();
+        activateCalcTab(target, true);
+      }
     });
   });
 
-  // Block typing the minus key in any number input — combined with the Math.max(0, ...) clamp on input,
+  // Block typing the minus key in any number input: combined with the Math.max(0, ...) clamp on input,
   // this gives users immediate feedback rather than silently overriding their input on calculation.
   document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('keydown', e => {
@@ -2380,7 +2521,7 @@ function wireEvents() {
   ['quick-income', 'quick-medical'].forEach(id => {
     document.getElementById(id).addEventListener('input', e => {
       const key = id === 'quick-income' ? 'income' : 'medical';
-      // Clamp to zero — negative values aren't meaningful for income or medical expenses
+      // Clamp to zero: negative values aren't meaningful for income or medical expenses
       // and would distort the CDI calculation (Yakima County feedback flagged this).
       state.quick[key] = Math.max(0, parseFloat(e.target.value) || 0);
       tryCompute({ allowScroll: false });
@@ -2404,7 +2545,7 @@ function wireEvents() {
   if (rentalDed) {
     rentalDed.addEventListener('input', e => {
       const raw = Math.max(0, parseFloat(e.target.value) || 0);
-      // Cap at $6,000 per the statute, but don't rewrite the user's input — let them see what they typed.
+      // Cap at $6,000 per the statute, but don't rewrite the user's input: let them see what they typed.
       // The cap is applied at calculation time in computeCDI().
       state.rentalDeduction = raw;
       tryCompute({ allowScroll: false });
@@ -2420,7 +2561,7 @@ function wireEvents() {
   const resetBtn = document.getElementById('reset-btn');
   if (resetBtn) resetBtn.addEventListener('click', handleReset);
 
-  // Authority panel toggles — event delegation handles both static panels (in DOM at load)
+  // Authority panel toggles: event delegation handles both static panels (in DOM at load)
   // and dynamically-injected panels (inside the qualifying result body).
   document.body.addEventListener('click', e => {
     const toggle = e.target.closest('.authority-toggle');
@@ -2490,7 +2631,7 @@ function selectRadio(input) {
     const lbl = document.getElementById('std-ded-label');
     if (lbl) {
       const amt = input.value === 'joint' ? '$15,000' : '$7,500';
-      lbl.innerHTML = `Use the standard deduction (${amt})<small>Simplest option — a flat amount with no itemization</small>`;
+      lbl.innerHTML = `Use the standard deduction (${amt})<small>Simplest option: a flat amount with no itemization</small>`;
     }
   }
 
@@ -2537,8 +2678,6 @@ function hideResult() {
   section.style.display = 'none';
   const actions = document.getElementById('result-actions');
   if (actions) actions.classList.add('hidden');
-  const nextSteps = document.getElementById('next-steps');
-  if (nextSteps) nextSteps.classList.add('hidden');
   document.getElementById('bottom-disclaimer').classList.add('hidden');
 }
 
@@ -2549,7 +2688,7 @@ function computeCDI() {
   const stdDed = state.filer === 'joint' ? 15000 : (state.filer === 'individual' ? 7500 : 0);
   // Rental income deduction is part of the itemized basket per RCW 84.36.383(2)(b)(n) and
   // DOR's May 2026 clarification (Laura Osborne, Property Tax Division). It is NOT a
-  // separate adjustment — applicants take standard OR itemized (which can include rental),
+  // separate adjustment: applicants take standard OR itemized (which can include rental),
   // not both. This corrects an earlier interpretation that placed rental as a parallel
   // adjustment to gross income.
   const rentalDed = Math.min(6000, Math.max(0, state.rentalDeduction || 0));
@@ -2563,7 +2702,7 @@ function computeCDI() {
   }
 
   // Guided: gross income, then either standard alone or itemized (medical lines + rental).
-  // Per RCW 84.36.383, applicants are entitled to whichever is larger — the radio toggle
+  // Per RCW 84.36.383, applicants are entitled to whichever is larger: the radio toggle
   // controls visibility of itemized lines, but the calculator always honors the statute.
   const grossIncome = Object.values(state.guided.income).reduce((a, b) => a + (b || 0), 0);
 
@@ -2647,7 +2786,7 @@ function tryCompute(opts) {
 
   // Live preview bar in the income step: updates as the user types so they can see
   // their position relative to the thresholds without waiting for the result panel.
-  // Only render if county is set and CDI is non-zero — otherwise it's just visual noise.
+  // Only render if county is set and CDI is non-zero: otherwise it's just visual noise.
   const previewBar = document.getElementById('rt-preview-bar');
   if (previewBar) {
     if (state.county && cdi > 0) {
@@ -2697,9 +2836,9 @@ function buildComparisonTable(level) {
     3: { school: "Local school levies + Part 2 of State School Levy<br><span style=\"color: var(--ink-mute); font-size: 13px;\">(Part 1 of State School Levy still owed)</span>", other: "Yes", regular: "No" }
   };
   const rows2027 = {
-    1: { school: "Yes — all school taxes (state and local)", other: "Yes", regular: "On $80,000 or 80% of the assessed taxable value, whichever is greater" },
-    2: { school: "Yes — all school taxes (state and local)", other: "Yes", regular: "On $70,000 or 45% of the assessed taxable value, whichever is greater (up to $200,000)" },
-    3: { school: "Yes — all school taxes (state and local)", other: "Yes", regular: "No" }
+    1: { school: "Yes, all school taxes (state and local)", other: "Yes", regular: "On $80,000 or 80% of the assessed taxable value, whichever is greater" },
+    2: { school: "Yes, all school taxes (state and local)", other: "Yes", regular: "On $70,000 or 45% of the assessed taxable value, whichever is greater (up to $200,000)" },
+    3: { school: "Yes, all school taxes (state and local)", other: "Yes", regular: "No" }
   };
   const r26 = rows2026[level];
   const r27 = rows2027[level];
@@ -2738,7 +2877,7 @@ function buildComparisonTable(level) {
             </tr>
           </tbody>
         </table>
-        <p style="font-size: 14px; color: var(--ink-mute); margin: 6px 0 0; line-height: 1.5;">Under the new law, the state school levy is consolidated into a single levy and approved applicants are exempt from <strong>all</strong> school taxes — both state and local — at every level.</p>
+        <p style="font-size: 14px; color: var(--ink-mute); margin: 6px 0 0; line-height: 1.5;">Under the new law, the state school levy is consolidated into a single levy and approved applicants are exempt from <strong>all</strong> school taxes, both state and local, at every level.</p>
       </div>
     </div>
   `;
@@ -2749,14 +2888,14 @@ function getBenefits(level) {
     return [
       "All school taxes (state and local)",
       "Other voter-approved excess levies",
-      "Regular levies on $80,000 or 80% of the assessed taxable value, whichever is greater"
+      "Local regular levies on $80,000 or 80% of the assessed taxable value, whichever is greater"
     ];
   }
   if (level === 2) {
     return [
       "All school taxes (state and local)",
       "Other voter-approved excess levies",
-      "Regular levies on $70,000 or 45% of the assessed taxable value, whichever is greater (up to $200,000 of taxable value)"
+      "Local regular levies on $70,000 or 45% of the assessed taxable value, whichever is greater (up to $200,000 of taxable value)"
     ];
   }
   return [
@@ -2788,9 +2927,13 @@ function renderThresholdPanel(county) {
     const pctChange = Math.round((diff / old) * 100);
     return `
       <tr>
-        <td class="level-cell">Level ${r.letter} (Threshold ${r.num})<small>${r.label}</small></td>
-        <td>${formatMoney(old)}</td>
-        <td class="col-2027">${formatMoney(now)}<span class="threshold-change">+${pctChange}%</span></td>
+        <td class="level-cell" data-label="Level">Level ${r.letter}<small>Threshold ${r.num} · ${r.label}</small></td>
+        <td class="col-2026" data-label="2026 limit">${formatMoney(old)}</td>
+        <td class="col-2027" data-label="2027 limit">${formatMoney(now)}<span class="threshold-change">+${pctChange}%</span></td>
+        <td class="col-gross" data-label="Your income can be up to, after the standard deduction">
+          <span class="gross-line"><span class="gross-who">Single<em>+$7,500 deduction</em></span>${formatMoney(now + 7500)}</span>
+          <span class="gross-line"><span class="gross-who">Couple<em>+$15,000 deduction</em></span>${formatMoney(now + 15000)}</span>
+        </td>
       </tr>
     `;
   }).join('');
@@ -2834,9 +2977,9 @@ function buildIncomeBar(cdi, t, markerVariant) {
     <div class="income-bar-wrap variant-${variant}" role="img" aria-label="${ariaLabel.replace(/"/g, '&quot;')}">
       <div class="income-bar-title">${titleText}</div>
       <div class="income-bar-track">
-        <div class="income-bar-seg seg-a" style="width: ${segA}%" title="Level A: $0 – ${formatMoney(t.t1)}"></div>
-        <div class="income-bar-seg seg-b" style="width: ${segB}%" title="Level B: ${formatMoney(t.t1)} – ${formatMoney(t.t2)}"></div>
-        <div class="income-bar-seg seg-c" style="width: ${segC}%" title="Level C: ${formatMoney(t.t2)} – ${formatMoney(t.t3)}"></div>
+        <div class="income-bar-seg seg-a" style="width: ${segA}%" title="Level A: $0 to ${formatMoney(t.t1)}"></div>
+        <div class="income-bar-seg seg-b" style="width: ${segB}%" title="Level B: ${formatMoney(t.t1)} to ${formatMoney(t.t2)}"></div>
+        <div class="income-bar-seg seg-c" style="width: ${segC}%" title="Level C: ${formatMoney(t.t2)} to ${formatMoney(t.t3)}"></div>
         <div class="income-bar-seg seg-over" style="width: ${segOver}%" title="Above Level C"></div>
         <div class="income-bar-marker" style="left: ${cdiPct}%">
           <span class="income-bar-marker-label">Your income: ${formatMoney(cdi)}</span>
@@ -2860,7 +3003,6 @@ function showResult(cdi, level, t, opts) {
   const headline = document.getElementById('result-headline');
   const body = document.getElementById('result-body');
   const actions = document.getElementById('result-actions');
-  const nextSteps = document.getElementById('next-steps');
 
   card.classList.remove('qualifies', 'does-not', 'maybe');
   const wasHidden = section.style.display !== 'block';
@@ -2868,18 +3010,18 @@ function showResult(cdi, level, t, opts) {
 
   if (level === null) {
     // CDI is above Level C threshold. Apply the 5% buffer:
-    // if within 5% of Level C, give a warmer "close — please call" message.
+    // if within 5% of Level C, give a warmer "close: please call" message.
     const overage = cdi - t.t3;
     const isWithinBuffer = overage > 0 && overage <= (t.t3 * 0.05);
 
     if (isWithinBuffer) {
       card.classList.add('maybe');
       kicker.textContent = 'Screening result';
-      headline.textContent = "You're close — please contact your county assessor";
+      headline.textContent = "You're close. Please contact your county assessor";
       body.innerHTML = `
         <p style="font-size: 17px;">Your estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is just above the Level C threshold (${formatMoney(t.t3)}) for ${state.county} County. Don't rule yourself out yet.</p>
         ${buildIncomeBar(cdi, t, 'buffer')}
-        <p>The official disposable income calculation includes deductions that may not be captured in this quick estimate — Medicare premiums, prescriptions, in-home care, long-term care insurance, the new $7,500 standard deduction, the $6,000 rental income deduction, and others. Your county assessor can walk through the full calculation with you and may find that you qualify after all.</p>
+        <p>The official calculation applies whichever is larger: the new standard deduction of $7,500 per person, or your itemized costs. Itemized costs include Medicare premiums, prescriptions, in-home care, long-term care insurance, and up to $6,000 of long-term rental income from your residence. Your county assessor can walk through the full calculation with you and may find that you qualify after all.</p>
         <p style="font-weight: 600; color: var(--wsaca-green-deep); margin-top: 16px;">Please contact your county assessor's office to confirm your eligibility before assuming you don't qualify.</p>
       `;
     } else {
@@ -2891,7 +3033,7 @@ function showResult(cdi, level, t, opts) {
         <p>A few things worth checking before you rule it out:</p>
         <ul style="padding-left: 22px; margin: 8px 0 16px; line-height: 1.7;">
           <li>The guided calculator captures more allowable deductions than the quick estimate.</li>
-          <li>If you have rental income, remember the new $6,000 rental income deduction starting in 2027.</li>
+          <li>If you itemize, up to $6,000 of long-term rental income from your residence can be included in your itemized deductions starting in 2027.</li>
           <li>This tool is an estimate only. Your county assessor's official calculation may come out lower.</li>
         </ul>
       `;
@@ -2923,7 +3065,7 @@ function showResult(cdi, level, t, opts) {
       <p style="font-size: 16px; color: var(--ink-soft); margin-top: 16px;">The taxable value of the residence would also be <strong>frozen</strong> the first year you qualify, protecting you from future market property value increases. If the property has new construction (such as additions or decks) or a boundary line modification, the frozen value will be adjusted accordingly.</p>
       <p class="authority-link"><button type="button" class="authority-toggle" data-target="auth-benefits-${level}">View statutory authority</button></p>
       <div class="authority-panel hidden" id="auth-benefits-${level}">
-        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(5)</a> — defines the exemption amounts at each level, as amended by Engrossed Substitute Senate Bill 6162 (2026). <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(6)</a> — establishes the taxable-value freeze the first year you qualify. <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.385" target="_blank" rel="noopener">RCW 84.36.385</a> — sets the income thresholds at percentages of county median household income.
+        <strong>Authority:</strong> <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(5)</a>: defines the exemption amounts at each level, as amended by Engrossed Substitute Senate Bill 6162 (2026). <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.381" target="_blank" rel="noopener">RCW 84.36.381(6)</a>: establishes the taxable-value freeze the first year you qualify. <a href="https://app.leg.wa.gov/rcw/default.aspx?cite=84.36.385" target="_blank" rel="noopener">RCW 84.36.385</a>: sets the income thresholds at percentages of county median household income.
       </div>
       ${buildComparisonTable(level)}
     `;
@@ -2945,7 +3087,6 @@ function showIneligible(reason) {
   const headline = document.getElementById('result-headline');
   const body = document.getElementById('result-body');
   const actions = document.getElementById('result-actions');
-  const nextSteps = document.getElementById('next-steps');
 
   card.classList.remove('qualifies', 'does-not', 'maybe');
   card.classList.add('does-not');
@@ -2962,8 +3103,8 @@ function showIneligible(reason) {
   } else {
     headline.textContent = "The residence must be your principal place of residence";
     body.innerHTML = `
-      <p>The exemption applies only to a residence you own and occupy as your principal place of residence — meaning you live there for more than six months of each calendar year. Vacation homes, rentals, and second homes do not qualify.</p>
-      <p>If you're temporarily away — for example, in a care facility — you may still qualify under the temporary-displacement exception in RCW 84.36.381(1). Contact your county assessor.</p>
+      <p>The exemption applies only to a residence you own and occupy as your principal place of residence, meaning you live there for more than six months of each calendar year. Vacation homes, rentals, and second homes do not qualify.</p>
+      <p>If you're temporarily away, for example in a care facility, you may still qualify under the temporary-displacement exception in RCW 84.36.381(1). Contact your county assessor.</p>
     `;
   }
 
@@ -3014,7 +3155,7 @@ function handleReset() {
   // Bug fix from Pierce County feedback: the previous code wrote 'is-active' on the
   // tab buttons and 'hidden' on the panes, but the CSS uses 'active' on .calc-tab and
   // 'active' on .calc-pane for visibility. After reset, the previously-active guided
-  // pane stayed visible while state.mode silently flipped to 'quick' — typing in the
+  // pane stayed visible while state.mode silently flipped to 'quick': typing in the
   // guided fields didn't update the running total because computeCDI was reading
   // state.quick.income (zero) instead of state.guided.*. A page refresh worked around
   // it; reset alone did not.
@@ -3022,6 +3163,8 @@ function handleReset() {
     const isQuick = tab.dataset.pane === 'quick';
     tab.classList.toggle('active', isQuick);
     tab.setAttribute('aria-selected', isQuick ? 'true' : 'false');
+    // Keep the roving tabindex in sync, or keyboard order breaks after a reset.
+    tab.setAttribute('tabindex', isQuick ? '0' : '-1');
   });
   document.querySelectorAll('.calc-pane').forEach(p => {
     p.classList.toggle('active', p.id === 'pane-quick');
@@ -3037,7 +3180,7 @@ function handleReset() {
   if (itemizedBox) itemizedBox.classList.add('hidden');
 
   // Hide all subsequent steps and reset their reveal state.
-  // (The step id for the household question is 'step-filer', not 'step-household' — this was a bug
+  // (The step id for the household question is 'step-filer', not 'step-household': this was a bug
   //  in the original reset, surfaced by San Juan County feedback that the household section stayed
   //  visible after reset.)
   ['threshold-panel', 'step-age', 'step-residence', 'step-filer', 'step-income'].forEach(id => {
@@ -3146,7 +3289,7 @@ function handlePrint() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Property Tax Exemption Screening Result — ${state.county || ''} County</title>
+  <title>Property Tax Exemption Screening Result | ${state.county || ''} County</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
@@ -3247,11 +3390,11 @@ function buildPrintView() {
     const breakdown = components.length ? ` (${components.join(' + ')})` : '';
     dedModeLabel = `Itemized deductions${breakdown}, applied because larger than $${stdDedAmt.toLocaleString()} standard`;
   } else if (state.mode === 'guided' && state.dedMode === 'itemized') {
-    // User picked itemized but standard was larger — applied standard as the safety net.
-    dedModeLabel = `Standard deduction (${formatMoney(stdDedAmt)}) — applied because the itemized basket (${formatMoney(itemizedWithRental)}) was smaller`;
+    // User picked itemized but standard was larger: applied standard as the safety net.
+    dedModeLabel = `Standard deduction (${formatMoney(stdDedAmt)}), applied because the itemized basket (${formatMoney(itemizedWithRental)}) was smaller`;
   } else if (state.mode === 'quick') {
     // Quick mode, standard won.
-    dedModeLabel = `Standard deduction (${formatMoney(stdDedAmt)}) — larger than the itemized estimate (${formatMoney(itemizedWithRental)})`;
+    dedModeLabel = `Standard deduction (${formatMoney(stdDedAmt)}), larger than the itemized estimate (${formatMoney(itemizedWithRental)})`;
   } else {
     // Guided mode, standard explicitly chosen.
     dedModeLabel = `Standard deduction (${formatMoney(stdDedAmt)})`;
@@ -3291,7 +3434,7 @@ function buildPrintView() {
   // Build result block
   let resultBlock = '';
   // First check for hard-disqualification: age/disability/veteran/surviving criteria not met, or not principal place of residence.
-  // This is independent of CDI — even with $0 income, someone who doesn't meet these criteria doesn't qualify.
+  // This is independent of CDI: even with $0 income, someone who doesn't meet these criteria doesn't qualify.
   // (Bug surfaced by San Juan County: previously showed "May qualify at Level A" for users who answered "None of the above" on age.)
   if (state.age === 'none' || state.residence === 'no') {
     let reason = '';
@@ -3334,7 +3477,7 @@ function buildPrintView() {
       resultBlock = `
         <div class="print-result print-result-buffer">
           <div class="print-result-label">SCREENING RESULT</div>
-          <h2>Close to qualifying — please contact ${state.county} County Assessor</h2>
+          <h2>Close to qualifying. Please contact ${state.county} County Assessor</h2>
           <p>Estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is just above the Level C threshold (${formatMoney(t.t3)}) for ${state.county} County. The official disposable income calculation includes deductions that may not be captured in this estimate. Please contact your county assessor's office to confirm eligibility.</p>
         </div>
       `;
@@ -3369,12 +3512,12 @@ function buildPrintView() {
     { label: 'Deduction documentation', items: [] }
   ];
 
-  // Eligibility basis — conditional on user's selection
+  // Eligibility basis: conditional on user's selection
   if (state.age === 'disabled') {
     docGroups[1].items.push({ label: 'Proof of disability', detail: 'Social Security Administration determination letter, OR a completed Proof of Disability Affidavit signed by a licensed physician. Other federal disability determinations (Railroad Retirement disability award, VA non-service-connected disability) are also acceptable.' });
   }
   if (state.age === 'veteran') {
-    docGroups[1].items.push({ label: 'Proof of disabled veteran status', detail: 'Letter from the U.S. Department of Veterans Affairs showing your combined service-connected evaluation rating (40% or higher) or 100% compensation rate. The letter should be current — older letters may not reflect your current rating.' });
+    docGroups[1].items.push({ label: 'Proof of disabled veteran status', detail: 'Letter from the U.S. Department of Veterans Affairs showing your combined service-connected evaluation rating (40% or higher) or 100% compensation rate. The letter should be current. Older letters may not reflect your current rating.' });
   }
   if (state.age === 'surviving') {
     docGroups[1].items.push({ label: 'Proof of surviving spouse/partner status', detail: 'Death certificate of your spouse or domestic partner, plus documentation that they were a participant in the exemption program at the time of their death' });
@@ -3404,15 +3547,15 @@ function buildPrintView() {
   } else {
     docGroups[3].items.push({
       label: 'Proof of income (all sources)',
-      detail: 'Federal tax return (most recent year, if filed), Form SSA-1099 for Social Security, Form 1099-R for pensions/retirement distributions, W-2s for wages, 1099-INT/DIV for interest and dividends, and statements for any other income source. For more specific documentation requirements, consider re-running this tool using the guided calculator.'
+      detail: 'Your 2026 federal tax return (if filed), Form SSA-1099 for Social Security, Form 1099-R for pensions/retirement distributions, W-2s for wages, 1099-INT/DIV for interest and dividends, and statements for any other income source. For more specific documentation requirements, consider re-running this tool using the guided calculator.'
     });
   }
 
   // Per-deduction-line documentation map
   const deductionDocs = {
-    nursing:       { label: 'Nursing home / assisted living / adult family home', detail: 'Itemized invoices, billing statements, and proof of payment from the facility for the assessment year. Show non-reimbursed amounts only.' },
+    nursing:       { label: 'Nursing home / assisted living / adult family home', detail: 'Itemized invoices, billing statements, and proof of payment from the facility for calendar year 2026. Show non-reimbursed amounts only.' },
     inhome:        { label: 'In-home care',                                      detail: 'Receipts or invoices from in-home care providers for medical treatment, physical therapy, household care, and personal care services.' },
-    prescriptions: { label: 'Prescription drugs',                                detail: 'Pharmacy printouts of out-of-pocket prescription costs for the assessment year, OR receipts/insurance explanation-of-benefits statements.' },
+    prescriptions: { label: 'Prescription drugs',                                detail: 'Pharmacy printouts of out-of-pocket prescription costs for calendar year 2026, OR receipts/insurance explanation-of-benefits statements.' },
     medicare:      { label: 'Medicare premiums (A, B, C, D) and Medigap',        detail: 'Annual Medicare premium statements (look for "Notice of Medicare Premium Payments"), or your Social Security statement showing premium deductions. Include Medigap insurer billing statements if applicable.' },
     ltc:           { label: 'Long-term care insurance premiums',                 detail: 'Annual premium statement from your long-term care insurance carrier confirming the policy qualifies under federal/state long-term care insurance requirements.' },
     durable:       { label: 'Durable medical equipment, oxygen, prosthetics',    detail: 'Receipts or invoices for durable medical equipment, mobility-enhancing equipment, medically prescribed oxygen, and prosthetic devices, including supporting prescriptions.' },
@@ -3428,18 +3571,18 @@ function buildPrintView() {
     });
   }
 
-  // Rental income deduction documentation — only when rental was actually applied (itemized
+  // Rental income deduction documentation: only when rental was actually applied (itemized
   // basket was the larger choice). Per DOR clarification, rental is part of itemized, so if
   // the standard deduction was applied, the rental input was effectively unused.
   if (rentalAmt > 0 && itemizedApplied) {
     docGroups[4].items.push({
       label: 'Rental income deduction documentation',
-      detail: 'Records showing rental income from your principal residence (e.g., lease agreements, rent receipts, or Schedule E if you file one) supporting the amount deducted, up to the $6,000 cap.'
+      detail: 'Records showing long-term rental income (30 days or more) from living space on your primary residence parcel, such as lease agreements, rent receipts, or Schedule E if you file one, supporting the amount deducted, up to the $6,000 cap. Short-term rental income, such as Airbnb stays, is not eligible.'
     });
   }
 
   // Tailor the section intro language depending on whether the doc list is hyper-specific or general.
-  // Phrasing is intentionally non-prescriptive — county requirements vary, and many counties already
+  // Phrasing is intentionally non-prescriptive: county requirements vary, and many counties already
   // have ownership and occupancy records on file (Pierce County feedback).
   const docIntro = state.mode === 'guided'
     ? 'Below are documents that may be requested to verify the information you provided. This list is tailored to the eligibility basis and income or deduction lines you entered. Requirements vary by county, and some counties already have ownership and occupancy records on file and won\'t need those documents from you.'
@@ -3506,7 +3649,7 @@ function buildPrintView() {
       </header>
 
       <div class="print-disclaimer-top">
-        <strong>This is a screening tool — not an official determination of eligibility.</strong>
+        <strong>This is a screening tool, not an official determination of eligibility.</strong>
         Only a county assessor can officially determine eligibility after reviewing a completed application and supporting documentation.
       </div>
 
@@ -3519,7 +3662,7 @@ function buildPrintView() {
         <table class="print-inputs">
           <tr><td>County</td><td>${state.county || '—'} County</td></tr>
           <tr><td>Eligibility basis</td><td>${ageLabels[state.age] || '—'}</td></tr>
-          <tr><td>Ownership &amp; occupancy</td><td>${state.residence === 'yes' ? 'Yes — registered owner, principal place of residence' : '—'}</td></tr>
+          <tr><td>Ownership &amp; occupancy</td><td>${state.residence === 'yes' ? 'Yes, registered owner, principal place of residence' : '—'}</td></tr>
           <tr><td>Household</td><td>${filerLabels[state.filer] || '—'}</td></tr>
           <tr><td>Calculation mode</td><td>${modeLabel}</td></tr>
           <tr><td>Deduction approach</td><td>${dedModeLabel}</td></tr>
@@ -3553,8 +3696,8 @@ function buildPrintView() {
       ${documentsSection}
 
       <div class="print-disclaimer-bottom">
-        <strong>IMPORTANT: This is a screening tool — not an official determination.</strong>
-        <p>Results shown are based on inputs provided by the user and reflect the new law enacted by Engrossed Substitute Senate Bill 6162 (2026) and Engrossed House Bill 1106 (2025). Only the county assessor can officially determine eligibility after reviewing a completed application (DOR Form 64 0002) and a Combined Disposable Income Worksheet (DOR Form 63 0036) with supporting documentation. Income thresholds are subject to revision by the Department of Revenue. Statutory authority: RCW 84.36.381–.389.</p>
+        <strong>IMPORTANT: This is a screening tool, not an official determination.</strong>
+        <p>Results shown are based on inputs provided by the user and reflect the new law enacted by Engrossed Substitute Senate Bill 6162 (2026) and Engrossed House Bill 1106 (2025). Only the county assessor can officially determine eligibility after reviewing a completed application (DOR Form 64 0002) and a Combined Disposable Income Worksheet (DOR Form 63 0036) with supporting documentation. Income thresholds are subject to revision by the Department of Revenue. Statutory authority: RCW 84.36.381 through 84.36.389.</p>
       </div>
 
       <footer class="print-footer">
