@@ -23,7 +23,7 @@ VALIDATION BEFORE PUBLISHING (both are cheap and both have caught real errors):
      multi-county districts (Darrington, Concrete, La Conner, Fire 16, Fire 24),
      where cross-county equalization applies. A ratio near 10x or 0.1x means a
      digit was dropped or added. This is how the Fidalgo 2010 error was found.
-  b. Open the page and click all six preset questions, then check one district
+  b. Open the page and click all eight preset questions, then check one district
      on each of the three metrics with the benchmark lines turned on.
 
 NOTE ON SOURCE DATA: the 2010 certified sheet prints Fidalgo Parks' assessed
@@ -39,6 +39,15 @@ adds another summary row, add it there. (2) Every other district must belong to
 exactly one group in COUNTY_GROUPS, by category or by id. A new category needs a
 new group. The test script checks both rules and reconciles each year's group
 total to the sum of the underlying districts.
+
+NOTE ON THE DEFAULT VIEW: the page opens on Whole County for the latest year, and a
+bare link (no query) means exactly that. Any link that names districts (d=...) or a
+measure (view=...) opens One District at a time. scope=county&year=YYYY opens the
+county view on another year.
+
+NOTE ON SOCIAL SHARING: og-image.png sits next to this file and must be republished
+with it. The og:url and og:image tags below are absolute and point at the live path;
+if the tool moves, update both.
 
 NOTE ON SHAREABLE LINKS: the address bar carries the current view, for example
   ?view=amount&d=city-of-mount-vernon&real=1&compare=population
@@ -58,7 +67,12 @@ the remaining districts, or to the default view if none remain.
 <meta property="og:title" content="Skagit County Tax District Levy Trends">
 <meta property="og:description" content="Seventeen years of levy rates, levied amounts, and assessed values for every taxing district in Skagit County, with the reason behind every change.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://mav2clu50.github.io/WSACA/skagit/levytrends/">
+<meta property="og:image" content="https://mav2clu50.github.io/WSACA/skagit/levytrends/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Where Skagit County property tax goes: $322.9 million in 2026, split among schools, cities, county government and other districts.">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
@@ -107,6 +121,9 @@ body:not(.cw) #county,body:not(.cw) #cwtablewrap{display:none;}
 .cbig .big{font-size:33px;font-weight:800;color:#006699;}
 .cbig select{font:600 15px 'Public Sans',sans-serif;color:#1a2e3a;border:1px solid #a9b4bd;border-radius:2px;padding:4px 6px;background:#fff;}
 .csub{font-size:14.5px;color:#4a5860;margin-top:4px;line-height:1.5;}
+.cgrow{font-size:14.5px;color:#1a2e3a;margin-top:8px;line-height:1.55;max-width:640px;}
+.cgrow b{color:#006699;}
+.cgrow:empty{display:none;}
 .cnote{font-size:14.5px;line-height:1.6;color:#33454f;background:#f6f9fb;border-left:3px solid #c2703d;padding:9px 12px;margin:14px 0 10px;max-width:820px;}
 .cwlist{display:flex;flex-direction:column;}
 .cwrow{display:grid;grid-template-columns:minmax(180px,1.15fr) 2fr 190px;gap:4px 16px;align-items:center;width:100%;text-align:left;background:none;border:none;border-top:1px solid #edf1f4;padding:9px 4px;cursor:pointer;font:inherit;color:inherit;}
@@ -267,10 +284,9 @@ button:focus-visible,.chip:focus-visible,.guide summary:focus-visible{outline:2p
   </header>
 
   <div class="intro">
-    <p class="lede">A public transparency tool from the Office of the Skagit County Assessor.
-    See how the levy rate and the total dollars raised by every taxing district in Skagit County
+    <p class="lede">See how the levy rate and the total dollars raised by every taxing district in Skagit County
     have changed over seventeen years, and the laws and local decisions behind each change.
-    Select a single district to see its full story.</p>
+    Start with the whole county, then select a single district to see its full story.</p>
     <p class="byline"><b>An open-government initiative of the Skagit County Assessor, Danny Hagen.</b>
     Built to make how local property taxes are set clear and accessible to every Skagit County
     resident, because a tax system people can see is one they can trust.</p>
@@ -279,13 +295,14 @@ button:focus-visible,.chip:focus-visible,.guide summary:focus-visible{outline:2p
   <div class="card guide">
     <div class="gtitle">Start with a question</div>
     <div class="presets">
-      <button class="preset" onclick="presetView('county')">Where does all the property tax in Skagit County go?</button>
-      <button class="preset" onclick="presetView('mccleary')">What happened to the state school levy after McCleary?</button>
-      <button class="preset" onclick="presetView('inflation')">How does the county levy compare to inflation and growth?</button>
-      <button class="preset" onclick="presetView('schools')">How does my school district compare to others?</button>
-      <button class="preset" onclick="presetView('values')">How much have property values grown?</button>
-      <button class="preset" onclick="presetView('mvlidlift')">Why did Mount Vernon city taxes jump in 2026?</button>
-      <button class="preset" onclick="presetView('realdollars')">Is the county collecting more than in 2010, in today&rsquo;s dollars?</button>
+      <button type="button" class="preset" onclick="presetView('county')">How much property tax is collected in Skagit County, and who gets it?</button>
+      <button type="button" class="preset" onclick="presetView('split')">How has the split between schools, cities, and the county changed since 2010?</button>
+      <button type="button" class="preset" onclick="presetView('mccleary')">What happened to the state school levy after McCleary?</button>
+      <button type="button" class="preset" onclick="presetView('inflation')">How does the county levy compare to inflation and growth?</button>
+      <button type="button" class="preset" onclick="presetView('schools')">How does my school district compare to others?</button>
+      <button type="button" class="preset" onclick="presetView('values')">How much have property values grown?</button>
+      <button type="button" class="preset" onclick="presetView('mvlidlift')">Why did Mount Vernon city taxes jump in 2026?</button>
+      <button type="button" class="preset" onclick="presetView('realdollars')">My tax bill keeps going up. Is the county getting that money?</button>
     </div>
     <details id="howto">
       <summary>How to use this tool</summary>
@@ -336,6 +353,7 @@ button:focus-visible,.chip:focus-visible,.guide summary:focus-visible{outline:2p
         <div class="label">All property tax levied in Skagit County</div>
         <div class="cbig"><span class="big" id="cwtotal"></span><span>in <select id="cwyear" aria-label="Tax year"></select></span></div>
         <div class="csub" id="cwsub"></div>
+        <div class="cgrow" id="cwgrowth"></div>
       </div>
       <button type="button" class="copylink" onclick="copyLink(this)" aria-live="polite">Copy link to this view</button>
     </div>
@@ -412,7 +430,7 @@ var DCOLOR={
 function colorOf(d,i){return (d&&DCOLOR[d.id])?DCOLOR[d.id]:COLORS[i%COLORS.length];}
 var COLORS=['#006699','#c2703d','#3f7d8c','#9a7d35','#7d4f5e','#4a6b2e','#874f8b','#b85450','#2e6b6b','#7b6d3a','#5a4a8c','#8c5a2e','#3a7b5a','#a05272','#506b8c','#6b3a52','#8c8c3a','#3a8c8c','#52a072','#a07252'];
 var DEFAULTS={'County Funds':'current-expense-general-fund','State School':'state-school-total','Cities & Towns':'city-of-mount-vernon','School Districts':'mount-vernon-sd-320','Fire Districts':'fire-district-8','Hospitals':'hospital-2-skagit-anacortes','Library':'central-skagit-library','Parks':'fidalgo-parks-pool','Cemetery':'cemetery-2','Port':'port-2-skagit','Special Assessments':'special-assessments-total'};
-var S={scope:'district',year:null,cwShare:false,metric:'rate',cat:'County Funds',selected:['current-expense-general-fund'],real:false,refs:{cpi:false,pop:false,both:false,pair:false}};
+var S={scope:'county',year:null,cwShare:false,metric:'rate',cat:'County Funds',selected:['current-expense-general-fund'],real:false,refs:{cpi:false,pop:false,both:false,pair:false}};
 // Seattle-Tacoma-Bellevue CPI-U (BLS, 1982-84=100). Each year is the average of the
 // published bimonthly index values. Oct 2025 was never published (federal shutdown),
 // so 2025 averages the five published values; 2026 averages values through April.
@@ -513,11 +531,14 @@ var PRESETS={
  schools:{metric:'rate',cat:'School Districts',selected:['burlington-edison-sd-100','sedro-woolley-sd-101','anacortes-sd-103','concrete-sd-11','la-conner-sd-311','conway-sd-317','mount-vernon-sd-320','darrington-sd-330'],refs:{cpi:false,pop:false,both:false},real:false},
  values:{metric:'val',cat:'County Funds',selected:['current-expense-general-fund'],refs:{cpi:false,pop:false,both:false},real:false},
  mvlidlift:{metric:'taxes',cat:'Cities & Towns',selected:['city-of-mount-vernon'],refs:{cpi:false,pop:false,both:false},real:false},
- realdollars:{metric:'taxes',cat:'County Funds',selected:['current-expense-general-fund'],refs:{cpi:false,pop:false,both:false},real:true}
+ realdollars:{metric:'taxes',cat:'County Funds',selected:['current-expense-general-fund'],refs:{cpi:false,pop:true,both:false},real:true}
 };
 function presetView(k){
- if(k==='county'){S.scope='county';S.year=YEARS[YEARS.length-1];render();
-  var c=document.getElementById('county');if(c&&c.scrollIntoView)c.scrollIntoView({behavior:'smooth',block:'start'});return;}
+ if(k==='county'||k==='split'){S.scope='county';S.year=YEARS[YEARS.length-1];
+  if(k==='split')S.cwShare=true;
+  render();
+  var c=document.getElementById(k==='split'?'cwtablewrap':'county');
+  if(c&&c.scrollIntoView)c.scrollIntoView({behavior:'smooth',block:'start'});return;}
  var p=PRESETS[k];if(!p)return;
  S.scope='district';S.metric=p.metric;S.cat=p.cat;S.selected=p.selected.slice();S.real=p.real;
  S.refs={cpi:p.refs.cpi,pop:p.refs.pop,both:p.refs.both};
@@ -603,7 +624,11 @@ function renderHeadline(){var e=document.getElementById('headline');var s=sel();
   var nom=(ratio-1)*100,real=(ratio/cr-1)*100,yrs=sp.last-sp.first,ann=(Math.pow(cr,1/yrs)-1)*100;
   dh=S.real?dl(real,'since '+sp.first+' after inflation')+dl(nom,'in actual dollars')
            :dl(nom,'since '+sp.first)+dl(real,'after inflation');
-  sub='Seattle-area prices rose '+((cr-1)*100).toFixed(1)+'% from '+sp.first+' to '+sp.last+', about '+ann.toFixed(1)+'% a year (BLS CPI-U).';}
+  sub='Seattle-area prices rose '+((cr-1)*100).toFixed(1)+'% from '+sp.first+' to '+sp.last+', about '+ann.toFixed(1)+'% a year (BLS CPI-U).';
+  var ps=popSeriesFor(d);
+  if(ps&&ps[sp.first]&&ps[sp.last]){var pk=POP_KEY[d.id];
+   var who=pk==='county'?'Skagit County population':(pk==='uninc'?'The unincorporated-area population':'The city\u2019s population');
+   sub+=' '+who+' grew '+((ps[sp.last]/ps[sp.first]-1)*100).toFixed(1)+'% over the same years (OFM April 1 estimates).';}}
  else if(pct!=null)dh=dl(pct,'since '+sp.first);
  e.innerHTML='<div class="label">'+d.name+' \u00b7 '+mlbl+'</div>'+
   '<div class="row"><span class="big">'+fmtV(b)+'</span><span style="font-size:13px;color:#5d6b73">in '+sp.last+'</span>'+dh+'</div>'+
@@ -977,10 +1002,18 @@ function renderCounty(){
  var sub='';
  if(y!==y0&&cb.total>0){
   var nom=(cy.total/cb.total-1)*100,real=(cy.total/cb.total*CPI[y0]/CPI[y]-1)*100;
-  sub=(nom>=0?'Up ':'Down ')+Math.abs(nom).toFixed(0)+'% from '+fmtBig(cb.total)+' in '+y0+
+  var lead=(nom>=97&&nom<=103)?'Doubled from ':(nom>=197&&nom<=203)?'Tripled from ':(nom>=0?'Up ':'Down ')+Math.abs(nom).toFixed(0)+'% from ';
+  sub=lead+fmtBig(cb.total)+' in '+y0+
    '. After adjusting for Seattle-area inflation, '+(real>=0?'up ':'down ')+Math.abs(real).toFixed(0)+'%.';}
  else sub='The first year in this tool. Pick a later year to see how the split has changed.';
  document.getElementById('cwsub').textContent=sub;
+ // Where the growth went: each group's share of the dollar increase since the first year
+ var gr='';
+ if(y!==y0&&cy.total>cb.total){var inc=cy.total-cb.total;
+  function shr(k){return Math.round((cy.groups[k].v-cb.groups[k].v)/inc*100);}
+  var sS=shr('state'),sL=shr('schools'),sC=shr('county');
+  gr='Of the <b>'+fmtBig(inc)+'</b> increase since '+y0+', <b>'+sS+'%</b> went to the state school levy, <b>'+sL+'%</b> to local school districts, and <b>'+sC+'%</b> to county government.';}
+ document.getElementById('cwgrowth').innerHTML=gr;
  var rows=COUNTY_GROUPS.map(function(g){var v=cy.groups[g.k];
   return {g:g,v:v.v,n:v.n,sh:cy.total?v.v/cy.total*100:0,b:cb.total?cb.groups[g.k].v/cb.total*100:0};})
   .filter(function(r){return r.v>0;})
@@ -1023,7 +1056,10 @@ function renderCountyTable(){
   h+='</tr>';});
  h+='<tr class="tot"><td class="dist">Total</td>';
  YEARS.forEach(function(y,i){h+='<td'+(y===S.year?' class="sel"':'')+'>'+(S.cwShare?'100%':fmtMoney(data[i].total))+'</td>';});
- document.getElementById('cwtable').innerHTML=h+'</tr></tbody>';}
+ document.getElementById('cwtable').innerHTML=h+'</tr></tbody>';
+ // Keep the highlighted year on screen on narrow devices (the table starts at 2010 otherwise)
+ var tw=document.querySelector('#cwtablewrap .tablewrap'),th=document.querySelector('#cwtable th.sel'),fc=document.querySelector('#cwtable th.dist');
+ if(tw&&th&&fc&&tw.scrollWidth>tw.clientWidth){var want=th.offsetLeft+th.offsetWidth-tw.clientWidth+8;tw.scrollLeft=Math.max(0,want);}}
 
 
 /* SHAREABLE LINKS. The current view is kept in the address bar so a link reproduces it.
@@ -1038,7 +1074,7 @@ function refsAllowed(){ // mirrors which benchmark buttons renderChart() offers
  ok.pair=true;ok.pop=hasPop;
  if(!S.real){ok.cpi=true;ok.both=hasPop;}
  return ok;}
-function isDefaultView(){return S.scope==='district'&&S.metric==='rate'&&S.selected.length===1&&S.selected[0]==='current-expense-general-fund';}
+function isDefaultView(){return S.scope==='county'&&S.year===YEARS[YEARS.length-1];}
 function stateQuery(){var q=[];
  if(S.scope==='county'){q.push('scope=county');if(S.year!==YEARS[YEARS.length-1])q.push('year='+S.year);return q.join('&');}
  if(S.metric!=='rate')q.push('view='+URLM[S.metric]);
@@ -1071,8 +1107,10 @@ function readURL(){
  S.refs={cpi:false,pop:false,both:false,pair:false};
  var ok=refsAllowed();
  for(var k in URLREF){if(ok[k]&&want[URLREF[k]])S.refs[k]=true;}
- if((p.get('scope')||'').trim().toLowerCase()==='county'){S.scope='county';
-  var yr=parseInt(p.get('year'),10);S.year=YEARS.indexOf(yr)>-1?yr:YEARS[YEARS.length-1];}}
+ var sc=(p.get('scope')||'').trim().toLowerCase();
+ if(sc==='county'||(sc!=='district'&&!p.get('d')&&!p.get('view'))){S.scope='county';
+  var yr=parseInt(p.get('year'),10);S.year=YEARS.indexOf(yr)>-1?yr:YEARS[YEARS.length-1];}
+ else S.scope='district';}
 function copyLink(btn){
  var u=shareURL(),b=btn||document.getElementById('copylink'),card=b.closest('.card'),box=card.querySelector('.linkbox');
  function done(){b.textContent='Link copied';b.classList.add('ok');clearTimeout(copyLink.t);
@@ -1082,7 +1120,7 @@ function copyLink(btn){
  manual();}
 
 syncYearCopy();
-try{readURL();}catch(e){S={scope:'district',year:null,cwShare:false,metric:'rate',cat:'County Funds',selected:['current-expense-general-fund'],real:false,refs:{cpi:false,pop:false,both:false,pair:false}};}
+try{readURL();}catch(e){S={scope:'county',year:null,cwShare:false,metric:'rate',cat:'County Funds',selected:['current-expense-general-fund'],real:false,refs:{cpi:false,pop:false,both:false,pair:false}};}
 render();
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(S.scope!=='county')renderChart();},150);});
 </script>
