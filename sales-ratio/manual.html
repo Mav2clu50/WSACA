@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="User and methodology guide for the WSACA Sales Ratio Analysis Tool, a free open-source ratio study tool for Washington county assessors." />
+<title>WSACA Sales Ratio Analysis Tool · User and Methodology Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wsaca-green: #2d5e40;
+    --wsaca-green-deep: #1e4530;
+    --wsaca-green-mid: #4a7d5c;
+    --wsaca-green-soft: #e6efe8;
+    --wsaca-slate: #5b7a8e;
+    --wsaca-slate-soft: #e8eef2;
+    --wsaca-cedar: #a86838;
+    --wsaca-cedar-deep: #7a4a25;
+    --wsaca-cedar-soft: #f3e9dc;
+    --ink: #1b1d1b;
+    --ink-soft: #4a4e48;
+    --ink-mute: #6b6f67;
+    --paper: #ffffff;
+    --paper-warm: #fbfaf5;
+    --rule: #d4d2c8;
+    --rule-soft: #e6e4d9;
+    --alert-amber-bg: #fbf3dc;
+    --alert-amber-border: #d9b76a;
+    --success: #2d6b43;
+    --serif: "Source Serif 4", "Georgia", "Times New Roman", serif;
+    --sans: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --shadow-panel: 0 1px 3px rgba(30,69,48,0.06), 0 8px 24px rgba(30,69,48,0.06);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; font-family: var(--sans); font-size: 17px; line-height: 1.58;
+    color: var(--ink); background: var(--paper-warm);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  .skip-link { position: absolute; left: -9999px; background: var(--wsaca-green-deep); color: white; padding: 8px 14px; font-weight: 600; }
+  .skip-link:focus { left: 12px; top: 12px; z-index: 100; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  .masthead-bar { background: var(--wsaca-green-deep); color: white; padding: 10px 0; font-size: 14px; letter-spacing: 0.02em; }
+  .masthead-bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .mb-brand { font-weight: 600; }
+  .mb-secondary { display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
+  .mb-secondary a { color: white; text-decoration: underline; text-underline-offset: 2px; text-decoration-style: dotted; opacity: 0.9; }
+  .mb-secondary a:hover { opacity: 1; }
+  .mb-divider { opacity: 0.5; }
+
+  header.hero { background: var(--paper); padding: 40px 0 32px; border-bottom: 3px solid var(--wsaca-cedar); }
+  .agency-line { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wsaca-green); font-weight: 700; margin-bottom: 12px; }
+  h1.hero-title { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 3vw + 1rem, 2.4rem); line-height: 1.14; letter-spacing: -0.01em; margin: 0 0 12px; color: var(--wsaca-green-deep); }
+  .hero-lede { font-size: 17.5px; color: var(--ink-soft); max-width: 64ch; margin: 0 0 14px; }
+  .hero-meta { font-size: 13.5px; color: var(--ink-mute); display: flex; gap: 14px; flex-wrap: wrap; }
+  .hero-meta .ver { font-family: var(--mono); color: var(--wsaca-cedar-deep); font-weight: 600; }
+
+  main { padding: 36px 0 80px; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  nav.toc { position: sticky; top: 16px; font-size: 14px; background: var(--paper); border: 1px solid var(--rule-soft); border-radius: 4px; padding: 14px 16px; box-shadow: var(--shadow-panel); max-height: calc(100vh - 32px); overflow: auto; }
+  nav.toc .toc-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wsaca-cedar); margin-bottom: 8px; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin: 0 0 5px; }
+  nav.toc li.sub { padding-left: 14px; font-size: 13px; }
+  nav.toc a { color: var(--wsaca-green-deep); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 860px) { nav.toc { position: static; max-height: none; } }
+
+  article { min-width: 0; }
+  .whats-new { background: var(--wsaca-cedar-soft); border-left: 3px solid var(--wsaca-cedar); padding: 14px 18px; border-radius: 2px; font-size: 15px; color: var(--ink-soft); margin: 0 0 32px; }
+  .whats-new strong { color: var(--ink); }
+
+  section.sec { margin: 0 0 44px; padding-top: 6px; }
+  .sec-number { font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wsaca-cedar); margin-bottom: 6px; }
+  h2 { font-family: var(--serif); font-weight: 600; font-size: 26px; color: var(--wsaca-green-deep); margin: 0 0 14px; line-height: 1.2; scroll-margin-top: 16px; }
+  h3 { font-family: var(--serif); font-weight: 600; font-size: 20px; color: var(--wsaca-green-deep); margin: 28px 0 8px; line-height: 1.25; scroll-margin-top: 16px; }
+  h4 { font-family: var(--sans); font-weight: 700; font-size: 15px; color: var(--ink-soft); margin: 22px 0 6px; letter-spacing: 0.02em; text-transform: uppercase; }
+  p { margin: 0 0 14px; max-width: 72ch; }
+  ul, ol.list { max-width: 72ch; padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--wsaca-green-deep); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--wsaca-green-mid); }
+  code, .mono { font-family: var(--mono); font-size: 0.92em; }
+  .new { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wsaca-cedar-deep); background: var(--wsaca-cedar-soft); border: 1px solid var(--wsaca-cedar); border-radius: 3px; padding: 1px 6px; vertical-align: middle; margin-left: 6px; }
+
+  aside.managers { background: var(--wsaca-green-soft); border-left: 3px solid var(--wsaca-green); border-radius: 2px; padding: 14px 18px; margin: 18px 0 22px; font-size: 15.5px; color: var(--ink-soft); max-width: 76ch; }
+  aside.managers .mg-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wsaca-green); margin-bottom: 6px; }
+  aside.managers p { max-width: none; }
+  aside.managers p:last-child { margin-bottom: 0; }
+
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 20px; font-size: 14.5px; background: var(--paper); border: 1px solid var(--rule-soft); }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { background: var(--paper-warm); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  td.k { white-space: nowrap; font-weight: 600; }
+  td.v { white-space: nowrap; font-family: var(--mono); font-size: 13.5px; }
+  .table-wrap { overflow-x: auto; }
+
+  dl.gloss dt { font-weight: 700; margin-top: 12px; }
+  dl.gloss dd { margin: 2px 0 0; max-width: 72ch; color: var(--ink-soft); }
+
+  footer.page-foot { background: var(--wsaca-green-deep); color: rgba(255,255,255,0.85); padding: 32px 0; font-size: 14px; margin-top: 60px; }
+  .foot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center; }
+  .foot-grid .foot-right { text-align: right; }
+  .foot-grid a { color: rgba(255,255,255,0.85); text-decoration: underline; text-underline-offset: 3px; text-decoration-style: dotted; }
+  @media (max-width: 600px) { .foot-grid { grid-template-columns: 1fr; } .foot-grid .foot-right { text-align: left; } }
+
+  @media print {
+    body { background: white; font-size: 11pt; }
+    .masthead-bar, nav.toc, footer.page-foot, .print-btn { display: none; }
+    .layout { display: block; }
+    header.hero { padding: 0 0 12px; }
+    section.sec { page-break-inside: auto; }
+    h2 { page-break-after: avoid; }
+    aside.managers { page-break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+  .print-btn { background: var(--paper); color: var(--wsaca-green-deep); border: 1.5px solid var(--wsaca-green-deep); border-radius: 4px; padding: 7px 14px; font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .print-btn:hover { background: var(--wsaca-green-deep); color: white; }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div class="masthead-bar">
+  <div class="wrap">
+    <div class="mb-brand"><strong>Washington State Association of County Assessors</strong></div>
+    <div class="mb-secondary">
+      <a href="./" title="Open the Sales Ratio Analysis Tool">Open the tool</a>
+      <span class="mb-divider">·</span>
+      <a href="../" title="Back to the WSACA Tools landing page">All WSACA Tools</a>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="agency-line">Assessor Tool · Sales Ratio Analysis · User Guide</div>
+    <h1 class="hero-title">Sales Ratio Analysis Tool: User and Methodology Guide</h1>
+    <p class="hero-lede">A guide for county analysts and appraisal managers. Free, open source, single file. Built for Washington's county assessor offices. Methods follow the IAAO Standard on Ratio Studies. Built with substantial help from AI.</p>
+    <div class="hero-meta">
+      <span>Guide version <span class="ver">v1.3</span></span>
+      <span>Updated November 2026</span>
+      <span>Matches tool version <span class="ver">v1.3</span></span>
+      <button type="button" class="print-btn" onclick="window.print()">Print or save as PDF</button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <div class="wrap layout">
+
+    <nav class="toc" aria-label="Contents">
+      <div class="toc-label">Contents</div>
+      <ol>
+        <li><a href="#whats-new">What is new in v1.3</a></li>
+        <li><a href="#what-this-tool-is">1. What this tool is</a></li>
+        <li><a href="#ratio-study-in-brief">2. The ratio study in brief</a></li>
+        <li><a href="#walkthrough">3. Walking through the tool</a></li>
+        <li class="sub"><a href="#step-1">Step 1. Upload</a></li>
+        <li class="sub"><a href="#step-2">Step 2. Column mapping</a></li>
+        <li class="sub"><a href="#step-3">Step 3. Data summary</a></li>
+        <li class="sub"><a href="#step-4">Step 4. Time adjustment</a></li>
+        <li class="sub"><a href="#step-5">Step 5. Diagnostics and distribution</a></li>
+        <li class="sub"><a href="#step-6">Step 6. Vertical equity</a></li>
+        <li class="sub"><a href="#step-7">Step 7. Stratified analysis</a></li>
+        <li class="sub"><a href="#step-8">Step 8. Modifiers</a></li>
+        <li class="sub"><a href="#step-9">Step 9. Report and export</a></li>
+        <li><a href="#methodology">4. Methodology</a></li>
+        <li class="sub"><a href="#vertical-equity">4.1 PRD, PRB, Spearman</a></li>
+        <li class="sub"><a href="#modifier-engine">4.2 Modifier engine</a></li>
+        <li class="sub"><a href="#secondary-levers">4.3 Secondary levers</a></li>
+        <li class="sub"><a href="#recommended-actions">4.4 Recommended actions</a></li>
+        <li class="sub"><a href="#intervals">4.5 Intervals and the slope test</a></li>
+        <li><a href="#presentation-view">5. Presentation view</a></li>
+        <li><a href="#boe-packet">6. BOE evidence packet</a></li>
+        <li><a href="#deep-dive">7. Neighborhood deep dive</a></li>
+        <li><a href="#parameters">8. Parameters and choices</a></li>
+        <li><a href="#quick-reference">9. Decision rules quick reference</a></li>
+        <li><a href="#glossary">10. Glossary</a></li>
+      </ol>
+    </nav>
+
+    <article>
+
+      <div class="whats-new" id="whats-new">
+        <strong>What is new in version 1.3.</strong> Confidence intervals now accompany every pass or fail: a bootstrap 90 percent interval on COD and PRD, overall and per stratum, alongside the existing rank interval on the median, so a failing point estimate whose interval reaches back into the IAAO range is marked as not conclusive rather than red. The time trend gets a significance test on its slope, a confidence band on the chart, and a notice when an adjustment is applied on a slope the data cannot distinguish from zero. Up to three custom stratifiers let you analyze along any column in your file, with an opt-in to use a custom column as a secondary lever. A run manifest records the input file's hash, every setting, the bootstrap seed, and the headline results so a study can be reproduced and verified later. The stratification and modifier tables gain filter bars, a COD-by-stratum chart, and a marker for rows a rule edit actually moved. Large files that previously failed at roughly 65,000 sales now run, with a progress bar. These are additive; nothing in the earlier workflow changed.
+      </div>
+
+      <section class="sec" id="what-this-tool-is">
+        <div class="sec-number">Section 1</div>
+        <h2>What this tool is</h2>
+        <p>The Sales Ratio Analysis Tool is a single web page that runs a complete ratio study from a file of sales. You open it in a browser, point it at your sales export, and it returns assessment level, uniformity, vertical equity, a stratified breakdown, and a set of neighborhood modifier recommendations. It also produces a plain language view you can put in front of commissioners and the public.</p>
+        <p>There is no backend and no install. The whole tool is one HTML file. Nothing you load leaves your machine. Your sales data is read in the browser, used to compute the study, and discarded when you close the tab. That design is deliberate. It means the tool can be used with live, unredacted sales without a data sharing agreement, and it means any office can host its own copy or run it straight off the WSACA GitHub Pages site.</p>
+        <p>The statistics follow the IAAO Standard on Ratio Studies. Where the tool reports a pass or fail, it is comparing your result against the IAAO ranges, using the residential improved class by default. You can change the property class to match your sample.</p>
+        <p>This guide is written for two readers at once. The main text is for the analyst who runs the study. The shaded boxes labeled For managers are for the appraisal manager or assessor who needs to read the output, defend it, and decide what to act on. You can read straight through, or skip box to box. The guide is linked from the tool itself, in the header, the footer, and each step's How to read this panel, so the current version is always one click away.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>The tool does not change your roll. It measures it and recommends. Every recommended modifier is a suggestion you can accept, edit, or skip, and the presentation view never shows anything you have not chosen to project.</p>
+          <p>Because the data never leaves the browser, there is no vendor, no cloud account, and no copy of your sales sitting on someone else's server. This is a useful thing to be able to say out loud when the question comes up.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="ratio-study-in-brief">
+        <div class="sec-number">Section 2</div>
+        <h2>The ratio study in brief</h2>
+        <p>A sales ratio is the assessed value of a property divided by its sale price. A ratio of 0.95 means the property was on the roll at 95 percent of what it sold for. A ratio study takes many of these together and asks three separate questions.</p>
+        <h3>Level: are we high or low overall?</h3>
+        <p>Level is about the center of the distribution. The tool uses the median ratio as the measure of level, because the median is resistant to a few extreme sales. The IAAO standard treats a median between 0.90 and 1.10 as acceptable. Inside that band the roll is at an appropriate overall level. Outside it, the roll is systematically high or low and a level correction is warranted.</p>
+        <h3>Uniformity: are we consistent?</h3>
+        <p>Level can be fine while individual properties are scattered all over. Uniformity measures that scatter. The headline statistic is the coefficient of dispersion, or COD, which is the average percentage that ratios differ from the median. A low COD means tight, consistent assessment. A high COD means properties that sold for similar prices were assessed very differently.</p>
+        <p>The IAAO range depends on property type. The tool defaults to the residential improved range of 5.0 to 15.0 and shows the full table of class ranges so you can compare against the right row if your sample is dominated by a different class. A COD below the bottom of the range is not automatically good news. Unusually tight dispersion is also the classic signature of sales chasing, which is covered in the diagnostics section.</p>
+        <h3>Vertical equity: are modest and expensive homes treated the same?</h3>
+        <p>Vertical equity asks whether the ratio depends on value. If low priced homes are assessed at a higher ratio than high priced homes, the study is regressive, which shifts burden onto less expensive property. The reverse is progressive. The classic measure is the price related differential, or PRD, where the IAAO acceptable range is 0.98 to 1.03. The tool also reports the price related bias, or PRB, and a Spearman rank correlation, which are discussed in the methodology section.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Question</th><th>Statistic</th><th>Acceptable range (residential improved)</th></tr></thead>
+          <tbody>
+            <tr><td>Level</td><td>Median ratio</td><td>0.90 to 1.10</td></tr>
+            <tr><td>Uniformity</td><td>COD</td><td>5.0 to 15.0</td></tr>
+            <tr><td>Vertical equity</td><td>PRD</td><td>0.98 to 1.03</td></tr>
+            <tr><td>Vertical equity</td><td>PRB</td><td>near 0, within about plus or minus 0.05</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>A testability note.</strong> Vertical equity statistics need enough sales to mean anything. The tool enforces a floor of 15 sales before it will report PRB or Spearman rho for a stratum. Below that, the cell reads too few sales to test rather than showing a number that is mostly noise.</p>
+        <p><strong>A reading note on pass and fail.</strong> <span class="new">v1.3</span> Every pass or fail in the tool is a comparison of a point estimate against a range, and a point estimate carries sampling uncertainty. The tool now shows a 90 percent interval beside the median, COD, and PRD. When the whole interval sits inside the range, the pass is conclusive. When the whole interval sits outside, the failure is conclusive. When the interval crosses the boundary, the sample cannot settle the question at 90 percent confidence and the result is marked as not conclusive. Section 4.5 explains how the intervals are built.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>These three questions are independent. A study can pass level and fail uniformity, or pass both and fail vertical equity. When you report results, report all three. A single headline number hides the question that actually needs work.</p>
+          <p>The most common mistake in public discussion is treating a low COD as a gold star. Ask where it came from. If sold parcels were quietly revalued toward their sale prices and unsold parcels were not, the study is measuring that practice, not the quality of the roll.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="walkthrough">
+        <div class="sec-number">Section 3</div>
+        <h2>Walking through the tool</h2>
+        <p>The tool is organized top to bottom as nine steps, numbered the same way here as in the tool's step navigation. Each step has a How to read this tip you can expand or dismiss, with a link to the matching section of this guide. Work down the page in order. Later sections recompute when you change an earlier one, so if you apply a time adjustment in the middle, the stratification and modifier tables below it update to match.</p>
+
+        <h3 id="step-1">Step 1. Upload your sales file</h3>
+        <p>Drop in or browse to your sales export. The tool reads common spreadsheet and delimited formats. It expects one row per sale, with at least an assessed value, a sale price, and a sale date. A neighborhood or area code and property characteristics such as year built, quality, condition, and living area make the later analysis much richer, but are not required to get a basic study.</p>
+        <p><span class="new">v1.3</span> Large exports now run. Earlier versions could fail with a browser error at roughly 65,000 sales; that limit is gone. A file over about 2 MB shows a reading overlay while it parses, and a run over 5,000 rows shows a progress bar as each phase of the analysis completes. Nothing about the computation changed; the tool simply reports what it is doing while it works.</p>
+
+        <h3 id="step-2">Step 2. Confirm column mapping</h3>
+        <p>The tool guesses which of your columns is assessed value, which is sale price, and so on, then asks you to confirm. Check these. A study built on the wrong sale price column is wrong everywhere downstream. The What data this tool expects panel lists every field the tool can use and how each one feeds the analysis.</p>
+        <p><span class="new">v1.3</span> <strong>Custom stratifiers.</strong> Three slots at the bottom of the mapping grid accept any column in your file that the preset list does not cover: a zone, a view code, front footage, a traffic influence rating, an appraiser ID, a school district. The tool never fills these slots on its own; you choose the column. Each slot has a display name (it defaults to the column header) and a checkbox that also offers the column as a secondary lever. Tick that box only for something your office can actually adjust as a unit, such as a land schedule or a zone. A reporting geography like a school or fire district, or an administrative code like an appraiser ID, is a fine stratifier but a meaningless lever, and the tool cannot tell the difference for you. Once mapped, a custom column appears under its own heading in the stratifier and vertical equity pickers.</p>
+        <p>A custom column that reads as a continuous measurement (numeric across nearly every row, with many distinct values) is binned into data-driven quartiles or deciles. One that reads as a set of codes is treated categorically. A Bin by control on the stratification step lets you force a numeric-looking code column, such as a use code, back to codes.</p>
+
+        <h3 id="step-3">Step 3. Data summary and preview</h3>
+        <p>After mapping, the tool shows a short summary of how many sales it read and how many it will use, then a preview of the first 15 rows exactly as the analysis sees them. Scan the preview. If sale prices or dates look wrong here, fix the source file before reading any further.</p>
+
+        <h3 id="step-4">Step 4. Time adjustment</h3>
+        <p>If prices moved over your sales window, that movement leaks into your medians unevenly. Neighborhoods whose sales cluster early in the window look different from ones that sold late, for reasons that have nothing to do with assessment quality. This step measures the trend in your sales and lets you apply a time adjustment that brings every sale to a common date. Apply it here, then read the stratification and modifier tables below with the adjustment in place.</p>
+        <p><span class="new">v1.3</span> <strong>The slope test.</strong> The trend is a weighted regression on the log of each month's median ratio, weighted by that month's sales count. The tool now tests whether the fitted slope is distinguishable from zero and reports the result as a fourth tile: the p-value, a verdict, and a 90 percent interval on the annual rate. The chart draws the same thing as a shaded confidence band around the trend line; a band wide enough to hold a flat line is the visual form of a slope the data cannot confirm. If you apply the linear adjustment while the slope is not distinguishable from zero, a notice appears under the toggle. It does not block you, because some offices adjust to a common date by policy, but it tells you the adjustment is moving every sale by an amount the sample cannot support, and the report records that you kept it. The test applies to the linear method; the stepwise piecewise method shifts segments by their own medians and does not rely on the slope.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>Time adjustment is not optional cosmetics. In a moving market it is the difference between a defensible study and one that penalizes neighborhoods for when their sales happened to close. The tool shows the size of the trend so you can judge whether the adjustment is material, and now whether the trend is real or an artifact of a few scattered months.</p>
+        </aside>
+
+        <h3 id="step-5">Step 5. Overall ratio diagnostics</h3>
+        <p>This is the headline panel, and the ratio distribution and outlier panel sit inside it. It reports the overall median, COD, and PRD against the IAAO ranges, with a clear pass or fail on each. This is where you learn, in one place, whether the issue is level, uniformity, vertical equity, or some combination.</p>
+        <p><span class="new">v1.3</span> Each of the three headline statistics now has an interval row beneath it: the rank-method 90 percent interval on the median, and bootstrap 90 percent intervals on COD and PRD. The result column reads the interval against the range and says whether the pass or fail above it is conclusive. When a COD fails but its interval reaches back inside the range, the synopsis says so directly and tells you to treat the uniformity result as a caution to investigate rather than a demonstrated failure.</p>
+
+        <h4 id="step-5-distribution">Ratio distribution</h4>
+        <p>A picture of where every ratio falls, with the acceptable band drawn in. Outliers beyond the three times IQR fences are flagged in a separate panel. These usually trace to data problems rather than assessment problems: unverified sales, partial interest transfers, data entry slips, or multi parcel sales that were not split. Review them before you trust the rest. The outlier panel lets you see exactly which sales tripped the fence, and an outlier rule lets you keep every sale, trim extreme outliers beyond 3 × IQR, or trim mild and extreme outliers beyond 1.5 × IQR for the whole study. The rule you choose is saved with the configuration and recorded in the run manifest.</p>
+
+        <h3 id="step-6">Step 6. Vertical equity analysis</h3>
+        <p>The overall PRD and PRB, plus a chart of median ratio by value group, so you can see regression or progression directly. When the data supports it, the tool breaks vertical equity down by value decile, quartile, or half, with 90 percent confidence intervals so you can tell a real tilt from sampling noise. Each group also shows the value range it covers, so you can read the price band each decile or quartile represents, and the per-group sales count is the exact count in that group rather than an even split. A custom stratifier can be chosen as the breakdown axis here as well.</p>
+
+        <h3 id="step-7">Step 7. Stratified analysis</h3>
+        <p>Level and uniformity are computed within strata: by neighborhood and by characteristic such as age, quality, condition, size, and acreage, and by any custom column you mapped. This is where you find whether a problem is everywhere or concentrated. When you stratify by acreage, you can bin it with fixed standard bands or with data-driven quartile or decile bands built from your own distribution, which is the better choice when most of your sales pile into one or two lot-size buckets; the data-driven bands are labeled with their acre ranges. Vertical equity is computed within the characteristic strata but not by neighborhood, because a neighborhood level modifier cannot correct a within-neighborhood tilt, so the question only becomes actionable along a value or characteristic axis. A bias that shows up across age strata regardless of neighborhood points at the depreciation schedule or cost tables. A bias across quality grades points at grading drift or the grade multipliers. A bias that rises with size points at the cost model. The per stratum table only reports vertical equity where a stratum has at least 15 sales.</p>
+        <p><span class="new">v1.3</span> Three additions to each stratification block. First, the table carries a COD 90 percent interval and a PRD 90 percent interval beside each point estimate, withheld below 10 sales. A COD or PRD outside the IAAO range whose interval crosses back inside is marked amber with a question mark rather than red, because the failure is not conclusive. Second, a Uniformity by stratum chart draws COD as a horizontal bar per stratum with the IAAO range shaded and the interval as a whisker, colored green, amber, or red by the same three-way reading as the table. Continuous stratifiers keep their band order so the chart reads as a profile across the dimension; categorical ones sort highest COD first, capped at 40 bars. Third, a filter bar above each table lets you type part of a stratum name or show only strata failing an IAAO metric. Filtering hides rows in place; the table does not re-sort or lose your place.</p>
+
+        <h3 id="step-8">Step 8. Modifier recommendations</h3>
+        <p>The tool proposes a level modifier for each neighborhood, driven by the decision rules in the rules panel. You can edit any rule and watch the table recompute live, set a target final overall ratio, hold out individual neighborhoods, and turn on COD optimization. The full logic is in section 4. This is the step that turns the study into action.</p>
+        <p>Each row also carries two checkboxes. The Skip box holds a neighborhood out of this cycle. The Deep dive box adds it to a side by side comparison of up to five neighborhoods, opened with the Deep dive button below the table. Section 7 covers what the deep dive shows.</p>
+        <p>Below the modifier table, a secondary levers toggle turns on an optional layer that recommends adjustments by land table or plat rather than by neighborhood. This is for a bias that lives in a valuation object spanning several neighborhoods, which a per-neighborhood factor cannot reach. If your CAMA system exposes land tables and plats as adjustable objects, as PACS does, these recommendations apply straight through fields you already maintain. Section 4.3 explains how the levers are flagged, computed, and read.</p>
+        <p><span class="new">v1.3</span> A filter bar above the modifier table narrows it by neighborhood name, to only proposed changes, to only rows failing an IAAO range, or to only rows the last rule edit actually moved. That last filter is the useful one when you are tuning rules: after each recompute the tool compares every neighborhood's decision and suggested percent against the previous run, marks the rows that changed with a cedar bar and a brief highlight, and counts them beside the filter, so you can see exactly what a rule change did without reading the whole table twice. A custom column opted in as a lever joins the secondary levers panel alongside land table and plat; a custom column that reads as a continuous measurement is rejected as a lever with an explanation, since one factor per distinct number is arithmetic without meaning.</p>
+
+        <h3 id="step-9">Step 9. Report and export</h3>
+        <p>Export the full study, with all statistics and per stratum detail, to a spreadsheet. Save the study configuration, including your column mapping, time adjustment, and rule settings, as a JSON file you can reload later to reproduce or update the study. The print section controls let you choose exactly which sections go into a printed or PDF report.</p>
+        <p><span class="new">v1.3</span> <strong>The run manifest.</strong> Beside the configuration download is a run manifest: the configuration plus a SHA-256 hash of the input file's bytes, the row counts in and out at every exclusion stage, the bootstrap seed and replicate count, the slope test, and the headline results as produced. It contains no sale-level data. Keep it with the report. Loading it later through Load configuration restores every setting, and once a file is loaded the tool reports whether that file's hash matches the one the manifest was built from. A match means a second analyst can reproduce the study to the digit; a mismatch means the file changed and the results will not reproduce, which is exactly what an auditor needs to know. A compact version of the manifest prints in the report footer and lands on its own sheet in the Excel export, so the three cannot drift apart.</p>
+        <p>Three audience specific outputs sit alongside the export. The presentation view is the plain language summary for commissioners and the public, covered in section 5. The BOE evidence packet is the formal, defensibility forward view for a Board of Equalization, covered in section 6. The neighborhood deep dive is the analyst drill down on up to five selected neighborhoods, covered in section 7. All three open in their own window and print cleanly, and all three are built from the same study, so no audience sees different numbers than the analysis produced.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>The saved configuration is your audit trail; the run manifest is your proof. The configuration captures every choice that produced a given set of recommendations. The manifest adds the fingerprint of the file those choices were applied to and the computational settings that make the intervals reproducible. If a study is ever questioned, reloading the manifest against the archived file reproduces it exactly and confirms the file is the same one. Keep both with the study.</p>
+          <p>The presentation view, covered in section 5, is built from this same study. You are never showing the public different numbers than the ones the analysis produced.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="methodology">
+        <div class="sec-number">Section 4</div>
+        <h2>Methodology</h2>
+        <p>This section explains what the tool computes and why, in enough depth to defend the output. It covers vertical equity, the modifier engine, secondary levers, the recommended actions engine, and the interval estimates.</p>
+
+        <h3 id="vertical-equity">4.1 Vertical equity: PRD, PRB, and Spearman rho</h3>
+        <p>Vertical equity is the hardest of the three questions to measure well, so the tool reports three complementary statistics rather than relying on one.</p>
+        <p><strong>PRD, the price related differential.</strong> The mean ratio divided by the weighted mean ratio. When low value properties carry higher ratios than high value properties, the plain mean sits above the weighted mean and the PRD rises above 1.0. The IAAO acceptable range is 0.98 to 1.03. A PRD above that range signals regressivity. PRD is the traditional measure, but it is sensitive to extreme prices and to the spread of values in the sample, which is why it is not the only statistic shown.</p>
+        <p><strong>PRB, the price related bias.</strong> A regression based measure that estimates the percentage change in ratio for each doubling of value. PRB is reported as a coefficient that is easy to read directly: a PRB of minus 0.03 means ratios fall about 3 percent each time value doubles. It is more stable than PRD across different samples, which is why it is the preferred modern measure. Values near zero indicate vertical equity; the working tolerance is roughly plus or minus 0.05. The tool follows Gloudemans (2011) and reports the coefficient with HC3 heteroscedasticity-consistent standard errors.</p>
+        <p><strong>Spearman rank correlation, rho.</strong> A nonparametric check of whether ratio and value move together in rank order, independent of any model form. It catches monotonic tilt that the other two might understate, and it is robust to outliers. Read alongside PRB, it confirms whether an apparent tilt is a genuine ranked relationship or an artifact of a few sales.</p>
+        <p><strong>Where vertical equity is measured, and where it is not.</strong> Vertical equity is a cross-value relationship, so the tool measures it where that relationship is both estimable and actionable: overall, across the value deciles, and within characteristic strata such as age, quality, condition, and size. A tilt by age points at the depreciation schedule, by quality or condition at the grade multipliers, by size at the cost model, each a model component you can adjust. It is deliberately not measured by neighborhood. A neighborhood level modifier multiplies every ratio in the neighborhood by the same factor, which moves the median but leaves the within-neighborhood tilt essentially unchanged, so a per-neighborhood figure would imply a correction the modifier engine cannot make. And much of county-level regressivity lives between neighborhoods, low-value areas assessed at higher ratios than high-value ones, rather than inside them, so flattening each neighborhood individually need not improve the overall picture at all.</p>
+        <p><strong>Why VEI is not in the stratum table.</strong> The vertical equity index can be unstable in small samples, where it tends to report dramatic tilt from very few sales. In the per stratum table, where many strata are small, it would invite over reading. The tool therefore uses PRB and Spearman rho in the stratum table and enforces a 15 sale floor before either is computed. Below 15 sales the stratum is marked too few sales to test. The overall vertical equity panel, which works on the full sample, still shows the complete picture.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>If you remember one thing about vertical equity, prefer PRB over PRD. PRD is the number people quote out of habit, but it drifts with the price spread of the sample. PRB is steadier and reads as a plain percentage. When PRB and Spearman rho agree, the finding is solid.</p>
+          <p>When a stratum says too few sales to test, that is the tool protecting you from a false finding, not a gap to fill. The honest move is to widen the sample, not to read a number off four sales.</p>
+        </aside>
+
+        <h3 id="modifier-engine">4.2 The modifier engine</h3>
+        <p>The modifier engine proposes a level adjustment for each neighborhood. The design goal is that the recommendations are principled, bounded, and add up: each neighborhood is moved according to a transparent rule, no single move is larger than you allow, and when you set an overall target the recommendations actually land on it.</p>
+        <h4>The decision rules</h4>
+        <p>Each neighborhood gets a recommendation from a cascade of rules you can see and edit in the rules panel. The core inputs are a COD aware target curve with a low COD target and a high COD target, a no change zone around target, a low n target that softens moves for thinly traded neighborhoods, and an overall median ceiling. A neighborhood already inside the no change zone is left alone. One outside it is moved toward the target appropriate to its dispersion, subject to the rails below. Editing any value recomputes the whole table live, so you can see the effect of a rule change immediately.</p>
+        <h4>The rails: max change cap, downward floor, and spread cap</h4>
+        <p>Two rails bound every move. A maximum change cap limits how far any single neighborhood can be moved in one study. The cap is a sample-confidence limit: one year of sales may not represent the whole neighborhood, so a large move computed from a possibly skewed sample is held back until the evidence supports it. A wider sales window is what earns a higher cap. A downward floor limits how far a neighborhood can be pushed down. A separate spread cap keeps the modifiers from fanning out so far that they introduce new dispersion. When a neighborhood wants a larger move than a rail allows, the recommendation is marked Capped or Floored. That label is information. It means the data asked for more than the rules permit, which is worth a manual look, and in the case of a cap it is often a sign that the move is real but needs more years of sales behind it.</p>
+        <h4>Target calibration and the re-centering guarantee</h4>
+        <p>You can set a target final overall ratio, with a default of 0.93. When you do, the tool shifts the low COD and high COD target curve together by exactly the amount needed for the cascade to land the simulated overall median on your target. It does this with a bisection search: it brackets the shift, then repeatedly halves the interval until the simulated median sits on target. Because the search adjusts a single shift parameter and the simulated median moves monotonically with it, the result is exact rather than approximate. Every adjusted neighborhood row hits the calibrated target by construction, not by coincidence.</p>
+        <p>Calibration is careful about what it does not touch. Shifting the curve to hit your target does not move the no change zone, the low n target, or the overall median ceiling. Neighborhoods the cascade would have left alone still get left alone. If reaching the target needs more push than your current max change cap or downward floor allows, the tool auto flexes those rails to reach the target and tells you in the result that it did so, so the override is never silent.</p>
+        <h4>Optional COD optimization</h4>
+        <p>There is an advanced mode that optimizes for COD, bypassing the softer rules to tighten per sale dispersion around the target. When it is on, each rule gets a hard or soft toggle, so you decide which constraints are firm and which can give. Leave it off for routine cycle work. Turn it on when uniformity, not level, is the problem you are solving.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>The re-centering guarantee is the part worth understanding. When an analyst sets a target ratio, the recommendations are mathematically calibrated to that target, not eyeballed toward it. The simulated overall median equals the target by construction.</p>
+          <p>Capped, Floored, and low confidence rows are the ones to look at by hand. A cap means the data wanted a bigger move than policy allows. That is a signal about the neighborhood, and sometimes a signal that the cap itself needs a conversation.</p>
+          <p>If the result says a rail was auto flexed to hit the target, read that as the tool asking permission after the fact. Confirm you are comfortable with the larger move before the recommendations go anywhere.</p>
+        </aside>
+
+        <h3 id="secondary-levers">4.3 Secondary levers: land tables, plats, and custom columns</h3>
+        <p>The neighborhood modifier moves a whole neighborhood up or down by one factor. It cannot flatten a tilt that lives inside a neighborhood, and it has no way to reach a valuation object, such as a land table or a plat, that runs across several neighborhoods at once. Secondary levers are the tool for that second kind of problem. They are an optional layer on top of the neighborhood modifier, turned on with the secondary levers toggle in the modifier step, and they recommend an adjustment by land table or plat rather than by neighborhood.</p>
+        <p>This is a natural fit for a CAMA system where land tables and plat or subdivision codes are real, adjustable objects, such as PACS. Where the modifier engine hands you a per-neighborhood factor, the secondary levers hand you a per-land-table or per-plat factor you can apply through the same field you already maintain.</p>
+        <p><span class="new">v1.3</span> A custom column can join this layer if you tick the lever checkbox on the mapping step. The tool treats it exactly like a plat: pooled by code, flagged by gap, one factor per code. It cannot verify that the column names something your office can adjust, so the panel says so and asks you to confirm before acting. A custom column that reads as a continuous measurement is rejected as a lever with a note explaining why, and remains available as a stratifier.</p>
+        <h4>How a lever is flagged and computed</h4>
+        <p>Map a land table or a plat column and the tool pools every sale that carries each code, wherever it sits across the roll. A land table or plat is flagged as a lever when its pooled median sits more than a set gap off the sale-weighted blend of the neighborhood medians it touches. The gap is adjustable in the panel; lowering it surfaces more levers, raising it fewer. Each flagged lever gets <strong>one</strong> factor, computed over its whole universe of sales and aimed at that blended target. The factor is the total-value move implied by the sales; you apply it through the land table or plat mechanism in CAMA.</p>
+        <p>Because one factor is spread across every neighborhood the object touches, the breakdown beneath each lever shows how that single factor lands in each neighborhood, so you can see whether it fits everywhere or is a compromise. Where two levers overlap on the same sales, the sale is owned by whichever lever improves COD more on the shared sales, so no sale is double counted.</p>
+        <h4>Reading the projected effect</h4>
+        <p>The panel shows a study-wide readout in four states so you can separate what each layer does: <strong>raw</strong> (no adjustment), <strong>neighborhood modifier only</strong>, <strong>secondary only</strong>, and <strong>both</strong> together, each with its median and COD and the COD change against raw. This is where you see whether the levers add uniformity the neighborhood modifier alone does not reach. A use checkbox on each lever lets you drop it from the secondary-only and both columns to test its contribution. Every figure here is simulated on each sale. Nothing is written to your roll.</p>
+        <h4>The advisories</h4>
+        <p>Some land tables are off in one neighborhood and fine in the others they touch. A single global factor would then fix one place and break the rest. The panel calls these out in an advisories block and points you back to the neighborhood land modifier for that one neighborhood rather than a table-wide move. The signal is a land table that is on target on average but wrong in places, which is a neighborhood-level fix, not a table-level one.</p>
+        <p>The secondary levers do not change the neighborhood modifier recommendations, and the neighborhood modifier does not change the levers. They are independent layers by design, and the both column is where you read their combined effect. Keep the levers off for routine level work; reach for them when a land table or plat is carrying a bias that no per-neighborhood factor can reach.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>This is the piece that matters most in a county whose CAMA system exposes land tables and plats as adjustable objects, such as a PACS county. It gives the analyst a defensible, sale-weighted factor to apply through a field the office already maintains, instead of approximating a cross-neighborhood problem with a scatter of neighborhood modifiers.</p>
+          <p>The four-state readout, raw, modifier only, secondary only, and both, is the exhibit to look at. It shows plainly whether the secondary layer earns its place by tightening uniformity beyond what the neighborhood modifier reaches. If it does not move COD, do not use it.</p>
+          <p>Trust the advisories. When the tool says a land table is on target on average but wrong in one neighborhood, the honest fix is the neighborhood modifier there, not a table-wide move that would break the neighborhoods where the table is already right. As with every other output, these are simulations; nothing reaches the roll until the office applies it.</p>
+        </aside>
+
+        <h3 id="recommended-actions">4.4 The recommended actions engine</h3>
+        <p>Numbers tell you something is wrong. The recommended actions engine tells you where to look. It reads the pattern of diagnostic flags across the study and routes you toward the likely cause, with two blocks of guidance: one for the analyst running the study, and one for the appraisal manager deciding what to do.</p>
+        <p>The central judgment it makes is structural versus local. When a bias is broad, the same direction across many neighborhoods or across an entire characteristic, the cause usually sits upstream of neighborhood values, and neighborhood modifiers would scatter corrections across symptoms while the cause persists. When a level flag is genuinely confined to a neighborhood with no structural pattern behind it, a neighborhood modifier is the right tool. Vertical equity is the exception: a tilt is never neighborhood level work, because a level modifier cannot change a slope, so the engine routes any vertical equity flag to the value strata and the model, never to a neighborhood adjustment.</p>
+        <p>The routing follows the pattern of the flags:</p>
+        <ul>
+          <li>A consistent directional bias across age strata regardless of neighborhood points at the depreciation schedule or the cost tables, not at neighborhood values.</li>
+          <li>A consistent bias across quality or condition grades points at grading drift between appraisers or over time, or at grade multipliers in the cost model that no longer match the market. The clean diagnostic is a blind re-grade of a random subset by a second appraiser.</li>
+          <li>A size correlated bias points at the cost model rather than at neighborhoods.</li>
+          <li>A consistent bias across a custom stratifier is reported as a pattern without an inferred cause, because the tool has no way to know what the column represents in your system. Confirm the column means what you think it means, then check whether the same pattern shows in the preset stratifiers.</li>
+          <li>When most neighborhoods individually exceed the COD range, the cause usually sits upstream: stale or inconsistent characteristics, an aging reinspection cycle, or data gaps. Neighborhood modifiers shift levels but do not fix dispersion.</li>
+          <li>Unusually tight dispersion triggers a sales chasing check: compare value changes on sold versus unsold parcels over the same period. If sold parcels moved differently, the study is measuring the chasing.</li>
+          <li>When flags are broad but no single age, quality, or size pattern explains them, the engine points to a model level review rather than per neighborhood correction, and suggests bringing the decile chart and per stratum exports to that review as a starting point.</li>
+          <li>When a neighborhood has too few sales for stable work, it suggests the standard supported options: extend the sales window across multiple years with time adjustment, or combine adjacent neighborhoods with similar markets for analysis.</li>
+        </ul>
+        <p>When level, uniformity, and vertical equity are all within range at the neighborhood lens and no data hygiene issues surfaced, the engine says so plainly, and notes that the modifier table is still available if a level shift is wanted for cycle reasons.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>This engine encodes the experience you would otherwise have to supply from memory in every review: do not paper over a structural problem with neighborhood modifiers. Fix the depreciation schedule, the grade multipliers, or the land curve first, then re-run and work only the neighborhoods still flagged.</p>
+          <p>The analyst block and the manager block are written for different decisions on purpose. The analyst block says what to check next. The manager block says what the finding means for the office and what to bring to a model review.</p>
+        </aside>
+
+        <h3 id="intervals">4.5 Confidence intervals and the slope test <span class="new">v1.3</span></h3>
+        <p>A ratio study is a sample. The median, COD, and PRD you see are estimates of the roll's true level, uniformity, and vertical equity, and each one would come out a little different on a different year of sales. The intervals in the tool make that uncertainty visible so a pass or fail can be read as conclusive or not.</p>
+        <p><strong>Median.</strong> The 90 percent interval on the median uses the rank method from the IAAO standard: the interval runs from the ratio at a lower rank to the ratio at an upper rank, with the ranks chosen from the binomial distribution so that the true median falls between them 90 percent of the time. It is exact, needs no distributional assumption, and has been in the tool since the first version.</p>
+        <p><strong>COD and PRD.</strong> Neither statistic has a closed-form interval, so the tool uses the bootstrap, which the IAAO standard points to for exactly this purpose. It resamples the sales with replacement 1,000 times, recomputes COD and PRD on each resample, and reads the 5th and 95th percentiles of the 1,000 results as the 90 percent interval. The random stream is seeded with a fixed constant, so the same file and the same settings always produce the same interval, and the seed and replicate count are written to the run manifest. Intervals are withheld below 10 sales, where the low-n flag already carries the message. Results are cached per stratum so the stratification tables and the modifier engine, which revisit the same strata many times, do not recompute them.</p>
+        <p><strong>Reading an interval against a range.</strong> There are three outcomes. The whole interval inside the range: the pass is conclusive. The whole interval outside the range: the failure is conclusive. The interval crosses a boundary: the point estimate's pass or fail is not conclusive at 90 percent, and the tool marks it amber with a question mark in the stratum tables, says so in the result column overall, and colors the bar amber in the COD chart. An amber mark is not a pass. It means the sample is too thin or too scattered to settle the question, and the honest next step is more sales or a wider window, not a declaration either way.</p>
+        <p><strong>The slope test.</strong> The linear time trend is a weighted least squares fit of log(monthly median ratio) on month index, weighted by each month's sales count. The tool treats the weights as precision weights known up to a scale factor, estimates the residual variance from the weighted residuals with months minus 2 degrees of freedom, and forms a t statistic for the slope. The p-value comes from the Student t distribution, not the normal, because a study window is often only 12 to 36 months and the normal approximation would overstate significance. The test is two-sided at the 10 percent level, matching the 90 percent intervals elsewhere. The 90 percent interval on the annual rate is the slope interval pushed through the same exponential transform the point estimate uses, with the sign flipped because a falling ratio line is a rising market. The confidence band on the chart is the pointwise band on the fitted mean line from the same fit.</p>
+        <p><strong>What the slope test does not say.</strong> A slope that is not distinguishable from zero does not mean the market was flat. It means the month-to-month medians are too scattered, or the window too short, for the sample to confirm the direction. The point estimate is still the best single estimate of the trend. The tool's recommendation to leave the adjustment off in that case is a judgment that an unconfirmed slope is more likely to move sales in the wrong direction than to help, and it is a judgment your office can override by policy. If you do, the report records the applied rate and the p-value together so a reader can weigh them. The test is built for the linear method; the stepwise piecewise method shifts each segment onto a target by its own median and does not depend on a fitted slope.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>The intervals change what a red cell means. Before, a red COD meant the point estimate was outside the range. Now a red COD means the sample is good enough to say the roll is outside the range, and an amber COD means the sample cannot say. That distinction is worth explaining once to anyone who reads the stratum tables, because it stops a thin stratum from being treated as a finding.</p>
+          <p>The bootstrap seed is the reason two analysts running the same file get the same intervals to the digit. If someone reproduces the study and the intervals differ, the file or the settings differ, and the run manifest will show which.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="presentation-view">
+        <div class="sec-number">Section 5</div>
+        <h2>The presentation view</h2>
+        <p>The presentation view is a separate, plain language layout built from the same study, intended for commissioners, elected officials, and the public. It strips the statistical vocabulary and answers the questions a non specialist actually asks. You reach it with the presentation view button, and you choose whether it shows the roll as it stands or with your projected adjustments applied.</p>
+        <h3>What it shows</h3>
+        <p><strong>Assessment level and sales studied.</strong> How close assessments are to market overall, and how many verified sales the conclusion rests on, so the audience knows the finding is grounded in real transactions.</p>
+        <p><strong>The fairness dumbbell.</strong> A simple visual of how tightly assessments cluster around market, translating the COD into something a commissioner can read at a glance without knowing what a coefficient of dispersion is.</p>
+        <p><strong>What this means for a typical home.</strong> The level finding expressed as a dollar story for an ordinary house, rather than a ratio.</p>
+        <p><strong>Are modest homes and expensive homes treated the same?</strong> The vertical equity finding in plain terms, answering the equity question directly for whichever end of the market a viewer cares about.</p>
+        <p><strong>The neighborhood ladder.</strong> An SVG ladder showing where each neighborhood stands relative to the public fairness standard, with an optional toggle to show where the projected adjustments would move them.</p>
+        <h3>The fixed public standard</h3>
+        <p>The neighborhood ladder is drawn against a fixed 90 to 100 cent standard. This is intentional and important. The public view represents the public standard for fairness, expressed in cents on the dollar, not the analyst's internal no change rules. The internal rules in the modifier engine are about how to manage the roll across a cycle. The ladder is about a single, stable, understandable promise to the public. Keeping the two separate means the public standard does not move just because an analyst tuned a rule, and it means the picture you show this year is comparable to the one you showed last year.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>This is the view to walk into a commissioners meeting with. It says, in order, how close we are to market, how consistent we are, what that means for a normal house, whether the system favors expensive or modest homes, and where each neighborhood stands. Those are the questions you get asked, in the order you get asked them.</p>
+          <p>Use the projected adjustments toggle deliberately. Off, it shows where things stand. On, it shows where your recommended modifiers would move them. Be clear with the audience which one they are looking at.</p>
+          <p>The 90 to 100 cent standard is a fixed public anchor. Do not retune it to flatter a given year. Its value is that it stays put, so the public can compare across years and trust that the bar did not move.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="boe-packet">
+        <div class="sec-number">Section 6</div>
+        <h2>The BOE evidence packet</h2>
+        <p>The BOE evidence packet is the formal counterpart to the presentation view. Where the presentation view strips the statistical vocabulary for commissioners and the public, this view leads with the evidence, because a Board of Equalization is adjudicating appeals and equalization and needs to see that the study meets a recognized standard. You reach it with the BOE evidence packet button in the report and export section. It opens in its own window with a print button, so screen and print are the same artifact.</p>
+        <p>Every number in the packet is taken from the same study computation the analyst sees, not recomputed, so the board and the analyst are always looking at identical figures.</p>
+        <h3>What it contains</h3>
+        <p><strong>Provenance header.</strong> Sales studied, property class, whether a time adjustment was applied, how many sales were excluded, and the governing standard. The board sees exactly what produced the numbers before it sees the numbers.</p>
+        <p><strong>IAAO compliance table.</strong> Median, COD, PRD, PRB, and Spearman rho, each shown against its IAAO range with an explicit finding of within range or outside range. This is the core defensibility exhibit.</p>
+        <p><strong>Methodology statement.</strong> A short formal paragraph naming the IAAO Standard on Ratio Studies, the median as the level measure, the outlier screening at the three times IQR fences, and the 15 sale floor for vertical equity. This is the methods are sound anchor.</p>
+        <p><strong>Equalization summary.</strong> A per neighborhood level table sorted from lowest level to highest, so the board can see uniformity across the roll at a glance. This is the equalization question stated directly. A toggle switches the table between current levels and the levels that would result after the recommended modifiers are applied, with a running count of how many neighborhoods fall outside the acceptable level range in each state, and a checkbox narrows the table to only the neighborhoods that still need review. Flipping to the after-modifiers state shows the board how far the recommendations resolve the equalization picture and shortens a long list to the few neighborhoods that remain. The after-modifiers figures are labeled as projected, since they reflect recommendations rather than adopted values.</p>
+        <p><strong>Data integrity note.</strong> The count of excluded sales and why, with a statement that exclusions were applied by rule to every sale alike, not selectively. This forecloses the claim that sales were cherry picked.</p>
+        <p>Each technical finding carries one plain language line beneath it, so a board member who is not a mass appraiser can follow the exhibit without losing the rigor underneath.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>This is the packet to file as evidence and to hand to a board before a hearing. It says, in order, here is what we studied, here is how it measures against the recognized standard, here is the method, and here is the equalization picture across neighborhoods.</p>
+          <p>The data integrity note matters more than it looks. The most common challenge to a ratio study is that the sales were selected to flatter the result. The packet states plainly that exclusions were rule based and applied to every sale, which is the honest and the defensible answer.</p>
+          <p>If your office or DOR uses a vertical equity tolerance different from the one shown for PRB, tell the tool builder. It is a single threshold and should match your standard, not a default.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="deep-dive">
+        <div class="sec-number">Section 7</div>
+        <h2>The neighborhood deep dive</h2>
+        <p>The deep dive is an analyst tool, not an audience tool. It takes up to five neighborhoods you select in the modifier table and lays them next to each other so you can compare them directly and see why each got the recommendation it did. You select neighborhoods with the Deep dive checkbox on each modifier row, up to five, then open the comparison with the Deep dive button below the table. It opens in its own landscape window and prints cleanly.</p>
+        <h3>What it shows</h3>
+        <p>Before you open the deep dive, choose a stratifier in the break down by control next to the button. That choice drives the sample by stratum section described below. You then select up to five neighborhoods and open the window.</p>
+        <p><strong>Side by side statistics.</strong> A column per neighborhood with sales count, median, COD, the recommended modifier, and the decision, with the county figures in a reference column. This is where you see how the selected neighborhoods differ from each other and from the roll as a whole. Vertical equity statistics are deliberately not shown per neighborhood: a level modifier cannot correct a within-neighborhood tilt, so a per-neighborhood PRB or rho would imply a lever that does not exist.</p>
+        <p><strong>Ratio versus value charts.</strong> A scatter of ratio against sale price for each neighborhood, drawn on a shared scale with the acceptable band shaded and the neighborhood median marked. A downward tilt from left to right is a regressivity clue you can see rather than infer. Read it as a diagnostic, not a target: the modifier moves the median, not the slope, so a tilt points you to the value-stratum and model-level work, not to a neighborhood adjustment.</p>
+        <p><strong>Sample by stratum.</strong> For the stratifier you chose, a counts matrix with buckets as rows and the selected neighborhoods as columns, each cell showing the sale count and its share of that neighborhood, with a totals row and a not-classified row. Then a per-neighborhood table giving count, median ratio, COD, and average price for each bucket. This answers how many sales fall in these buckets versus those, and whether the level holds evenly across buckets or one bucket is pulling the neighborhood. It is descriptive composition and level, not a vertical-equity test.</p>
+        <p><strong>Modifier rationale.</strong> For each neighborhood, the current median against its target, which decision fired, whether it was capped or floored, the resulting simulated median, and the confidence grade. This is pulled straight from the engine output, so it matches the modifier table exactly.</p>
+        <p><strong>Sales.</strong> The first fifteen verified sales for each neighborhood, with sale date, price, assessed value, and ratio, plus the total count. For neighborhoods with more than fifteen sales, the full list is available through the Excel export in the tool. This keeps the drill down grounded in the actual transactions.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>The deep dive is how an analyst answers the question why does this neighborhood get this modifier without exporting to a spreadsheet and rebuilding the picture by hand. Five at a time is enough to compare a cluster of related neighborhoods or to put a flagged one next to its better behaved neighbors.</p>
+          <p>The sample by stratum view is the quickest way to spot a composition problem. If one neighborhood is mostly older or lower quality homes and another is mostly newer ones, their medians are not comparable on their face, and the counts matrix makes that visible before anyone reads too much into a level difference.</p>
+          <p>Capped and floored rows are the ones worth opening in the deep dive. Seeing the scatter and the rationale side by side usually makes it obvious whether the cap is protecting you from bad data or holding back a move the neighborhood genuinely needs.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="parameters">
+        <div class="sec-number">Section 8</div>
+        <h2>Parameters and choices, and how to use them</h2>
+        <p>This section explains every setting you can change, what it does, and how to think about it. The defaults shipped with the tool are Skagit County's working theory, not a standard handed down from the IAAO or the Department of Revenue. They reflect choices that fit Skagit's market, sales volume, and assessment practice. They are a sound starting point for any county, but they are meant to be examined and changed where your county differs. Where a default is a genuine IAAO or DOR rule rather than a Skagit preference, this section says so.</p>
+        <h3>How to approach the defaults</h3>
+        <p>A useful way to read the defaults is as answers to questions Skagit has already thought through. Each parameter encodes a judgment: how close to market we aim, how far we will move a neighborhood in one cycle, how much sales evidence we trust. When you open the tool for your county, the right move is not to accept or reject the defaults wholesale, but to ask whether Skagit's answer to each question is also yours. Most counties will keep the majority and change a few. The save and load configuration feature exists so that once you have tuned a set that fits your county, you can reuse it every cycle and share it with a reviewer.</p>
+
+        <h3>The target ratio curve</h3>
+        <p>The single most consequential choice is what overall ratio you are aiming for. The tool does not aim at a flat number; it aims at a curve that depends on a neighborhood's dispersion, because a tightly assessed neighborhood can sit closer to full market value safely, while a scattered one needs more cushion against over-assessment.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parameter</th><th>Skagit default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Low COD target</td><td class="v">0.97</td><td>The ratio aimed at for tight, well-assessed neighborhoods (low dispersion). Skagit's theory is that a clean neighborhood can sit near 97 cents without unfairly over-assessing individual homes.</td></tr>
+            <tr><td class="k">High COD target</td><td class="v">0.90</td><td>The ratio aimed at for scattered neighborhoods (high dispersion). The lower target builds in protection: when ratios vary a lot, a higher target would push the top of the spread well past market.</td></tr>
+            <tr><td class="k">Low COD threshold</td><td class="v">5</td><td>The COD at or below which the low target applies. 5 is the bottom of the IAAO residential range, so this says fully tight.</td></tr>
+            <tr><td class="k">High COD threshold</td><td class="v">20</td><td>The COD at or above which the high target applies. Between the two thresholds the target slides smoothly.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> If your county assesses closer to full market value as a matter of policy, raise both targets together. If your appeal climate makes over-assessment costly, lower them. The gap between the low and high targets is your dispersion cushion: widen it if your neighborhoods vary a lot in quality, narrow it if your roll is uniform. Skagit's 7 cent gap is a moderate choice.</p>
+
+        <h3>The no-change zone</h3>
+        <p>Not every neighborhood should be touched every cycle. The no-change zone defines a band around the target where the tool leaves a neighborhood alone rather than making a small, churn-inducing adjustment.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parameter</th><th>Skagit default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">No-change min</td><td class="v">0.93</td><td>The bottom of the leave-it-alone band. A neighborhood whose median sits at or above this is not moved up.</td></tr>
+            <tr><td class="k">No-change max</td><td class="v">0.97</td><td>The top of the band. A neighborhood at or below this is not moved down.</td></tr>
+            <tr><td class="k">No-change max COD</td><td class="v">15</td><td>The zone only applies to neighborhoods at or below this COD. A scattered neighborhood above it is still considered for adjustment even if its median looks fine, because its level is not trustworthy.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> A wider zone means fewer, larger interventions and a more stable roll year to year; a narrower zone means more frequent fine-tuning. Skagit's band of 93 to 97 cents is deliberately a few cents wide to avoid moving neighborhoods that are already close enough. If your county prefers to nudge everything toward a single tight target each year, narrow the band. The max COD condition is worth keeping: it stops the tool from leaving a high-dispersion neighborhood alone just because its median happens to land in the zone.</p>
+
+        <h3>Adjustment limits</h3>
+        <p>These rails bound how far any single neighborhood can move in one cycle, regardless of what the target curve asks for. The max change in particular is best understood as a sample-confidence limit. A single year of sales is not always a representative sample of the whole neighborhood: the homes that happened to sell can skew small, or old, or otherwise unlike the unsold properties they are standing in for. A large move computed from one year of such a sample risks mis-valuing the buckets of properties the sample under-represents. The cap holds the move back until the evidence is strong enough to justify it.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parameter</th><th>Skagit default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Max change</td><td class="v">15%</td><td>The largest move allowed in one cycle, up or down. A neighborhood that wants more is marked Capped and flagged for a manual look, because the sample may not yet support the full move.</td></tr>
+            <tr><td class="k">Downward floor</td><td class="v">0.97</td><td>Limits downward moves: the tool will not push a neighborhood's implied factor below this. Protects against large reductions driven by thin or unrepresentative sales.</td></tr>
+            <tr><td class="k">Overall median ceiling</td><td class="v">0.95</td><td>A post-check on the whole roll. After all moves, the simulated overall median is held at or below this, so the cycle does not lift the county above its intended level.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> Raise the cap when a wider sales window backs the larger move. This is the key point. If one year of sales suggests a big increase, the cap is right to hold it: that single year may be a skewed sample. But if two or more years of data, with time adjustment, show the same above-market increase, you have both a more representative sample and the sales volume to defend the wave of appeals a large increase will generate. At that point the cap is the wrong constraint, and you should raise it and let the move through. Lower the cap if your county wants to move more gradually across cycles even when the evidence is strong. The downward floor and ceiling are conservative by design; if your roll is genuinely over market and you intend to bring it down, you will need to relax both, and you should document why.</p>
+
+        <h3>Minimum change to justify a value notice</h3>
+        <p>A change of value notice is not free. There is the cost of the mailing itself, and there is the appeal load those notices can generate. Moving a neighborhood by a point or two is rarely worth either. This parameter sets the smallest move the tool will actually make: if the curve suggests an adjustment smaller than the threshold, the neighborhood is held at no change rather than triggering a notice for a move too small to justify the cost.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parameter</th><th>Skagit default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Minimum change for a notice</td><td class="v">3%</td><td>If the suggested move is smaller than this, hold the neighborhood at no change. A 91 percent neighborhood the curve only pulls to 93 percent is held, because that 2 point move is below the threshold. The same neighborhood pulled to 95 percent moves, because 4 points clears it. Set to off (blank or zero) to disable the rule and let every suggested move through.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> This is Skagit's cost-control judgment, and it is one of the more county-specific settings here. A county that mails notices cheaply, or whose board absorbs appeals easily, might lower it or turn it off. A county under heavy appeal pressure might raise it to 4 or 5 percent. A held row is not hidden: it is labeled Below COV threshold, handled like a capped row, and it shows the move it would have taken, so the analyst can see exactly what was suppressed. If a particular held neighborhood matters for a reason the tool cannot see, unchecking its skip box forces the adjustment through. The rule is hard by default even in COD optimization mode, with its own soft toggle, because suppressing a pointless mailing is a cost decision that should not quietly evaporate just because you are chasing uniformity.</p>
+
+        <h3>Thin-sample handling</h3>
+        <p>Neighborhoods with few sales need gentler treatment, because their medians are unstable.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parameter</th><th>Skagit default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Low-n target</td><td class="v">0.92</td><td>The ratio aimed at for neighborhoods below the sales threshold. A softer, more conservative target than the main curve.</td></tr>
+            <tr><td class="k">Low-n threshold</td><td class="v">5</td><td>The sale count below which a neighborhood is treated as thin and routed to the low-n target.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> This is Skagit's answer to the small-sample problem: rather than refuse to move a thin neighborhood, aim it at a cautious target. But the cautious target is a placeholder, not a conclusion. Thin neighborhoods are where an experienced analyst earns their keep, because no statistic built on four or five sales is trustworthy. The recommendation engine says this directly when it flags low-n neighborhoods, and it points to the three ways to reach a real answer: compare the neighborhood to a similar market neighborhood that has more sales and borrow its level as a check; extend the sales window across more years, with time adjustment, to build a usable sample; or apply your own knowledge of the area, recent construction, sales you know firsthand, and field experience that the data cannot capture. If your county has many low-volume rural neighborhoods, raise the threshold so more of them get the gentle treatment, and plan to work them by hand. The IAAO would caution that below roughly 5 to 6 sales no statistic is reliable, so treat any low-n recommendation as provisional until your judgment has confirmed it.</p>
+
+        <h3>Land and improvement split</h3>
+        <p>When both land and improvement values are mapped, the tool can optionally solve for separate land and improvement modifiers instead of one combined factor. This is off by default.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parameter</th><th>Skagit default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Split land and improvements</td><td class="v">Off</td><td>When on, a regression separates the land and improvement components per neighborhood, falling back to the combined modifier where the data cannot support a clean split.</td></tr>
+            <tr><td class="k">Max land / improvement change</td><td class="v">15% each</td><td>Caps on the separate components, mirroring the combined max change.</td></tr>
+            <tr><td class="k">Max land-improvement spread</td><td class="v">10%</td><td>Caps the difference between the two modifiers. Land and improvements usually move together; large opposing moves disproportionately hit vacant-land and improvement-only parcels.</td></tr>
+            <tr><td class="k">Disallow opposite splits</td><td class="v">Off</td><td>When on, the tool falls back to the combined modifier entirely if the regression suggests the two components should move in opposite directions.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> Leave this off for routine work. Turn it on only when you have a specific reason to believe land and improvements are mis-assessed in different directions, and you have the compositional variety in your sales to separate them. Skagit's defaults keep the rails tight because an unconstrained split can produce economically strange results on parcels that are mostly land or mostly building. If you enable it, watch which neighborhoods fall back to the combined modifier: those are telling you the data could not support a split there.</p>
+
+        <h3>COD optimization (analyst mode)</h3>
+        <p>This is an advanced mode, off by default, that re-aims the engine at the lowest dispersion outcome instead of the softer level-based rules. When it is on, each rule becomes hard (always enforced) or soft (set aside while optimizing). The defaults are set so the conservative, defensible path is what you get out of the box.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Rule</th><th>Skagit default</th><th>Reasoning</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Max change</td><td class="v">Hard</td><td>Kept enforced for defensibility. A board will not accept an oversized move just because it lowers COD.</td></tr>
+            <tr><td class="k">Downward floor</td><td class="v">Hard</td><td>Kept enforced for safety against large reductions.</td></tr>
+            <tr><td class="k">No-change zone</td><td class="v">Soft</td><td>Set aside when optimizing, because the zone is an analyst convenience, not a limit.</td></tr>
+            <tr><td class="k">Overall ceiling</td><td class="v">Soft</td><td>Informational; can give way when the goal is uniformity rather than level.</td></tr>
+            <tr><td class="k">Spread cap</td><td class="v">Soft</td><td>Can give way when tightening dispersion is the explicit objective.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> Leave optimization off for normal cycle work, where level is the question. Turn it on when uniformity is the problem you are solving and you are willing to accept a different set of moves to get there. The hard/soft split is the real control: keeping max change and the downward floor hard means even an aggressive COD chase cannot produce moves you would have to defend as unreasonable. A county comfortable with tighter management can mark more rules soft; a DOR-strict county should leave the defaults as they are.</p>
+
+        <h3>App-wide selection choices</h3>
+        <p>Beyond the modifier rules, several choices shape what the tool shows. None changes the underlying data; they change framing, binning, and which property-class standard you are measured against.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Choice</th><th>Options (Skagit default first)</th><th>What it affects</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Property class</td><td>Residential improved (default, COD 5 to 15); newer/homogeneous (5 to 10); rural/seasonal (5 to 20); multi-family (5 to 20); commercial/industrial (5 to 25); vacant land (5 to 20); agricultural (5 to 25)</td><td>Which IAAO COD range your study is judged against. These ranges are the IAAO standard, not a Skagit choice; pick the row that matches what your sample is mostly made of.</td></tr>
+            <tr><td class="k">Outlier rule</td><td>Keep all sales (default); trim extreme outliers (Tukey 3 × IQR); trim mild and extreme (Tukey 1.5 × IQR)</td><td>Whether flagged outliers are excluded from every statistic study-wide. Keep is the default because outliers usually point at data problems worth fixing in the source file rather than silently dropping. The rule is saved with the configuration and recorded in the run manifest.</td></tr>
+            <tr><td class="k">Size bins (GLA)</td><td>Quartiles (default), deciles, or fixed 400 sq ft bands</td><td>How living area is grouped for stratification and the deep dive. Quartiles suit smaller samples; deciles give finer resolution when you have the volume; fixed bands suit cost-table work. Acreage stratification offers the same quartile and decile choice alongside its fixed standard bands.</td></tr>
+            <tr><td class="k">Custom stratifier bins</td><td>Quartile (default), decile, or treat as codes</td><td>How a numeric custom column is grouped. Treat as codes is the escape hatch for a column that looks numeric but is really a code set, such as a use code or a zoning class.</td></tr>
+            <tr><td class="k">Histogram bins</td><td>10% (default) or 5%</td><td>The width of the ratio distribution bars. 5% shows more detail but needs more sales to look stable.</td></tr>
+            <tr><td class="k">Stratification sort</td><td>By count (default), neighborhood, COD, or median low to high</td><td>The order of the stratification table. Sorting by median low to high surfaces the neighborhoods most in need of attention first. Continuous stratifiers such as size, age, and acreage default to ascending band order so the bands read in their natural sequence; a click on any column header re-sorts as usual.</td></tr>
+            <tr><td class="k">Modifier sort</td><td>By neighborhood (default), count, move size, decision, confidence, or median low to high</td><td>The order of the modifier table. Sorting by move or by confidence is useful when you want the largest or least certain recommendations on top for review.</td></tr>
+            <tr><td class="k">Print sections</td><td>Diagnostics, vertical equity, stratification, modifier (all on by default)</td><td>Which sections go into the printed or PDF report. Turn off what a given audience does not need.</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>How to use it.</strong> The property class is the one selection with a right answer: choose the class that matches the bulk of your sample, because it sets the bar your uniformity is measured against. The rest are presentation and resolution choices. When in doubt, the defaults are tuned for a county with Skagit's typical sample sizes; a much larger county can afford finer bins, and a much smaller one should keep the coarser defaults so the picture stays stable.</p>
+        <aside class="managers">
+          <div class="mg-label">For managers</div>
+          <p>The defaults are a position, not a prescription. The most valuable hour a new county can spend with this tool is walking through this section and deciding, parameter by parameter, whether Skagit's judgment fits their market. Most will keep the bulk and change two or three.</p>
+          <p>Three parameters carry most of the weight: the target curve (how close to market you aim), the max change (how much you trust one year of sales to represent the whole neighborhood), and the no-change zone (how much you intervene). If you only examine three, examine those.</p>
+          <p>Once you have a set that fits your county, save the configuration and reuse it. A consistent, documented parameter set is itself a defensibility asset: it shows a board that your methodology did not change just to produce a particular result.</p>
+        </aside>
+      </section>
+
+      <section class="sec" id="quick-reference">
+        <div class="sec-number">Section 9</div>
+        <h2>Decision rules quick reference</h2>
+        <p>The labels the modifier table attaches to each neighborhood, and what each one means for your attention.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Label</th><th>Meaning</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr><td class="k">No change</td><td>Inside the no change zone around target</td><td>Leave it. The cascade found no reason to move it.</td></tr>
+            <tr><td class="k">Adjusted</td><td>Moved toward target within all rails</td><td>Normal recommendation. Review in aggregate.</td></tr>
+            <tr><td class="k">Capped</td><td>Wanted a larger upward move than the cap allows</td><td>Look by hand. The move may be real but needs more years of sales; a wider window can justify raising the cap.</td></tr>
+            <tr><td class="k">Floored</td><td>Wanted a larger downward move than the floor allows</td><td>Look by hand. Same as capped, in the other direction.</td></tr>
+            <tr><td class="k">Below COV threshold</td><td>Suggested move was too small to justify a value notice</td><td>Held on purpose. Shows the move it would have taken. Uncheck its skip box only if that specific neighborhood is worth a notice.</td></tr>
+            <tr><td class="k">Low or unknown confidence</td><td>Thin sales or unstable inputs</td><td>Manual review before acting. Consider widening the sample.</td></tr>
+            <tr><td class="k">Skipped</td><td>Held out by you</td><td>Excluded from the cascade and from calibration by your choice.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Two workflow features support these labels. Target calibration keeps the overall simulated median on your target while the cascade runs, and the per row skip boxes let you hold out any neighborhood you do not want the calibration to lean on. Used together, they let you stabilize the overall level while protecting individual neighborhoods you have a reason to treat by hand.</p>
+        <p>The marks the stratification tables attach to a statistic:</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Mark</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Green ✓</td><td>Point estimate inside the IAAO range.</td></tr>
+            <tr><td class="k">Red</td><td>Point estimate outside the range, and the whole 90 percent interval outside too. The failure is conclusive.</td></tr>
+            <tr><td class="k">Amber ?</td><td>Point estimate outside the range, but the interval crosses back inside. Not conclusive at 90 percent. More sales or a wider window before acting.</td></tr>
+            <tr><td class="k">Italic row</td><td>Fewer than 10 sales. Intervals withheld; read with care.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="sec" id="glossary">
+        <div class="sec-number">Section 10</div>
+        <h2>Glossary</h2>
+        <dl class="gloss">
+          <dt>Assessment level</dt><dd>The overall position of assessments relative to market, measured here by the median ratio.</dd>
+          <dt>BOE, Board of Equalization</dt><dd>The county body that hears assessment appeals and oversees equalization of values across the roll. The BOE evidence packet is built for this audience.</dd>
+          <dt>Bootstrap</dt><dd>A way to estimate the uncertainty of a statistic by resampling the data with replacement many times and recomputing the statistic on each resample. The tool uses 1,000 seeded resamples to build 90 percent intervals on COD and PRD.</dd>
+          <dt>COD, coefficient of dispersion</dt><dd>The average percentage that ratios differ from the median. The core uniformity measure. Lower is tighter, but unusually low can signal sales chasing.</dd>
+          <dt>Confidence interval</dt><dd>A range around an estimate that reflects sampling uncertainty. The tool draws 90 percent intervals on the median (rank method), on COD and PRD (bootstrap), on the value group medians, and on the time-trend slope.</dd>
+          <dt>Custom stratifier</dt><dd>One of up to three analyst-chosen columns, beyond the preset list, along which the study can be stratified. Never auto-mapped. Optionally offered as a secondary lever.</dd>
+          <dt>IAAO</dt><dd>International Association of Assessing Officers. Its Standard on Ratio Studies defines the methods and acceptable ranges the tool uses.</dd>
+          <dt>Land table</dt><dd>A CAMA object grouping parcels that share a land valuation schedule, adjustable as a unit. In this tool a land table can be flagged as a secondary lever and moved by one factor across every neighborhood it touches.</dd>
+          <dt>Median ratio</dt><dd>The middle sales ratio. The tool's measure of level, chosen because it resists extreme sales.</dd>
+          <dt>PRB, price related bias</dt><dd>A regression measure of how ratio changes as value changes, read as a percentage per doubling of value. The preferred modern vertical equity measure. Near zero is equitable.</dd>
+          <dt>PRD, price related differential</dt><dd>The mean ratio over the weighted mean ratio. Traditional vertical equity measure. Acceptable range 0.98 to 1.03. Above range is regressive.</dd>
+          <dt>Plat</dt><dd>A recorded subdivision or abstract grouping of parcels, adjustable as a unit in CAMA. Like a land table, a plat can be flagged as a secondary lever and moved by one factor across the neighborhoods it spans.</dd>
+          <dt>Ratio</dt><dd>Assessed value divided by sale price for one property.</dd>
+          <dt>Regressivity</dt><dd>When modest homes carry higher ratios than expensive homes, shifting burden onto less expensive property.</dd>
+          <dt>Run manifest</dt><dd>A JSON record of a study: the input file's SHA-256 hash, row counts at every exclusion stage, the full configuration, the bootstrap seed, the slope test, and the headline results. Reloadable to reproduce the study and verify the file. Contains no sale-level data.</dd>
+          <dt>Sales chasing</dt><dd>Selectively revaluing sold parcels toward their sale prices. Produces a falsely tight study. Checked by comparing sold and unsold parcels.</dd>
+          <dt>Secondary levers</dt><dd>An optional layer in the modifier step that recommends adjustments by land table, plat, or an opted-in custom column rather than by neighborhood, for a bias in a valuation object that spans several neighborhoods. Each flagged lever gets one sale-weighted factor; the effect is simulated, not written.</dd>
+          <dt>Slope test</dt><dd>A t-test of whether the fitted time-trend slope is distinguishable from zero, with months minus 2 degrees of freedom. Reported with a p-value and a 90 percent interval on the annual rate.</dd>
+          <dt>Spearman rho</dt><dd>A rank correlation between ratio and value, robust to outliers. Confirms whether a vertical tilt is a genuine ranked relationship.</dd>
+          <dt>Stratum</dt><dd>A subset of the sample, such as a neighborhood or an age band, analyzed on its own.</dd>
+          <dt>Time adjustment</dt><dd>Bringing every sale to a common date to remove market movement over the sales window before analysis.</dd>
+          <dt>Vertical equity</dt><dd>Whether the sales ratio depends on value. Equitable means modest and expensive homes are assessed at the same ratio.</dd>
+        </dl>
+        <p style="margin-top: 28px; font-style: italic; color: var(--ink-mute);">WSACA Sales Ratio Analysis Tool. Free and open source. Methods follow the IAAO Standard on Ratio Studies. Built with substantial help from AI.</p>
+      </section>
+
+    </article>
+  </div>
+</main>
+
+<footer class="page-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <strong>WSACA Sales Analysis Tool · User and Methodology Guide</strong><br>
+        Free for any Washington county assessor's office. Built once, shared across all 39 counties.<br>
+        <span style="color: rgba(255,255,255,0.6); font-size: 12px;">Guide v1.3 · matches tool v1.3 · November 2026</span>
+      </div>
+      <div class="foot-right">
+        <a href="./">Open the tool</a> &nbsp;·&nbsp; <a href="../">All WSACA Tools</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
