@@ -789,6 +789,38 @@
     margin-left: 4px;
   }
 
+  /* Deduction comparison note. Added after Grays Harbor feedback (Dan Lindgren, Nov 2026):
+     entering rental income correctly produced no change in the estimate whenever the standard
+     deduction was still larger, but the tool gave no visible reason, which is indistinguishable
+     from a broken field. This note states which deduction was applied and why, every time. */
+  .ded-compare {
+    margin: 16px 0 0;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border-left: 4px solid;
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+  .ded-compare strong { font-weight: 700; }
+  .ded-compare .ded-compare-head {
+    display: block;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .ded-compare--std {
+    background: #fdf4ea;
+    border-left-color: var(--cedar-deep, #7a4a25);
+    color: #4a3522;
+  }
+  .ded-compare--std .ded-compare-head { color: var(--cedar-deep, #7a4a25); }
+  .ded-compare--item {
+    background: #e8f2eb;
+    border-left-color: var(--wsaca-green);
+    color: #233a2b;
+  }
+  .ded-compare--item .ded-compare-head { color: var(--wsaca-green-deep); }
+
   .filer-clarify {
     margin: 14px 0 0;
     font-size: 14.5px;
@@ -2051,6 +2083,8 @@
           </div>
           <p style="font-size: 13.5px; color: var(--ink-mute); margin: 6px 0 0; font-style: italic;">Capped at $6,000. Anything above will be applied at the maximum.</p>
         </div>
+        <!-- Live note telling the user which deduction the estimate actually used. -->
+        <div class="ded-compare hidden" id="ded-compare" aria-live="polite"></div>
       </div>
 
       <!-- Running total: visual cue only: screen reader announcement happens via the debounced
@@ -2170,6 +2204,41 @@
 </footer>
 
 <script>
+/* ============================================================
+   COUNTY LEVEL TERMINOLOGY
+   The statute and DOR number the tiers 1, 2 and 3. Most counties
+   communicate them to the public as Level A, B and C, which is the
+   tool's default. Some counties use the numbers in their own public
+   materials, and an applicant who reads "Level 1" on the county site
+   should see "Level 1" here too. List those counties below; the
+   mapping is always A = 1 (most exemption) through C = 3 (entry tier).
+   Requested by Grant County, November 2026.
+   ============================================================ */
+const COUNTY_LEVEL_STYLE = {
+  "Grant": "numeric"
+};
+
+// Public-facing name for a tier in the selected county: "A" or "1".
+function levelName(level, county) {
+  const c = county || state.county;
+  return COUNTY_LEVEL_STYLE[c] === 'numeric'
+    ? String(level)
+    : { 1: 'A', 2: 'B', 3: 'C' }[level];
+}
+
+// True when the county already names its tiers by number, in which case
+// writing "Level 1 (Threshold 1)" would just repeat itself.
+function usesNumericLevels(county) {
+  return COUNTY_LEVEL_STYLE[county || state.county] === 'numeric';
+}
+
+// "Level A (Threshold 1)" for letter counties, "Level 1" for numeric ones.
+function levelLabel(level, county) {
+  return usesNumericLevels(county)
+    ? `Level ${levelName(level, county)}`
+    : `Level ${levelName(level, county)} (Threshold ${level})`;
+}
+
 /* ============================================================
    THRESHOLD DATA: TY 2027-2029 per ESSB 6162
    All 39 counties, post-passage updated figures.
@@ -2744,6 +2813,60 @@ function announceCDI(cdi) {
   }, 1000);
 }
 
+/* Deduction comparison note.
+   Added in response to Grays Harbor County feedback (Dan Lindgren, November 2026). He entered
+   several rental-income amounts and the estimated disposable income never moved. The arithmetic
+   was right: under RCW 84.36.383(2)(b) and DOR's 2026 clarification, the rental deduction sits
+   inside the itemized basket, so a $6,000 rental with no medical costs loses to the $7,500
+   standard deduction and the estimate correctly stays put. But correct silence looks exactly like
+   a broken input. This note names the amount entered, states which deduction won, and says what
+   would have to change for the other one to win. */
+function renderDedCompare() {
+  const el = document.getElementById('ded-compare');
+  if (!el) return;
+
+  const stdDed = state.filer === 'joint' ? 15000 : (state.filer === 'individual' ? 7500 : 0);
+  const rentalDed = Math.min(6000, Math.max(0, state.rentalDeduction || 0));
+
+  // Which medical/care figure competes with the standard deduction depends on the mode.
+  // Guided mode only runs this comparison when the applicant chose to itemize.
+  let medical = 0;
+  let applicable = false;
+  if (state.mode === 'quick') {
+    medical = state.quick.medical || 0;
+    applicable = true;
+  } else if (state.dedMode === 'itemized') {
+    medical = Object.values(state.guided.deductions).reduce((a, b) => a + (b || 0), 0);
+    applicable = true;
+  }
+
+  const itemized = medical + rentalDed;
+
+  // Nothing to explain until there's a filing status and at least one deduction entered.
+  if (!applicable || !stdDed || itemized <= 0) {
+    el.className = 'ded-compare hidden';
+    el.innerHTML = '';
+    return;
+  }
+
+  const m = n => '$' + Math.round(n).toLocaleString();
+  const parts = [];
+  if (medical > 0) parts.push(`${m(medical)} in medical and care costs`);
+  if (rentalDed > 0) parts.push(`${m(rentalDed)} in deductible rental income`);
+  const breakdown = parts.join(' plus ');
+
+  if (itemized > stdDed) {
+    el.className = 'ded-compare ded-compare--item';
+    el.innerHTML = '<span class="ded-compare-head">Your itemized deductions were used: ' + m(itemized) + '</span>'
+      + 'That is ' + breakdown + ', which beats the ' + m(stdDed) + ' standard deduction, so the estimate above subtracts the itemized total. You take whichever is larger, not both.';
+  } else {
+    const gap = stdDed - itemized;
+    el.className = 'ded-compare ded-compare--std';
+    el.innerHTML = '<span class="ded-compare-head">The ' + m(stdDed) + ' standard deduction was used, so your estimate did not change</span>'
+      + 'You take whichever deduction is larger, not both. Your itemized total so far is ' + m(itemized) + ' (' + breakdown + '), which is ' + m(gap) + ' short of the ' + m(stdDed) + ' standard deduction you can claim instead. If you have out-of-pocket medical or care costs you have not entered yet, add them above. Once medical and rental together pass ' + m(stdDed) + ', your estimate will start to drop.';
+  }
+}
+
 function tryCompute(opts) {
   const allowScroll = !opts || opts.allowScroll !== false;
   const cdi = computeCDI();
@@ -2762,8 +2885,10 @@ function tryCompute(opts) {
         rtSub.textContent = rentalDed > 0
           ? `After itemized deductions: medical $${state.quick.medical.toLocaleString()} + rental $${rentalDed.toLocaleString()}`
           : `After itemized deductions ($${quickItemized.toLocaleString()})`;
+      } else if (quickItemized > 0) {
+        rtSub.textContent = `After the $${stdDed.toLocaleString()} standard deduction (larger than your $${quickItemized.toLocaleString()} itemized total)`;
       } else {
-        rtSub.textContent = `After the $${stdDed.toLocaleString()} standard deduction (larger than itemized)`;
+        rtSub.textContent = `After the $${stdDed.toLocaleString()} standard deduction`;
       }
     } else if (state.mode === 'guided' && state.filer) {
       // Honest reporting: when itemized was selected but standard was larger, the calculator
@@ -2775,7 +2900,9 @@ function tryCompute(opts) {
           ? `After itemized deductions: $${itemizedSum.toLocaleString()} medical/care + $${rentalDed.toLocaleString()} rental`
           : `After itemized deductions ($${itemizedSum.toLocaleString()})`;
       } else if (state.dedMode === 'itemized') {
-        rtSub.textContent = `After the $${stdDed.toLocaleString()} standard deduction (larger than your itemized total)`;
+        rtSub.textContent = itemizedWithRental > 0
+          ? `After the $${stdDed.toLocaleString()} standard deduction (larger than your $${itemizedWithRental.toLocaleString()} itemized total)`
+          : `After the $${stdDed.toLocaleString()} standard deduction`;
       } else {
         rtSub.textContent = `After the $${stdDed.toLocaleString()} standard deduction`;
       }
@@ -2783,6 +2910,9 @@ function tryCompute(opts) {
       rtSub.textContent = 'After deductions';
     }
   }
+
+  // Tell the user, right next to the fields they typed in, which deduction the estimate used.
+  renderDedCompare();
 
   // Live preview bar in the income step: updates as the user types so they can see
   // their position relative to the thresholds without waiting for the result panel.
@@ -2842,7 +2972,7 @@ function buildComparisonTable(level) {
   };
   const r26 = rows2026[level];
   const r27 = rows2027[level];
-  const letter = { 1: 'A', 2: 'B', 3: 'C' }[level];
+  const letter = levelName(level);
 
   return `
     <div class="compare-disclosure">
@@ -2915,10 +3045,12 @@ function renderThresholdPanel(county) {
   const t26 = THRESHOLDS_2026[county];
 
   const rows = [
-    { letter: 'A', num: 1, key: 't1', label: 'Most exemption' },
-    { letter: 'B', num: 2, key: 't2', label: 'Mid-tier' },
-    { letter: 'C', num: 3, key: 't3', label: 'Entry-tier' }
+    { letter: levelName(1, county), num: 1, key: 't1', label: 'Most exemption' },
+    { letter: levelName(2, county), num: 2, key: 't2', label: 'Mid-tier' },
+    { letter: levelName(3, county), num: 3, key: 't3', label: 'Entry-tier' }
   ];
+  // A numeric county would otherwise read "Level 1 / Threshold 1 · Most exemption".
+  const numeric = usesNumericLevels(county);
 
   tbody.innerHTML = rows.map(r => {
     const old = t26[r.key];
@@ -2927,7 +3059,7 @@ function renderThresholdPanel(county) {
     const pctChange = Math.round((diff / old) * 100);
     return `
       <tr>
-        <td class="level-cell" data-label="Level">Level ${r.letter}<small>Threshold ${r.num} · ${r.label}</small></td>
+        <td class="level-cell" data-label="Level">Level ${r.letter}<small>${numeric ? r.label : `Threshold ${r.num} · ${r.label}`}</small></td>
         <td class="col-2026" data-label="2026 limit">${formatMoney(old)}</td>
         <td class="col-2027" data-label="2027 limit">${formatMoney(now)}<span class="threshold-change">+${pctChange}%</span></td>
         <td class="col-gross" data-label="Your income can be up to, after the standard deduction">
@@ -2959,13 +3091,13 @@ function buildIncomeBar(cdi, t, markerVariant) {
 
   let placement;
   if (cdi <= t.t1) {
-    placement = `Within Level A. Your income is ${formatMoney(t.t1 - cdi)} below the Level A threshold of ${formatMoney(t.t1)}.`;
+    placement = `Within Level ${levelName(1)}. Your income is ${formatMoney(t.t1 - cdi)} below the Level ${levelName(1)} threshold of ${formatMoney(t.t1)}.`;
   } else if (cdi <= t.t2) {
-    placement = `Within Level B. Your income is ${formatMoney(t.t2 - cdi)} below the Level B threshold of ${formatMoney(t.t2)}.`;
+    placement = `Within Level ${levelName(2)}. Your income is ${formatMoney(t.t2 - cdi)} below the Level ${levelName(2)} threshold of ${formatMoney(t.t2)}.`;
   } else if (cdi <= t.t3) {
-    placement = `Within Level C. Your income is ${formatMoney(t.t3 - cdi)} below the Level C threshold of ${formatMoney(t.t3)}.`;
+    placement = `Within Level ${levelName(3)}. Your income is ${formatMoney(t.t3 - cdi)} below the Level ${levelName(3)} threshold of ${formatMoney(t.t3)}.`;
   } else {
-    placement = `${formatMoney(cdi - t.t3)} above the Level C threshold of ${formatMoney(t.t3)}.`;
+    placement = `${formatMoney(cdi - t.t3)} above the Level ${levelName(3)} threshold of ${formatMoney(t.t3)}.`;
   }
   const ariaLabel = `Income spectrum showing your estimated combined disposable income of ${formatMoney(cdi)} placed against the three exemption thresholds. ${placement}`;
 
@@ -2977,19 +3109,19 @@ function buildIncomeBar(cdi, t, markerVariant) {
     <div class="income-bar-wrap variant-${variant}" role="img" aria-label="${ariaLabel.replace(/"/g, '&quot;')}">
       <div class="income-bar-title">${titleText}</div>
       <div class="income-bar-track">
-        <div class="income-bar-seg seg-a" style="width: ${segA}%" title="Level A: $0 to ${formatMoney(t.t1)}"></div>
-        <div class="income-bar-seg seg-b" style="width: ${segB}%" title="Level B: ${formatMoney(t.t1)} to ${formatMoney(t.t2)}"></div>
-        <div class="income-bar-seg seg-c" style="width: ${segC}%" title="Level C: ${formatMoney(t.t2)} to ${formatMoney(t.t3)}"></div>
-        <div class="income-bar-seg seg-over" style="width: ${segOver}%" title="Above Level C"></div>
+        <div class="income-bar-seg seg-a" style="width: ${segA}%" title="Level ${levelName(1)}: $0 to ${formatMoney(t.t1)}"></div>
+        <div class="income-bar-seg seg-b" style="width: ${segB}%" title="Level ${levelName(2)}: ${formatMoney(t.t1)} to ${formatMoney(t.t2)}"></div>
+        <div class="income-bar-seg seg-c" style="width: ${segC}%" title="Level ${levelName(3)}: ${formatMoney(t.t2)} to ${formatMoney(t.t3)}"></div>
+        <div class="income-bar-seg seg-over" style="width: ${segOver}%" title="Above Level ${levelName(3)}"></div>
         <div class="income-bar-marker" style="left: ${cdiPct}%">
           <span class="income-bar-marker-label">Your income: ${formatMoney(cdi)}</span>
         </div>
       </div>
       <div class="income-bar-axis">
         <div class="axis-tick" style="left: 0%"><span>$0</span></div>
-        <div class="axis-tick" style="left: ${t1Pct}%"><span>${formatMoney(t.t1)}<br><small>Level A</small></span></div>
-        <div class="axis-tick" style="left: ${t2Pct}%"><span>${formatMoney(t.t2)}<br><small>Level B</small></span></div>
-        <div class="axis-tick" style="left: ${t3Pct}%"><span>${formatMoney(t.t3)}<br><small>Level C</small></span></div>
+        <div class="axis-tick" style="left: ${t1Pct}%"><span>${formatMoney(t.t1)}<br><small>Level ${levelName(1)}</small></span></div>
+        <div class="axis-tick" style="left: ${t2Pct}%"><span>${formatMoney(t.t2)}<br><small>Level ${levelName(2)}</small></span></div>
+        <div class="axis-tick" style="left: ${t3Pct}%"><span>${formatMoney(t.t3)}<br><small>Level ${levelName(3)}</small></span></div>
       </div>
     </div>
   `;
@@ -3019,7 +3151,7 @@ function showResult(cdi, level, t, opts) {
       kicker.textContent = 'Screening result';
       headline.textContent = "You're close. Please contact your county assessor";
       body.innerHTML = `
-        <p style="font-size: 17px;">Your estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is just above the Level C threshold (${formatMoney(t.t3)}) for ${state.county} County. Don't rule yourself out yet.</p>
+        <p style="font-size: 17px;">Your estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is just above the Level ${levelName(3)} threshold (${formatMoney(t.t3)}) for ${state.county} County. Don't rule yourself out yet.</p>
         ${buildIncomeBar(cdi, t, 'buffer')}
         <p>The official calculation applies whichever is larger: the new standard deduction of $7,500 per person, or your itemized costs. Itemized costs include Medicare premiums, prescriptions, in-home care, long-term care insurance, and up to $6,000 of long-term rental income from your residence. Your county assessor can walk through the full calculation with you and may find that you qualify after all.</p>
         <p style="font-weight: 600; color: var(--wsaca-green-deep); margin-top: 16px;">Please contact your county assessor's office to confirm your eligibility before assuming you don't qualify.</p>
@@ -3029,7 +3161,7 @@ function showResult(cdi, level, t, opts) {
       kicker.textContent = 'Screening result';
       headline.textContent = "You may not qualify under the 2027 thresholds";
       body.innerHTML = `
-        <p style="font-size: 17px;">Based on what you entered, your estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is above the Level C threshold (${formatMoney(t.t3)}) for ${state.county} County.</p>
+        <p style="font-size: 17px;">Based on what you entered, your estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is above the Level ${levelName(3)} threshold (${formatMoney(t.t3)}) for ${state.county} County.</p>
         <p>A few things worth checking before you rule it out:</p>
         <ul style="padding-left: 22px; margin: 8px 0 16px; line-height: 1.7;">
           <li>The guided calculator captures more allowable deductions than the quick estimate.</li>
@@ -3040,9 +3172,9 @@ function showResult(cdi, level, t, opts) {
     }
   } else {
     card.classList.add('qualifies');
-    const letter = { 1: 'A', 2: 'B', 3: 'C' }[level];
+    const letter = levelName(level);
     kicker.textContent = 'Screening result';
-    headline.textContent = `You may qualify at Level ${letter} (Threshold ${level})`;
+    headline.textContent = `You may qualify at ${levelLabel(level)}`;
 
     const benefits = getBenefits(level);
     body.innerHTML = `
@@ -3174,6 +3306,13 @@ function handleReset() {
   // Since reset returns to quick mode, the rental block should be visible.
   const rentalBlock = document.getElementById('rental-ded-block');
   if (rentalBlock) rentalBlock.classList.remove('hidden');
+
+  // Clear the deduction comparison note so it doesn't carry stale text into a fresh screening.
+  const dedCompare = document.getElementById('ded-compare');
+  if (dedCompare) {
+    dedCompare.className = 'ded-compare hidden';
+    dedCompare.innerHTML = '';
+  }
 
   // Reset itemized-lines panel if it was visible
   const itemizedBox = document.getElementById('itemized-lines');
@@ -3453,12 +3592,12 @@ function buildPrintView() {
       </div>
     `;
   } else if (level !== null) {
-    const letter = { 1: 'A', 2: 'B', 3: 'C' }[level];
+    const letter = levelName(level);
     const benefits = getBenefits(level);
     resultBlock = `
       <div class="print-result print-result-qualify">
         <div class="print-result-label">SCREENING RESULT</div>
-        <h2>May qualify at Level ${letter} (Threshold ${level})</h2>
+        <h2>May qualify at ${levelLabel(level)}</h2>
         <table class="print-stats">
           <tr>
             <td><div class="print-stat-label">Estimated combined disposable income</div><div class="print-stat-value">${formatMoney(cdi)}</div></td>
@@ -3478,7 +3617,7 @@ function buildPrintView() {
         <div class="print-result print-result-buffer">
           <div class="print-result-label">SCREENING RESULT</div>
           <h2>Close to qualifying. Please contact ${state.county} County Assessor</h2>
-          <p>Estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is just above the Level C threshold (${formatMoney(t.t3)}) for ${state.county} County. The official disposable income calculation includes deductions that may not be captured in this estimate. Please contact your county assessor's office to confirm eligibility.</p>
+          <p>Estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is just above the Level ${levelName(3)} threshold (${formatMoney(t.t3)}) for ${state.county} County. The official disposable income calculation includes deductions that may not be captured in this estimate. Please contact your county assessor's office to confirm eligibility.</p>
         </div>
       `;
     } else {
@@ -3486,7 +3625,7 @@ function buildPrintView() {
         <div class="print-result print-result-deny">
           <div class="print-result-label">SCREENING RESULT</div>
           <h2>May not qualify under the 2027 thresholds</h2>
-          <p>Estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is above the Level C threshold (${formatMoney(t.t3)}) for ${state.county} County. The guided calculator may capture additional deductions; contact your county assessor to discuss.</p>
+          <p>Estimated combined disposable income of <strong>${formatMoney(cdi)}</strong> is above the Level ${levelName(3)} threshold (${formatMoney(t.t3)}) for ${state.county} County. The guided calculator may capture additional deductions; contact your county assessor to discuss.</p>
         </div>
       `;
     }
@@ -3685,9 +3824,9 @@ function buildPrintView() {
           <thead><tr><th>Level</th><th>2026 (current)</th><th>2027 (new law)</th></tr></thead>
           <tbody>
             ${t ? `
-            <tr><td>Level A (Threshold 1)</td><td>${formatMoney(THRESHOLDS_2026[state.county].t1)}</td><td><strong>${formatMoney(t.t1)}</strong></td></tr>
-            <tr><td>Level B (Threshold 2)</td><td>${formatMoney(THRESHOLDS_2026[state.county].t2)}</td><td><strong>${formatMoney(t.t2)}</strong></td></tr>
-            <tr><td>Level C (Threshold 3)</td><td>${formatMoney(THRESHOLDS_2026[state.county].t3)}</td><td><strong>${formatMoney(t.t3)}</strong></td></tr>
+            <tr><td>${levelLabel(1)}</td><td>${formatMoney(THRESHOLDS_2026[state.county].t1)}</td><td><strong>${formatMoney(t.t1)}</strong></td></tr>
+            <tr><td>${levelLabel(2)}</td><td>${formatMoney(THRESHOLDS_2026[state.county].t2)}</td><td><strong>${formatMoney(t.t2)}</strong></td></tr>
+            <tr><td>${levelLabel(3)}</td><td>${formatMoney(THRESHOLDS_2026[state.county].t3)}</td><td><strong>${formatMoney(t.t3)}</strong></td></tr>
             ` : ''}
           </tbody>
         </table>
@@ -3711,5 +3850,3 @@ init();
 </script>
 </body>
 </html>
-
-
