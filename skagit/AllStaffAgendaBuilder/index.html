@@ -675,13 +675,27 @@ $("std").addEventListener("change", function(){ state.std = $("std").checked; sa
 $("roster").addEventListener("input", function(){ state.roster = $("roster").value; if(syncAnniv(false)){ var ta = $("s_anniv"); ta.value = state.s.anniv; } save(); render(); });
 $("mission").addEventListener("input", function(){ state.mission = $("mission").value; save(); render(); });
 $("color").addEventListener("input", function(){ state.color = $("color").value; save(); render(); });
+/* The next agenda is built from the one on screen: its date sets the new date, and what usually continues is carried over. */
+function nextMeetingAfter(isoDate){
+  if(!isoDate) return thirdThursday(new Date());
+  var p = isoDate.split("-"), d = new Date(+p[0], +p[1], 1);            /* first day of the following month */
+  d.setDate(1 + ((4 - d.getDay() + 7) % 7) + 14); return d;             /* its third Thursday */
+}
 $("newMonth").addEventListener("click", function(){
-  var carried = state.s.upcoming || ""; state.prev = JSON.parse(JSON.stringify(state.s)); state.prev.anniv = ""; state.prev.recap = "";
+  var old = JSON.parse(JSON.stringify(state.s)), hadNext = state.next, kept = [];
   SECTIONS.forEach(function(s){ state.s[s.id] = ""; });
-  state.s.recap = carried; state.callout = {type:(state.callout || {}).type, text:"", by:""};
-  state.date = iso(thirdThursday(new Date())); state.next = ""; state.isExample = false;
+  if(old.upcoming){ state.s.recap = old.upcoming; kept.push("outreach coming up moved to recap"); }
+  if(old.hot){ state.s.hot = old.hot; kept.push("hot topics kept"); }
+  if(old.county){ state.s.county = old.county; kept.push("budget and county news kept"); }
+  state.prev = old; ["anniv","recap","upcoming","hot","county"].forEach(function(k){ state.prev[k] = ""; });
+  state.callout = {type:(state.callout || {}).type, text:"", by:""};
+  state.date = (hadNext && hadNext > (state.date || "")) ? hadNext : iso(nextMeetingAfter(state.date));
+  state.next = hadNext ? iso(nextMeetingAfter(state.date)) : "";
+  state.isExample = false;
   syncAnniv(true);
-  save(); fill(); render(); say("New month started. Last month\u2019s entries show as gray suggestions in each box."); $("s_guest").focus();
+  save(); fill(); render();
+  say("New agenda for " + fmtDate(state.date) + ". " + (kept.length ? kept.join(", ").replace(/^./, function(c){ return c.toUpperCase(); }) + ". " : "") + "Everything else from last month shows as gray suggestions.");
+  $("s_guest").focus();
 });
 $("logo").addEventListener("change", function(){
   var f = $("logo").files[0]; if(!f) return;
@@ -733,7 +747,7 @@ function backupText(){
 /* A file where files can be saved; otherwise the same text on the clipboard, to paste into another copy of the builder. */
 function doBackup(){
   var txt = backupText();
-  if(downloads || standalone){ saveFile("all-staff-agenda-backup_" + iso(new Date()) + ".json", txt, "Backup saved."); return; }
+  if(downloads || standalone){ saveFile((state.date || iso(new Date())) + "_all-staff-agenda-backup.json", txt, "Backup saved."); return; }
   try{
     navigator.clipboard.writeText(txt).then(function(){ say("Backup copied to your clipboard. In the other copy of the builder, open Backup and paste it into the paste box."); },
       function(){ say("The backup could not be saved or copied in this view."); });
